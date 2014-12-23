@@ -10,13 +10,13 @@ app_version="1.0.0"
 ################################################
 # Testing variables
 ################################################
-mga_version="cauldron"
+mga_version="4"
 arch="x86_64"
 urpmi_url="http://ftp.linux.org.tr/mageia/distrib"
 distrib_url="$urpmi_url/$mga_version/$arch"
 urpmi_options+=("--use-distrib $distrib_url")
-cachedir="/home/atilla/Mageia-Dev/RPMS/cache/cauldron/x86_64"
-chroot_directory="/home/atilla/DEPOM/magbuild/chroots"
+cachedir="/home/atilla/rpm/cache/4/x86_64"
+chroot_directory="/home/atilla/rpm/chroot-tarballs"
 use_cache="1"
 use_rpm_macros="1"
 ################################################
@@ -149,7 +149,7 @@ standalone_urpmi_install_in_chroot_creation () {
 # Helper function to chroot_urpmi_install function
 ####################################################################################################################################################
 msg "$(gettext "Starting to install base packages needed to create a build chroot environment")"
-sudo urpmi ${urpmi_options} --urpmi-root ${chrootdir} --auto --no-recommends --excludedocs --no-verify-rpm --nolock --ignoresize basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit 1 )
+sudo urpmi ${urpmi_options[@]} --urpmi-root ${chrootdir} --auto --excludedocs --no-verify-rpm --nolock --ignoresize basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit 1 )
 
 }
 
@@ -162,7 +162,7 @@ if [[ -n ${use_cache} && -d $cachedir ]];then
     run_command "sudo mkdir -p ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "Failed to create mandatory %s directory")" "$chrootdir/var/cache/urpmi/rpms" && standalone_urpmi_install_in_chroot_creation)
     run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "Failed to mount %s.")" "$cachedir" && ( run_command "umount $chrootdir/var/cache/urpmi/rpms" ||  error "$(gettext "Can not unmount cache directory from %s. Please do it manually.")" "$chrootdir/var/cache/urpmi/rpms") && exit 1 )
     msg "$(gettext "Starting to install base packages needed to create a build chroot environment")"
-    sudo urpmi ${urpmi_options} --urpmi-root ${chrootdir} --auto --no-recommends --noclean --excludedocs --no-verify-rpm --nolock --ignoresize basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "$log_file" && ( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" ||  error "$(gettext "Can not unmount cache directory from %s. Please do it manually.")" "${chrootdir}/var/cache/urpmi/rpms")  && exit 1 )
+    sudo urpmi ${urpmi_options[@]} --urpmi-root ${chrootdir} --auto --noclean --excludedocs --no-verify-rpm --nolock --ignoresize basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "$log_file" && ( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" ||  error "$(gettext "Can not unmount cache directory from %s. Please do it manually.")" "${chrootdir}/var/cache/urpmi/rpms")  && exit 1 )
 else 
     standalone_urpmi_install_in_chroot_creation
 fi
@@ -189,10 +189,9 @@ popd
 create_installed_rpms_list () {
 # Create a sorted list of installed rpm packages in chroot.
 ####################################################################################################################################################
-
 rpm_query_tags="%{NAME}:%{VERSION}:%{RELEASE}:%{SOURCERPM}\n"
 rpms_list="$chroot_directory/$tarball-rpms.lst"
-run_command "sudo rpm -r ${chrootdir} -qa --queryformat ${rpm_query_tags} | sort > ${rpms_list}" || error "$(gettext "Can not export installed rpms to %s.Will continue without creating it")" "$rpms_list"
+rpm -r ${chrootdir} -qa --queryformat ${rpm_query_tags} | sort > ${rpms_list} || error "$(gettext "Can not export installed rpms to %s.Will continue without creating it")" "$rpms_list"
 
 }
 ####################################################################################################################################################
@@ -301,6 +300,11 @@ run_command "mkdir -p $chrootdir" || ( error "$(gettext "'mkdir' command can not
 
 # Set tarball upload directory as global variable for generate_chroot and sub functions
 tarball="$chroot_directory/chroot-mageia-$mga_version-$arch"
+
+# Beginning with Mageia 5, urpmi's "--no-suggests" option is deprecated in favor of "--no-recommends".
+# The problem is urpmi < Mageia 5 does not understand new option and still uses "--no-suggests".
+# So, we should check that before package installing in chroot. (We will need this again when building packages)
+if [[ ${mga_version} != "cauldron" && ${mga_version} < 5 ]]; then urpmi_options+=("--no-suggests"); else urpmi_options+=("--no-recommends"); fi
 
 # Run sub functions now:
 chroot_urpmi_install
