@@ -237,8 +237,11 @@ if [[ -f "$tarball.tar.xz" ]]; then
     if [[ ! -d "${chroot_directory}/zeynep_backups" ]]; then
         run_command "mkdir -p ${chroot_directory}/zeynep_backups" || ( error "$(gettext "%s can not be created!")" "$chroot_directory/zeynep_backups" && overwrite_tarball )
     fi
-    mv -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date +'%F')-chroot-mageia-$mga_version-$arch.tar.xz || ( error "$(gettext "%s can not be moved to %s")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups" && overwrite_tarball )
-
+    if mv -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date +'%F')-chroot-mageia-$mga_version-$arch.tar.xz; then
+        create_tarball
+    else
+        error "$(gettext "%s can not be moved to %s")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups" && overwrite_tarball 
+    fi
 else
     create_tarball
 fi
