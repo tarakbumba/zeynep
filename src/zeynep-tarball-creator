@@ -268,7 +268,6 @@ trap_function_for_tarball () {
 # Function to use in traps in generating chroot phase.
 ####################################################################################################################################################
 
-msg "$(gettext "User aborted the operation. Cleaning up and exiting... ")"
 if mount | grep ${chrootdir}/var/cache/urpmi/rpms; then
     msg "$(gettext "Unmounting %s")" "${chrootdir}/var/cache/urpmi/rpms"
     run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit 1 )
@@ -290,7 +289,7 @@ tempdir="$(mktemp -dt zeynep-chroot-XXXX)"
 chrootdir="$tempdir/chroot"
 
 # Trap user terminates
-trap "trap_function_for_tarball; exit" SIGINT SIGTERM SIGHUP
+trap "msg "$(gettext "User aborted the operation. Cleaning up and exiting... ")"; trap_function_for_tarball; exit" SIGINT SIGTERM SIGHUP
 
 # Test if chroot directory is given; if not show error and exit
 test_chroot_dir
