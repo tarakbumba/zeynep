@@ -138,7 +138,7 @@ if [[ -n $use_rpm_macros ]]; then
     if [[ -f $HOME/.rpmmacros ]]; then
         run_command "sudo cp -f ${HOME}/.rpmmacros ${chrootdir}/etc/skel/" || error "$(gettext "Specified rpmmacros file can not be copied")"
     else
-        warn "$(gettext "Specified rpmmacros file can not be found. Will continue without rpmmacros installation")"
+        warning "$(gettext "Specified rpmmacros file can not be found. Will continue without rpmmacros installation")"
     fi
 fi
 }
@@ -189,8 +189,8 @@ popd
 create_installed_rpms_list () {
 # Create a sorted list of installed rpm packages in chroot.
 ####################################################################################################################################################
-rpm_query_tags="%{NAME}:%{VERSION}:%{RELEASE}:%{SOURCERPM}\n"
-rpms_list="$chroot_directory/$tarball-rpms.lst"
+rpm_query_tags="PACKAGE: %{NAME}-%{VERSION}-%{RELEASE} ::: PACKAGE SOURCERPM: %{SOURCERPM}\n"
+rpms_list="$tarball-rpms.lst"
 rpm -r ${chrootdir} -qa --queryformat ${rpm_query_tags} | sort > ${rpms_list} || error "$(gettext "Can not export installed rpms to %s.Will continue without creating it")" "$rpms_list"
 
 }
