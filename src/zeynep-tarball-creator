@@ -19,6 +19,7 @@ cachedir="/home/atilla/rpm/cache/4/x86_64"
 chroot_directory="/home/atilla/rpm/chroot-tarballs"
 use_cache="1"
 use_rpm_macros="1"
+noclean="1"
 ################################################
 
 
@@ -284,8 +285,12 @@ if mount | grep ${chrootdir}/var/cache/urpmi/rpms; then
     msg "$(gettext "Unmounting %s")" "${chrootdir}/var/cache/urpmi/rpms"
     run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit 1 )
 fi
-msg "$(gettext "Deleting %s")" "${chrootdir}"
-run_command "sudo rm -fr ${tempdir}" || ( error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}" && exit 1 )
+if [[ -z $noclean ]]; then
+    msg "$(gettext "Deleting %s")" "${chrootdir}"
+    run_command "sudo rm -fr ${tempdir}" || ( error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}" && exit 1 )
+else
+    msg "$(gettext "You prefer not to clean %s. It won't be deleted. Please remove it manually.")" "${chrootdir}"
+fi
 run_command "rm ${log_file}.pipe"
 exit $?
 
