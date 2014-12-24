@@ -55,7 +55,7 @@ exec &> ${log_file}.pipe
 
 ####################################################################################################################################################
 plain () {
-# Funtion to display localized plain messages
+# Function to display localized plain messages
 ####################################################################################################################################################
 	local mesg=$1; shift
 	printf "${BOLD}    ${mesg}${ALL_OFF}\n" "$@" >&2
@@ -63,10 +63,10 @@ plain () {
 
 ####################################################################################################################################################
 msg () {
-# Funtion to display localized and colorized information messages
+# Function to display localized and colorized information messages
 ####################################################################################################################################################
 	local mesg=$1; shift
-	printf "${GREEN}==>$(gettext "INFO :: ")${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+	printf "${GREEN}==> $(gettext "INFO :: ")${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
 }
 
 ####################################################################################################################################################
@@ -79,7 +79,7 @@ error2 () {
 
 ####################################################################################################################################################
 warning () {
-# Funtion to display localized and colorized warning messages
+# Function to display localized and colorized warning messages
 ####################################################################################################################################################
 	local mesg=$1; shift
 	printf "${YELLOW}==> $(gettext "WARNING :: ")${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
@@ -87,7 +87,7 @@ warning () {
 
 ####################################################################################################################################################
 error () {
-# Funtion to display localized and colorized error messages
+# Function to display localized and colorized error messages
 ####################################################################################################################################################
 	local mesg=$1; shift
 	printf "${RED}==> $(gettext "ERROR :: ")${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
@@ -246,7 +246,7 @@ if [[ -f "$tarball.tar.xz" ]]; then
     if [[ ! -d "${chroot_directory}/zeynep_backups" ]]; then
         run_command "mkdir -p ${chroot_directory}/zeynep_backups" || ( error "$(gettext "%s can not be created!")" "$chroot_directory/zeynep_backups" && overwrite_tarball )
     fi
-    if mvx -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date +'%F')-chroot-mageia-$mga_version-$arch.tar.xz; then
+    if mv -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date +'%F')-chroot-mageia-$mga_version-$arch.tar.xz; then
         create_tarball
     else
         error "$(gettext "%s can not be moved to %s")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups" && overwrite_tarball 
