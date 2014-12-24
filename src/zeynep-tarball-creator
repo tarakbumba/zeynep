@@ -13,7 +13,7 @@ app_version="1.0.0"
 mga_version="4"
 arch="x86_64"
 urpmi_url="http://ftp.linux.org.tr/mageia/distrib"
-distrib_url="$urpmi_url/$mga_version/$arch"
+distrib_url="$urpmi_url/${mga_version}/${arch}"
 urpmi_options+=("--use-distrib $distrib_url")
 cachedir="/home/atilla/rpm/cache/4/x86_64"
 chroot_directory="/home/atilla/rpm/chroot-tarballs"
@@ -126,7 +126,7 @@ if [[ -n "$tidy_rpms" ]]; then rpm-tidy -f --dir="$tidy_dir"; fi
 trap_function () {
 # Cleans up build directories
 ####################################################################################################################################################
-run_command "sudo umount $chrootdir/{dev/pts,dev,proc,sys,var/cache/urpmi/rpms}"
+run_command "sudo umount ${chrootdir}/{dev/pts,dev,proc,sys,var/cache/urpmi/rpms}"
 }
 
 #trap "control_c; exit" SIGINT SIGTERM SIGHUP
@@ -159,8 +159,8 @@ standalone_urpmi_install_in_chroot_creation () {
 # Main basesystem installation function into newly created chroot
 # Helper function to chroot_urpmi_install function
 ####################################################################################################################################################
-msg "$(gettext "Starting to install base packages needed to create a build chroot environment")"
-sudo urpmi ${urpmi_options[@]} --urpmi-root ${chrootdir} --auto --excludedocs --no-verify-rpm --nolock --ignoresize basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit 1 )
+msg "$(gettext "Starting to install base packages needed to create a build chroot environment: ")"
+( sudo urpmi ${urpmi_options[@]} --urpmi-root ${chrootdir} --auto --excludedocs --no-verify-rpm --nolock --ignoresize basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl && msg "$(gettext "Base packages installation was succesful. Starting to compressing operation")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit 1 )
 
 }
 
@@ -170,10 +170,10 @@ chroot_urpmi_install () {
 # Check if user wants to use cache option. If cache is not used run standalone_urpmi_install_in_chroot_function:
 ####################################################################################################################################################
 if [[ -n ${use_cache} && -d $cachedir ]];then
-    run_command "sudo mkdir -p ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "Failed to create mandatory %s directory")" "$chrootdir/var/cache/urpmi/rpms" && standalone_urpmi_install_in_chroot_creation)
-    run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "Failed to mount %s.")" "$cachedir" && ( run_command "umount $chrootdir/var/cache/urpmi/rpms" ||  error "$(gettext "Can not unmount cache directory from %s. Please do it manually.")" "$chrootdir/var/cache/urpmi/rpms") && exit 1 )
+    run_command "sudo mkdir -p ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "Failed to create mandatory %s directory")" "${chrootdir}/var/cache/urpmi/rpms" && standalone_urpmi_install_in_chroot_creation)
+    run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "Failed to mount %s.")" "$cachedir" && ( run_command "umount ${chrootdir}/var/cache/urpmi/rpms" ||  error "$(gettext "Can not unmount cache directory from %s. Please do it manually.")" "${chrootdir}/var/cache/urpmi/rpms") && exit 1 )
     msg "$(gettext "Starting to install base packages needed to create a build chroot environment")"
-    sudo urpmi ${urpmi_options[@]} --urpmi-root ${chrootdir} --auto --noclean --excludedocs --no-verify-rpm --nolock --ignoresize basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "$log_file" && ( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" ||  error "$(gettext "Can not unmount cache directory from %s. Please do it manually.")" "${chrootdir}/var/cache/urpmi/rpms")  && exit 1 )
+    ( sudo urpmi ${urpmi_options[@]} --urpmi-root ${chrootdir} --auto --noclean --excludedocs --no-verify-rpm --nolock --ignoresize basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl && msg "$(gettext "Base packages installation was succesful. Starting to compressing operation")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "$log_file" && ( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" ||  error "$(gettext "Can not unmount cache directory from %s. Please do it manually.")" "${chrootdir}/var/cache/urpmi/rpms")  && exit 1 )
 else 
     standalone_urpmi_install_in_chroot_creation
 fi
@@ -187,11 +187,12 @@ create_tarball () {
 ####################################################################################################################################################
 
 if mount | grep ${chrootdir}/var/cache/urpmi/rpms; then
-    msg "$(gettext "Unmounting %s and starting to compress chroot environment")" "${chrootdir}/var/cache/urpmi/rpms"
-    run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit 1 )
+    msg "$(gettext "Unmounting %s before starting to compress chroot environment")" "${chrootdir}/var/cache/urpmi/rpms"
+    ( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit 1 )
 fi
 run_command "pushd ${tempdir}"
-run_command "sudo tar cJf $tarball.tar.xz --exclude='*.rpm' chroot" || ( error "$(gettext "Unable to compress %s as %s . Please check %s for possible errors. Exiting...")" "$chrootdir" "$chroot_directory/chroot-$mga_version-$arch.tar.xz" "$log_file" && exit 1 )
+plain "$(gettext "Starting to create xz compressed tarball:")"
+( run_command "sudo tar cJf $tarball.tar.xz --exclude='*.rpm' chroot" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "Unable to compress %s as %s . Please check %s for possible errors. Exiting...")" "${chrootdir}" "${tarball}" "$log_file" && exit 1 )
 run_command "popd"
 
 }
@@ -213,6 +214,7 @@ new_name_tarball () {
 
 read -r -p "$(plain "$(gettext "Please enter a name for chroot-tarball without any extension: ")")" new_tarball_name
 if [[ -n ${new_tarball_name} ]]; then
+    msg "$(gettext "Your chroot-tarball name is now: %s")" "${new_tarball_name}.tar.xz"
     export tarball="$chroot_directory/$new_tarball_name"
 else
     error "$(gettext "You did not give a name for chroot-tarball! Zeynep could not create a blank named tarball. Exiting... ")" && exit 1
@@ -231,7 +233,7 @@ case $response in
                         create_tarball
                         ;;
     *)
-                        new_name_tarball || ( error "$(gettext "%s can not be created!. Exiting")" "$tarball" && exit 1)
+                        new_name_tarball || ( error "$(gettext "%s can not be created! Exiting...")" "$tarball" && exit 1)
                         create_tarball
                         ;;
 esac
@@ -248,7 +250,8 @@ if [[ -f "$tarball.tar.xz" ]]; then
     if [[ ! -d "${chroot_directory}/zeynep_backups" ]]; then
         run_command "mkdir -p ${chroot_directory}/zeynep_backups" || ( error "$(gettext "%s can not be created!")" "$chroot_directory/zeynep_backups" && overwrite_tarball )
     fi
-    if mv -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date +'%F')-chroot-mageia-$mga_version-$arch.tar.xz; then
+    if mv -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date '+%Y%m%d%H%M')-chroot-mageia-${mga_version}-${arch}.tar.xz; then
+        msg "$(gettext "Backup completed succesfully. %s is backed up as %s in %s directory")" "chroot-mageia-${mga_version}-${arch}.tar.xz" "$(date '+%Y%m%d%H%M')-chroot-mageia-${mga_version}-${arch}.tar.xz" "${chroot_directory}/zeynep_backups"
         create_tarball
     else
         error "$(gettext "%s can not be moved to %s")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups" && overwrite_tarball 
@@ -284,15 +287,16 @@ trap_function_for_tarball () {
 countdown_dots
 if mount | grep ${chrootdir}/var/cache/urpmi/rpms; then
     msg "$(gettext "Unmounting %s")" "${chrootdir}/var/cache/urpmi/rpms"
-    run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit 1 )
+    ( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit 1 )
 fi
 if [[ -z $noclean ]]; then
     msg "$(gettext "Deleting %s")" "${chrootdir}"
-    run_command "sudo rm -fr ${tempdir}" || ( error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}" && exit 1 )
+    ( run_command "sudo rm -fr ${tempdir}" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}" && exit 1 )
 else
-    msg "$(gettext "You prefer not to clean %s. It won't be deleted. Please remove it manually.")" "${chrootdir}"
+    msg "$(gettext "You prefer not to clean %s. It will not be deleted. Please remove it manually.")" "${chrootdir}"
 fi
 run_command "rm ${log_file}.pipe"
+msg "$(gettext "zeynep succesfully completed the chroot tarball creation operation. Now you can use it for package building")"
 exit $?
 
 }
@@ -309,14 +313,18 @@ chrootdir="$tempdir/chroot"
 # Trap user terminates
 trap 'msg "$(gettext "User aborted the operation. You can investigate %s logs. Cleaning up and exiting... ")" "${log_file}"; trap_function_for_tarball; exit' SIGINT SIGTERM SIGHUP
 
+# First messages to the user:
+msg "$(gettext "zeynep is starting to create chroot tarball for %s version of Mageia Linux distribution for %s architecture")" "${mga_version}" "${arch}"
+msg "$(gettext "You may need to type your "sudo" password several times during this operation unless you configure your "sudoers" file not to do so.")"
+
 # Test if chroot directory is given; if not show error and exit
 test_chroot_dir
 
 # Create chroot directory
-run_command "mkdir -p $chrootdir" || ( error "$(gettext "'mkdir' command can not create chroot directory at %s.")" "$TMPDIR" && exit 1 )
+run_command "mkdir -p ${chrootdir}" || ( error "$(gettext "'mkdir' command can not create chroot directory at %s.")" "$TMPDIR" && exit 1 )
 
 # Set tarball upload directory as global variable for generate_chroot and sub functions
-tarball="$chroot_directory/chroot-mageia-$mga_version-$arch"
+tarball="$chroot_directory/chroot-mageia-${mga_version}-${arch}"
 
 # Beginning with Mageia 5, urpmi's "--no-suggests" option is deprecated in favor of "--no-recommends".
 # The problem is urpmi < Mageia 5 does not understand new option and still uses "--no-suggests".
