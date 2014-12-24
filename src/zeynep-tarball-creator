@@ -190,9 +190,9 @@ if mount | grep ${chrootdir}/var/cache/urpmi/rpms; then
     msg "$(gettext "Unmounting %s and starting to compress chroot environment")" "${chrootdir}/var/cache/urpmi/rpms"
     run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit 1 )
 fi
-pushd ${tempdir}
+run_command "pushd ${tempdir}"
 run_command "sudo tar cJf $tarball.tar.xz --exclude='*.rpm' chroot" || ( error "$(gettext "Unable to compress %s as %s . Please check %s for possible errors. Exiting...")" "$chrootdir" "$chroot_directory/chroot-$mga_version-$arch.tar.xz" "$log_file" && exit 1 )
-popd
+run_command "popd"
 
 }
 
