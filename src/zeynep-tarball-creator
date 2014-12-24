@@ -292,7 +292,7 @@ tempdir="$(mktemp -dt zeynep-chroot-XXXX)"
 chrootdir="$tempdir/chroot"
 
 # Trap user terminates
-trap "msg "$(gettext "User aborted the operation. Cleaning up and exiting... ")"; trap_function_for_tarball; exit" SIGINT SIGTERM SIGHUP
+trap 'msg "$(gettext "User aborted the operation. Cleaning up and exiting... ")"; trap_function_for_tarball; exit' SIGINT SIGTERM SIGHUP
 
 # Test if chroot directory is given; if not show error and exit
 test_chroot_dir
