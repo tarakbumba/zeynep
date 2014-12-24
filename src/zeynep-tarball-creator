@@ -175,7 +175,7 @@ create_tarball () {
 # Created tarballs will be used for package building
 ####################################################################################################################################################
 
-if [[ -n ${use_cache} && -d $cachedir ]];then
+if mount | grep ${chrootdir}/var/cache/urpmi/rpms; then
     msg "$(gettext "Unmounting %s")" "${chrootdir}/var/cache/urpmi/rpms"
     run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit 1 )
 fi
@@ -237,7 +237,7 @@ if [[ -f "$tarball.tar.xz" ]]; then
     if [[ ! -d "${chroot_directory}/zeynep_backups" ]]; then
         run_command "mkdir -p ${chroot_directory}/zeynep_backups" || ( error "$(gettext "%s can not be created!")" "$chroot_directory/zeynep_backups" && overwrite_tarball )
     fi
-    if mv -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date +'%F')-chroot-mageia-$mga_version-$arch.tar.xz; then
+    if mvx -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date +'%F')-chroot-mageia-$mga_version-$arch.tar.xz; then
         create_tarball
     else
         error "$(gettext "%s can not be moved to %s")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups" && overwrite_tarball 
