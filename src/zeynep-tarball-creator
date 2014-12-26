@@ -246,7 +246,7 @@ test_tarballs () {
 ####################################################################################################################################################
 
 if [[ -f "$tarball.tar.xz" ]]; then
-    msg "$(gettext "Previously created %s tarball found. Zeynep will backup it. You can find it in %s directory")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups"
+    msg "$(gettext "Previously created %s tarball found. Zeynep will backup it.\nYou can find it in %s directory")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups"
     if [[ ! -d "${chroot_directory}/zeynep_backups" ]]; then
         run_command "mkdir -p ${chroot_directory}/zeynep_backups" || ( error "$(gettext "%s can not be created!")" "$chroot_directory/zeynep_backups" && overwrite_tarball )
     fi
@@ -307,8 +307,15 @@ generate_chroot () {
 # Create chroot environment and install basesystem + other required packages
 ####################################################################################################################################################
 
-tempdir="$(mktemp -dt zeynep-chroot-XXXX)"
-chrootdir="$tempdir/chroot"
+# Check if there is a user defined directory to create chrootdir, else use /tmp
+if [[ -n ${tempdir} ]]; then
+    warning "$(gettext "Creating a chroot environment in a directory other than /tmp is dangerous.\nThis process needs to run some commands as root, therefore your path for chroot environment may not be readable or writeable for your user account. You' ve been warned")"
+    chrootdir="$tempdir/chroot"
+else
+    tempdir="$(mktemp -dt zeynep-chroot-XXXX)"
+    chrootdir="$tempdir/chroot"
+fi
+
 
 # Trap user terminates
 trap 'msg "$(gettext "User aborted the operation. You can investigate %s logs. Cleaning up and exiting... ")" "${log_file}"; trap_function_for_tarball; exit' SIGINT SIGTERM SIGHUP
