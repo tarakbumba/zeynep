@@ -19,6 +19,7 @@ cachedir="/home/atilla/cache/4/x86_64"
 chroot_directory="/home/atilla/rpm/chroot-tarballs"
 use_cache="1"
 use_rpm_macros="1"
+
 ################################################
 
 
@@ -131,6 +132,15 @@ sed -i "s|^[[1m^[[32m||g" $log_file
 
 ####################################################################################################################################################
 
+unmount_necessary_dirs () {
+# Unmount necessary mountpoint in chroot:
+sudo umount -R ${chrootdir}/{dev/pts,dev,proc,sys}
+}
+
+exit_function () {
+msg "$(gettext "\nUnmounting system mountpoints from chroot environment before exiting")"
+( unmount_necessary_dirs && exit 1 ) || ( error "$(gettext "Zeynep can not unmount %s, %s, %s or %s. Please do it manually!!!")" "${chrootdir}/dev" " ${chrootdir}/proc" "${chrootdir}/sys" "${chrootdir}/dev/pts" && exit 1 )
+
 mount_necessary_dirs () {
 # Mount necessary mountpoint in chroot:
 sudo mount --bind /dev ${chrootdir}/dev
@@ -143,10 +153,6 @@ run_command "cp /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(get
 
 }
 
-unmount_necessary_dirs () {
-# Unmount necessary mountpoint in chroot:
-sudo umount -R ${chrootdir}/{dev/pts,dev,proc,sys}
-}
 
 run_in_chroot () {
 #Runs given commands in chroot
