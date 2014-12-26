@@ -133,10 +133,13 @@ sed -i "s|^[[1m^[[32m||g" $log_file
 
 mount_necessary_dirs () {
 # Mount necessary mountpoint in chroot:
-sudo mount -t proc proc ${chrootdir}/proc/
-sudo mount -R /sys ${chrootdir}/sys/
-sudo mount -R /dev ${chrootdir}/dev/
-sudo mount -R /dev/pts ${chrootdir}/dev/pts
+sudo mount --bind /dev ${chrootdir}/dev
+sudo mount -t proc proc ${chrootdir}/proc
+sudo mount --bind /sys ${chrootdir}/sys
+sudo mount --bind /dev/pts ${chrootdir}/dev/pts
+
+# It is not harmful to add resolv.conf copying to here (needed for internet connection)
+run_command "cp /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(gettext "Zeynep can not copy /etc/resolv.conf in chroot environment. Exiting...")" && exit 1 )
 
 }
 
@@ -161,7 +164,7 @@ create_chroot_user () {
 # Create user account and user home directory; then chown all files to user in chroot
 msg "$(gettext "Zeynep will try to setup %s user account and change ownership of all files in user HOME. Please wait a second...")" "${USER}"
 ( run_in_chroot "useradd ${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit 1 )
-( run_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit 1 ) 
+( run_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit 1 )
 
 }
 
@@ -177,7 +180,10 @@ else
     chrootdir="$tempdir/chroot"
 fi
 
-mount_necessary_dirs
+}
+#mount_necessary_dirs
+#create_chroot_user
+#unmount_necessary_dirs
 
 
 
