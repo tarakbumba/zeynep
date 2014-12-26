@@ -19,7 +19,7 @@ cachedir="/home/atilla/cache/4/x86_64"
 chroot_directory="/home/atilla/rpm/chroot-tarballs"
 use_cache="1"
 use_rpm_macros="1"
-
+chrootdir="/tmp/mag-chroot/chroot"
 ################################################
 
 
@@ -138,8 +138,11 @@ sudo umount -R ${chrootdir}/{dev/pts,dev,proc,sys}
 }
 
 exit_function () {
+exit_code=$1
 msg "$(gettext "\nUnmounting system mountpoints from chroot environment before exiting")"
-( unmount_necessary_dirs && exit 1 ) || ( error "$(gettext "Zeynep can not unmount %s, %s, %s or %s. Please do it manually!!!")" "${chrootdir}/dev" " ${chrootdir}/proc" "${chrootdir}/sys" "${chrootdir}/dev/pts" && exit 1 )
+( unmount_necessary_dirs && exit ${exit_code} ) || ( error "$(gettext "Zeynep can not unmount %s, %s, %s or %s. Please do it manually!!!")" "${chrootdir}/dev" " ${chrootdir}/proc" "${chrootdir}/sys" "${chrootdir}/dev/pts" && exit ${exit_code} )
+
+}
 
 mount_necessary_dirs () {
 # Mount necessary mountpoint in chroot:
@@ -149,7 +152,8 @@ sudo mount --bind /sys ${chrootdir}/sys
 sudo mount --bind /dev/pts ${chrootdir}/dev/pts
 
 # It is not harmful to add resolv.conf copying to here (needed for internet connection)
-run_command "cp /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(gettext "Zeynep can not copy /etc/resolv.conf in chroot environment. Exiting...")" && exit 1 )
+run_command "sudo cp -f /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(gettext "Zeynep can not copy /etc/resolv.conf in chroot environment. Exiting...")" &&  exit_function "1" )
+sleep 5
 
 }
 
@@ -163,14 +167,14 @@ run_in_chroot () {
 extract_tarball () {
 # Extract chroot tarball into chrootdir.
 
-run_command "tar Jxf ${tarball} -C ${chrootdir}" || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit 1 )
+run_command "tar Jxf ${tarball} -C ${chrootdir}" || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit_function )
 
 }
 create_chroot_user () {
 # Create user account and user home directory; then chown all files to user in chroot
 msg "$(gettext "Zeynep will try to setup %s user account and change ownership of all files in user HOME. Please wait a second...")" "${USER}"
-( run_in_chroot "useradd ${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit 1 )
-( run_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit 1 )
+( run_in_chroot "useradd ${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" &&  exit_function "1" )
+( run_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit_function "1" )
 
 }
 
@@ -187,7 +191,8 @@ else
 fi
 
 }
-#mount_necessary_dirs
+trap "exit_function '1'"  SIGINT SIGTERM SIGHUP
+mount_necessary_dirs
 #create_chroot_user
 #unmount_necessary_dirs
 
