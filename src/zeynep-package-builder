@@ -19,9 +19,12 @@ cachedir="/home/atilla/cache/4/x86_64"
 chroot_directory="/home/atilla/rpm/chroot-tarballs"
 use_cache="1"
 use_rpm_macros="1"
-chrootdir="/tmp/mag-chroot/chroot"
+#chrootdir="/tmp/mag-chroot/chroot"
+tempdir="/home/atilla/rpm/chroot-env"
 ################################################
 
+# Get the top level of this script (will be used in exit_function)
+export TOP_PID=$$
 
 ####################################################################################################################################################
 # Coloring our messages (Thanks to Arch Linux & pacman dev team)
@@ -104,6 +107,22 @@ run_command () {
 }
 
 ####################################################################################################################################################
+su_in_chroot () {
+#Runs given commands in chroot as root
+####################################################################################################################################################
+    local command=$1; shift
+    sudo /sbin/chroot ${chrootdir} su -c "${command}"  2>&1
+}
+
+####################################################################################################################################################
+run_in_chroot () {
+#Runs given commands in chroot as user
+####################################################################################################################################################
+    local command=$1; shift
+    sudo /sbin/chroot ${chrootdir} ${command}  2>&1
+}
+
+####################################################################################################################################################
 tidy_rpms () {
 # Global function to tidy downloaded rpms either in cache directory or rpm upload directory for future use
 ####################################################################################################################################################
@@ -111,16 +130,6 @@ tidy_dir=$1
 if [[ -n "$tidy_rpms" ]]; then rpm-tidy -f --dir="$tidy_dir"; fi
 
 }
-
-####################################################################################################################################################
-trap_function () {
-# Cleans up build directories
-####################################################################################################################################################
-run_command "sudo umount $chrootdir/{dev/pts,dev,proc,sys,var/cache/urpmi/rpms}"
-}
-
-#trap "control_c; exit" SIGINT SIGTERM SIGHUP
-
 
 ####################################################################################################################################################
 tidy_log_file () {
@@ -131,71 +140,144 @@ sed -i "s|^[[1m^[[32m||g" $log_file
 }
 
 ####################################################################################################################################################
+create_tempdir () {
+# Warn user for its dangers and if not found then ask user if he/she wants to create temp directory for chroot.
+####################################################################################################################################################
+warning "$(gettext "Creating a chroot environment in a directory other than %s is dangerous.\nThis process needs to run some commands as root, therefore your path for chroot environment may not be readable or writeable for your user account. You' ve been warned")" "${TMPDIR}"
 
-unmount_necessary_dirs () {
-# Unmount necessary mountpoint in chroot:
-sudo umount -R ${chrootdir}/{dev/pts,dev,proc,sys}
-}
+if [[ ! -d ${tempdir} ]]; then
+        msg "$(gettext "%s can not be found. Zeynep will create it!")" "${tempdir}"
+		run_command "mkdir -p ${chroot_directory}" ||  ( error "$(gettext "An error occured during chroot directory creation. Please check %s for possible errors.")" "$log_file" && exit 1 )
+fi
 
-exit_function () {
-exit_code=$1
-msg "$(gettext "\nUnmounting system mountpoints from chroot environment before exiting")"
-( unmount_necessary_dirs && exit ${exit_code} ) || ( error "$(gettext "Zeynep can not unmount %s, %s, %s or %s. Please do it manually!!!")" "${chrootdir}/dev" " ${chrootdir}/proc" "${chrootdir}/sys" "${chrootdir}/dev/pts" && exit ${exit_code} )
+read -r -p "$(plain "$(gettext "%s can not be found. Would you like to 'zeynep' create it?\n If you don't want to, then 'zeynep' will use %s directory")" "${tempdir}" "${TMP}" )" tempdir_response
+case $tempdir_response in
+    [yY][eE][sS]|[yY] ) 
+                        run_command "mkdir -p ${tempdir}" ||  ( error "$(gettext "An error occured during chroot directory creation. Please check %s for possible errors.")" "$log_file" && exit 1 )
+                        ;;
+    *)
+                        
+                        tempdir="$(mktemp -dt zeynep-chroot-XXXX)"
+                        ;;
+esac
 
-}
-
-mount_necessary_dirs () {
-# Mount necessary mountpoint in chroot:
-sudo mount --bind /dev ${chrootdir}/dev
-sudo mount -t proc proc ${chrootdir}/proc
-sudo mount --bind /sys ${chrootdir}/sys
-sudo mount --bind /dev/pts ${chrootdir}/dev/pts
-
-# It is not harmful to add resolv.conf copying to here (needed for internet connection)
-run_command "sudo cp -f /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(gettext "Zeynep can not copy /etc/resolv.conf in chroot environment. Exiting...")" &&  exit_function "1" )
-sleep 5
-
-}
-
-
-run_in_chroot () {
-#Runs given commands in chroot
-    local command=$1; shift
-    sudo /sbin/chroot ${chrootdir} su -c "${command}"  2>&1
-}
-
-extract_tarball () {
-# Extract chroot tarball into chrootdir.
-
-run_command "tar Jxf ${tarball} -C ${chrootdir}" || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit_function )
-
-}
-create_chroot_user () {
-# Create user account and user home directory; then chown all files to user in chroot
-msg "$(gettext "Zeynep will try to setup %s user account and change ownership of all files in user HOME. Please wait a second...")" "${USER}"
-( run_in_chroot "useradd ${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" &&  exit_function "1" )
-( run_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit_function "1" )
+chrootdir="${tempdir}/chroot"
 
 }
 
+####################################################################################################################################################
 setup_chroot () {
 # This function setups chroot into TEMPDIR using chroot-tarball.tar.xz
 # Check if there is a user defined directory to create chrootdir, else use /tmp
+####################################################################################################################################################
 
 if [[ -n ${tempdir} ]]; then
-    warning "$(gettext "Creating a chroot environment in a directory other than /tmp is dangerous.\nThis process needs to run some commands as root, therefore your path for chroot environment may not be readable or writeable for your user account. You' ve been warned")"
-    chrootdir="$tempdir/chroot"
+    create_tempdir    
 else
-    tempdir="$(mktemp -dt zeynep-chroot-XXXX)"
-    chrootdir="$tempdir/chroot"
+    tempdir="$(mktemp -dt zeynep-chroot-XXXXXX)"
+    chrootdir="${tempdir}/chroot"
+fi
+
+# Set tarball upload directory as global variable for generate_chroot and sub functions
+if [[ -n ${tarball} ]]; then
+    tarball="${tarball}"
+else
+    tarball="${chroot_directory}/chroot-mageia-${mga_version}-${arch}"
+fi
+}
+
+####################################################################################################################################################
+unmount_necessary_dirs () {
+# Check necessary mountpoints in chroot environment and if mounted, unmount them.
+####################################################################################################################################################
+if [[ -d ${chrootdir} ]]; then
+    mounted_points="proc dev/pts dev sys var/cache/urpmi/rpms"
+    
+    for mounted_dirs in ${mounted_points}; do
+        if mount | grep ${chrootdir}/${mounted_dirs}; then
+            if sudo umount -R ${chrootdir}/${mounted_dirs}; then
+                run_command "rm ${log_file}.pipe"
+            else
+                error "$(gettext "Zeynep can not unmount %s. Please do it manually!!!")" "${chrootdir}/${mounted_dirs}"
+            fi
+        fi
+    done
+fi
+run_command "rm ${log_file}.pipe"
+rm -rf ${tempdir}
+}
+
+####################################################################################################################################################
+exit_function () {
+# Special function for exits which tries to ensure unmounts.
+####################################################################################################################################################
+
+exit_code=$1
+msg "$(gettext "Unmounting system mountpoints from chroot environment before exiting")"
+unmount_necessary_dirs
+run_command "kill -s TERM ${TOP_PID}"
+
+}
+
+####################################################################################################################################################
+mount_necessary_dirs () {
+# Mount necessary mountpoint in chroot:
+####################################################################################################################################################
+
+# Trap user aborts
+#trap "exit_function '1'"  SIGINT SIGTERM SIGHUP
+
+if [[ -n ${use_cache} && -d ${cachedir} ]];then
+    run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms" || error2 "$(gettext "Failed to mount %s. Will continue without rpm cache usage.")" "$cachedir"
+fi
+# Mount and error in for loop:
+for mount_points in $(echo "dev/pts dev sys"); do
+    sudo mount --bind /${mount_points} ${chrootdir}/${mount_points} || ( error "$(gettext "Zeynep can not mount %s to %s. This is critical. Zeynep can not continue...")" "/${mount_points}" "${chrootdir}/${mount_points}" && exit_function "1" )
+done
+# Use special mount for proc
+sudo mount -t proc proc ${chrootdir}/proc || ( error "$(gettext "Zeynep can not mount %s .This is critical. Zeynep can not continue...")" "${mount_points}" && exit_function "1" )
+
+# It is not harmful to add resolv.conf copying to here (needed for internet connection)
+run_command "sudo cp -f /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(gettext "Zeynep can not copy /etc/resolv.conf in chroot environment. Exiting...")" &&  exit_function "1" )
+
+create_chroot_user
+
+}
+
+####################################################################################################################################################
+extract_tarball () {
+# Extract chroot tarball into chrootdir.
+####################################################################################################################################################
+if [[ -f ${tarball}.tar.xz ]]; then
+    if [[ -d ${tempdir} ]];then
+        run_command "tar Jxf ${tarball}.tar.xz -C ${tempdir}" || ( error "$(gettext "Zeynep can not extract %s tarball to %s. Exiting...")" "${tarball}.tar.xz" "${tempdir}" && exit_function "1" )
+        mount_necessary_dirs
+    else
+        ( error "$(gettext "A temporary directory to extract %s is mandatory, but none found. Exiting...")" "${tempdir}" && exit_function "1" )
+    fi
+else
+    ( error "$(gettext "Previously prepared chroot tarball is mandatory, but none found. Please create one via this script using '-g' switch. Exiting now...")" && exit_function "1" )
 fi
 
 }
-trap "exit_function '1'"  SIGINT SIGTERM SIGHUP
-mount_necessary_dirs
-#create_chroot_user
-#unmount_necessary_dirs
 
+####################################################################################################################################################
+create_chroot_user () {
+####################################################################################################################################################
+# Create user account and user home directory; then chown all files to user in chroot
+msg "$(gettext "Zeynep will try to setup '%s' user account and change ownership of all files in user HOME. Please wait a second...")" "${USER}"
+( su_in_chroot "useradd ${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" &&  exit_function "1" )
+( su_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Exiting...")" "${USER}" && exit_function "1" )
+
+}
+
+# Trap user aborts
+trap 'msg "$(gettext "Unmounting system mountpoints from chroot environment before exiting")"; unmount_necessary_dirs'  SIGINT SIGHUP
+
+# Main command chain:
+setup_chroot
+extract_tarball
+#unmount_necessary_dirs
 
 
 
