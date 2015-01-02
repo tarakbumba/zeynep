@@ -156,24 +156,6 @@ if [[ -n "$tidy_rpms" ]]; then rpm-tidy -f --dir="$tidy_dir"; fi
 }
 
 ####################################################################################################################################################
-trap_function () {
-# Cleans up build directories
-####################################################################################################################################################
-run_command "sudo umount ${chrootdir}/{dev/pts,dev,proc,sys,var/cache/urpmi/rpms}"
-}
-
-#trap "control_c; exit" SIGINT SIGTERM SIGHUP
-
-
-####################################################################################################################################################
-tidy_log_file () {
-# Helper function to clean up and tidy logfile:
-# Currently not working, see this as a placeholder
-####################################################################################################################################################
-sed -i "s|^[[1m^[[32m||g" ${log_file}
-}
-
-####################################################################################################################################################
 unclean_temp () {
 # Helper function for unmount_necessary_dirs function.
 # We should check that if user wanted to delete chrootdir or not.
