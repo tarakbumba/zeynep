@@ -7,26 +7,6 @@ export TEXTDOMAINDIR='@localedir@'
 app_name="Zeynep"
 app_version="1.0.0"
 
-################################################
-# Testing variables
-################################################
-mga_version="4"
-arch="x86_64"
-urpmi_url="http://ftp.linux.org.tr/mageia/distrib"
-distrib_url="$urpmi_url/${mga_version}/${arch}"
-urpmi_options+=("--use-distrib $distrib_url --auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
-cachedir="/home/atilla/rpm/cache/4/x86_64"
-chroot_directory="/home/atilla/rpm/chroot-tarballs"
-use_cache="1"
-use_rpm_macros="1"
-noclean="1"
-#chrootdir="/tmp/mag-chroot/chroot"
-#tempdir="/home/atilla/rpm/chroot-env"
-srpm="/home/atilla/rpm/smplayer-skins-20130605-1.mga4.src.rpm"
-################################################
-
-
-####################################################################################################################################################
 # Coloring our messages (Thanks to Arch Linux & pacman dev team)
 # check if messages are to be printed using color
 unset ALL_OFF BOLD BLUE GREEN RED YELLOW
@@ -57,6 +37,8 @@ export TOP_PID=$$
 # Log file creation.
 # I have tried infamous (exec > tee) stuff. Unfortunately i couldn't manage traps to work. This is the only working way that i' ve found:
 ####################################################################################################################################################
+# Make sure that we have only one log file:
+rm -f ${TMPDIR}/zeynep*.log 2>&1
 log_file="$(mktemp -t --suffix=".log" zeynep-builder.XXXXXXXXXX )"
 #mkfifo ${log_file}.pipe
 #sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK(]//g" | sed 's/\x1b(B//g' | tee < ${log_file}.pipe ${log_file} & 
@@ -112,6 +94,74 @@ error () {
 }
 
 ####################################################################################################################################################
+config_file () {
+# This function is created to check config files before proceeding:
+# Check configuration file. If doesn't exist warn user:
+# First control user defined, special configs for Releases (cauldron.conf, 4.conf, etc.) in user config dir:
+####################################################################################################################################################
+
+if [[ -f $XDG_CONFIG_HOME/aumer/zeynep-$mga_version.conf ]];then
+    source $XDG_CONFIG_HOME/aumer/zeynep-$mga_version.conf
+elif [ -f /etc/zeynep.conf ];then    
+    source /etc/zeynep.conf
+else
+# none exists. Then warn user:
+    msg "$(gettext "No configuration file detected.")"
+fi
+
+sign_rpms=${sign_rpms:=$use_rpm_sign}
+local_build=${local_build:=$user_local_build}
+genhdlist=${genhdlist:=$user_generate_hdlists}
+cachedir=${cachedir:=$user_cache_directory}
+tempdir=${tempdir:=$user_tempdir}
+uploaddir=${uploaddir:=$user_upload_directory}
+tarball_dir=${tarball_dir:=$user_tarball_directory}
+noclean=${noclean:=$user_no_clean}
+tidy_cache=${tidy_cache:=$user_tidy_rpm_cache}
+tidy_upload_rpms_dir=${tidy_upload_rpms_dir:=$user_tidy_uploaded_rpms}
+MGAARCH=${MGAARCH:=$user_arch}
+use_cache=${use_cache:=$use_rpm_cache}
+distrib_array+=("${user_distrib_url}")
+media_array+=("${user_media_url}")
+no_ignore_media_array+=("${user_no_ignore_media}")
+
+}
+####################################################################################################################################################
+usage () {
+# Display brief usage.
+####################################################################################################################################################
+echo ""
+plain "$(gettext "  Zeynep - version %s\n")" "${app_version}"
+echo "***************************************************************"
+plain "$(gettext "  A rpm build utility with lots of features in clean chroot environment for Mageia GNU/Linux Distribution\n")"
+echo "***************************************************************"
+plain "$(gettext "Usage: zeynep [-g][options] [arguments] [-s] [srpm]\n")"
+plain "$(gettext " -m        - Mageia version which rpms build for. Default: Cauldron")"
+plain "$(gettext " -g        - Generate a chroot tarball which is used for building rpm")"
+plain "$(gettext " -s        - Exact path/name of the srpm file. E.g. /home/user/foo-1.0-1.mga4.src.rpm")"
+plain "$(gettext " -D        - Temporary directory for chroot environment. Can be used with '-g' option. Default: %s")" "${TMPDIR}"
+plain "$(gettext " -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST")"
+plain "$(gettext " -c        - RPM cache directory which will be used for save time/bandwith. Default: Disabled")"
+plain "$(gettext " -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/mageia/4/media/i586'. Default: Disabled")"
+plain "$(gettext " -n        - Do not ignore specified medias in quote marks. E.g "%s"). Default: Disabled")" "Nonfree Tainted Backports"
+plain "$(gettext " -U        - Additional urpmi options to be used either in tarball creation or package building.")"
+plain "$(gettext " -u        - Upload directory for created rpm packages. Default: Use path which srpm resides")"
+plain "$(gettext " -a        - Architecture of Mageia version. This could be i586 on a 32 machine or i586, x86-64 or both of them for a 64bit machine. Default: Current machine arch")"
+plain "$(gettext " -t        - Path of where chroot tarballs are/should reside. This option is mandatory.")"
+plain "$(gettext " -C        - Use 'rpm-tidy' utility to clean older rpms in cache directory. Default: Disabled")"
+plain "$(gettext " -T        - Use 'rpm-tidy' utility to clean older rpms in rpm upload directory. Default: Disabled")"
+plain "$(gettext " -N        - Do not clean chroot environment upon exit. Default: Disabled")"
+plain "$(gettext " -l        - Upload compiled rpms into srpm's directory. Default: Disabled unless you did not use '-u' option")"
+plain "$(gettext " -S        - Sign rpm packages via rpm-sign utility. Default: Disabled")"
+plain "$(gettext " -G        - Generate hdlists for compiled rpms upon exit. Default: Disabled")"
+plain "$(gettext " -v        - Be verbose. Default: Disabled")"
+plain "$(gettext " -V        - Be very verbose. Default: Disabled")"
+plain "$(gettext " -h        - Display this help")"
+plain "$(gettext "\nZeynep have to use previously created chroot environment to build packages.\nTherefore it provides a chroot tarball creation function via its '-g' switch.\nZeynep also can read most of these options from a local (~/.config/zeynep/zeynep-[mageia version].conf)\nconfigure file or from global (/etc/zeynep.conf) file.\nConfiguration file supplied with zeynep is quite self-explainatory.\nPlease see that file.")"
+
+}
+
+####################################################################################################################################################
 run_command () {
 # Runs bash command and sends all output to /dev/null
 # It may be bad but i prefer hide them.
@@ -133,7 +183,7 @@ run_in_chroot () {
 #Runs given commands in chroot as user
 ####################################################################################################################################################
     local command=$1; shift
-    sudo /sbin/chroot ${chrootdir} ${command}  2>&1
+    sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}"  2>&1
 }
 
 ####################################################################################################################################################
@@ -145,13 +195,20 @@ for i in `seq 1 5`; do
     echo -n "."
 done
 echo -e " \n"
+
 }
+
 ####################################################################################################################################################
 tidy_rpms () {
 # Global function to tidy downloaded rpms either in cache directory or rpm upload directory for future use
 ####################################################################################################################################################
-tidy_dir=$1
-if [[ -n "$tidy_rpms" ]]; then rpm-tidy -f --dir="$tidy_dir"; fi
+if [ -n "${tidy_cache}" ] && [ -e ${cachedir} ]; then
+    run_command "rpm-tidy -f --dir="${cachedir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory. Please check %s for possible errors. Exiting...")" "${cachedir}" "${log_file}"
+fi
+
+if [ -n "${tidy_upload_rpms_dir}" ] && [ -e ${uploaddir} ]; then
+    run_command "rpm-tidy -f --dir="${uploaddir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory. Please check %s for possible errors. Exiting...")" "${uploaddir}" "${log_file}"
+fi
 
 }
 
@@ -161,11 +218,15 @@ unclean_temp () {
 # We should check that if user wanted to delete chrootdir or not.
 ####################################################################################################################################################
 
-if [[ -z $noclean ]]; then
-    msg "$(gettext "Deleting %s")" "${chrootdir}"
-    ( run_command "sudo rm -fr ${tempdir}" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}" && exit_function )
+if [[ -z ${noclean} ]]; then
+    if mount | grep ${chrootdir}; then
+        msg "$(gettext "%s won't be deleted. Please remove it manually.")" "${chrootdir}"
+    else
+        msg "$(gettext "Deleting %s")" "${chrootdir}"
+        ( run_command "sudo rm -fr ${tempdir}" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}" )
+    fi
 else
-    msg "$(gettext "You prefer not to clean %s. It will not be deleted. Please remove it manually.")" "${chrootdir}"
+    msg "$(gettext "%s won't be deleted. Please remove it manually.")" "${chrootdir}"
 fi
 
 }
@@ -178,19 +239,14 @@ unmount_necessary_dirs () {
 msg "$(gettext "Unmounting system mountpoints from chroot environment before exiting")"
 
 if [[ -d ${chrootdir} ]]; then
-    mounted_points="proc dev/pts dev sys var/cache/urpmi/rpms"
+    mounted_points="proc dev dev/pts sys var/cache/urpmi/rpms"
         
     for mounted_dirs in ${mounted_points}; do
         if mount | grep ${chrootdir}/${mounted_dirs}; then
-            if sudo umount -R ${chrootdir}/${mounted_dirs}; then
-                unclean_temp
-                run_command "rm ${log_file}.pipe"
-            else
-                error "$(gettext "Zeynep can not unmount %s. Please do it manually. See %s for possible errors")" "${chrootdir}/${mounted_dirs}" "${log_file}"
-#                run_command "rm ${log_file}.pipe"
-            fi
+           sudo umount -R ${chrootdir}/${mounted_dirs} || error "$(gettext "Zeynep can not unmount %s. Please do it manually. See %s for possible errors")" "${chrootdir}/${mounted_dirs}" "${log_file}"
         fi
     done
+    unclean_temp
 fi
 
 }
@@ -206,11 +262,82 @@ run_command "kill -s TERM ${TOP_PID} && exit 1"
 }
 
 ####################################################################################################################################################
+create_tempdir () {
+# Warn user for its dangers and if not found then ask user if he/she wants to create temp directory for chroot.
+####################################################################################################################################################
+warning "$(gettext "Creating a chroot environment in a directory other than %s is dangerous.\nThis process needs to run some commands as root, therefore your path for chroot environment may not be readable or writeable for your user account. You' ve been warned")" "${TMPDIR}"
+
+if [[ ! -d ${tempdir} ]]; then
+    read -r -p "$(plain "$(gettext "%s can not be found. Would you like to 'zeynep' create it?\n If you don't want to, then 'zeynep' will use %s directory: [y/N]")" "${tempdir}" "${TMP}" )" tempdir_response
+    case $tempdir_response in
+        [yY][eE][sS]|[yY] ) 
+                        run_command "mkdir -p ${tempdir}" ||  ( error "$(gettext "An error occured during chroot directory creation. Please check %s for possible errors.")" "${log_file}" && exit_function )
+                        ;;
+        *)
+                        
+                        tempdir="$(mktemp -dt zeynep-chroot-XXXX)"
+                        ;;
+    esac
+
+fi
+
+chrootdir="${tempdir}/chroot"
+
+}
+
+####################################################################################################################################################
+set_chroot_dirs () {
+# This function setups chroot into TEMPDIR using chroot-tarball.tar.xz
+# Check if there is a user defined directory to create chrootdir, else use /tmp
+####################################################################################################################################################
+
+if [[ -n ${tempdir} ]]; then
+    create_tempdir
+else
+    tempdir="$(mktemp -dt zeynep-chroot-XXXXXX)"
+    chrootdir="${tempdir}/chroot"
+fi
+
+# Set tarball directory as global variable for other functions
+if [[ -n ${tarball} ]]; then
+    tarball="${tarball}"
+else
+    tarball="${tarball_dir}/chroot-mageia-${mga_version}-${arch}"
+fi
+
+}
+
+####################################################################################################################################################
+test_tarball_dir ()  {
+# Test if chroot tarball directory is given; if not show error and exit
+####################################################################################################################################################
+
+# If user did not specified tarball_dir which is mandatory then display error message and exit.
+if [[ -z ${tarball_dir} ]]; then
+    error "$(gettext "You tried to create a chroot tarball but did not provide a path where tarball(s) will created in. Please check %s for possible errors. Exiting...")" "${log_file}"
+    exit_function
+else
+# If generate tarball option is used and tarball_dir can not found create tarball dir (For chroot tarball generating)
+	if [[ -n ${generate_tarball} ]] && [[ ! -d ${tarball_dir} ]]; then
+		msg "$(gettext "%s can not be found. Zeynep will create it!")" "${tarball_dir}"
+		run_command "mkdir -p ${tarball_dir}" ||  ( error "$(gettext "An error occured during chroot directory creation. Please check %s for possible errors.")" "${log_file}" && exit_function )
+	fi
+	
+# If generate_tarball option is not used then we are building rpm packages. Test if tarball_dir is there; if not display error message and exit
+	if [[ -z ${generate_tarball} ]] && [[ ! -d ${tarball_dir} ]]; then
+	    error "$(gettext "%s can not be found or not a valid path! Please supply a valid path which includes chroot tarballs. Exiting...")" "${tarball_dir}"
+	    exit_function
+	fi	    
+fi
+
+}
+
+####################################################################################################################################################
 cache_option () {
 # Checks if cache option is used and if used, mount cache dir and also add --noclean option for urpmi
 ####################################################################################################################################################
 
-if [[ -n ${cachedir} && -d ${cachedir} ]];then
+if [[ -n ${use_cache} && -d ${cachedir} ]];then
     if run_command "sudo mkdir -p ${chrootdir}/var/cache/urpmi/rpms";then
         if run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms"; then
             urpmi_options+=("--noclean")
@@ -221,6 +348,89 @@ if [[ -n ${cachedir} && -d ${cachedir} ]];then
         error2 "$(gettext "Failed to create mandatory %s directory for rpm cache usage. Zeynep will continue without cache enabled.")" "${chrootdir}/var/cache/urpmi/rpms"
         
     fi
+fi
+
+}
+
+####################################################################################################################################################
+search_array () {
+# Function for increment medias.(Used in urpmi_media function)
+####################################################################################################################################################
+    index=0
+    while [ "$index" -lt "${#media_array[@]}" ]; do
+        if [ "${media_array[$index]}" = "$1" ]; then
+            echo $index
+            return
+        fi
+        let "index++"
+    done
+}
+
+####################################################################################################################################################
+default_distrib_url () {
+# Helper function for urpmi functions.
+# This is needed to ensure we use a valid remote "distrib" medium. Using MIRRORLIST.
+####################################################################################################################################################
+error2 "$(gettext "Zeynep needs a repo url to add as a urpmi medium. But none found. Will use 'MIRRORLIST' by default.")"
+run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --auto --distrib --mirrorlist \$MIRRORLIST" || ( error "$(gettext "Zeynep can not add default MIRRORLIST distrib source. Zeynep can not continue without a distrib urpmi medium. Please check %s for possible errors. Exiting...")" "${log_file}" && exit_function )
+
+}
+
+####################################################################################################################################################
+urpmi_addmedia () {
+# Add urpmi medias to get package lists and installation medium
+####################################################################################################################################################
+
+if [[ -n "${distrib_array[*]}" ]]; then
+    for distribs in ${distrib_array[*]}; do
+        run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --distrib ${distribs}/\$RELEASE/\$ARCH" || ( error "$(gettext "Zeynep can not add %s distrib source. Therefore will try the default distrib media source")" "${distribs}" && default_distrib_url )
+    done
+else 
+    default_distrib_url
+fi
+
+# And this is for urpmi medias:
+if [[ -n "${media_array[*]}" ]]; then
+    for media_ in ${media_array[@]}; do
+        index=$(search_array $media_)
+        plain "$(gettext "Adding %s as %s urpmi media")" "${media_}" "media${index}"
+        if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} media${index} ${media_}"; then
+            plain "$(gettext "DONE!")"
+        else 
+            read -r -p "$(error "$(gettext "Zeynep can not add %s as %s urpmi media. Will continue without this media source. Do you want to proceed? [y/N]")" "${media_}" "media${index}" )" media_add_response
+            case $media_add_response in
+                [yY][eE][sS]|[yY] ) 
+                        echo
+                        ;;
+                *)
+                        
+                        exit_function
+                        ;;
+            esac
+        fi       
+    done
+fi
+
+# We should also think of Nonfree and Tainted medias; give an option to the user for enabling them:
+if [[ -n "${no_ignore_media_array[*]}" ]]; then
+    IFS=""
+    for non_ignored in ${no_ignore_media_array[*]}; do
+        msg "$(gettext "Enabling %s media as urpmi source in chroot environment")" "${non_ignored}"
+        if run_command "sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore ${non_ignored} && sudo urpmi.update --urpmi-root ${chrootdir} -a"; then
+            plain "$(gettext "DONE!")"
+        else 
+            read -r -p "$(error2 "$(gettext "Zeynep can not enable %s media. Will continue without this media enabled. Do you want to proceed? [y/N]")" "${non_ignored}" )" media_response
+            case $media_response in
+                [yY][eE][sS]|[yY] ) 
+                        echo
+                        ;;
+                *)
+                        
+                        exit_function
+                        ;;
+            esac
+        fi
+    done
 fi
 
 }
@@ -270,18 +480,11 @@ cache_option
 
 # Main urpmi install
 msg "$(gettext "Starting to install base packages needed to create a build chroot environment: ")"
-( sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options[@]} basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl && msg "$(gettext "Base packages installation was succesful. Starting to compressing operation")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit_function )
-
-#if [[ -n ${use_cache} && -d $cachedir ]];then
-#    if 
-#        run_command "sudo mkdir -p ${chrootdir}/var/cache/urpmi/rpms"
-#( error "$(gettext "Failed to create mandatory %s directory")" "${chrootdir}/var/cache/urpmi/rpms")
-#    run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms" || ( error "$(gettext "Failed to mount %s.")" "$cachedir" && exit_function )
-#    msg "$(gettext "Starting to install base packages needed to create a build chroot environment")"
-#    ( sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options[@]} basesystem-minimal locales locales-en rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl && msg "$(gettext "Base packages installation was succesful. Starting to compressing operation")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit_function )
-#else 
-#    standalone_urpmi_install_in_chroot_creation
-#fi
+local packages="basesystem-minimal locales rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl"
+# Default urpmi options. Should be stay as is.
+urpmi_options+=("--auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
+urpmi_options_array="${urpmi_options[@]}"
+( run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${packages}" && msg "$(gettext "Base packages installation was succesful. Starting to compressing operation")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit_function )
 
 }
 
@@ -321,7 +524,7 @@ new_name_tarball () {
 read -r -p "$(plain "$(gettext "Please enter a name for chroot-tarball without any extension: ")")" new_tarball_name
 if [[ -n ${new_tarball_name} ]]; then
     msg "$(gettext "Your chroot-tarball name is now: %s")" "${new_tarball_name}.tar.xz"
-    export tarball="$chroot_directory/$new_tarball_name"
+    export tarball="$tarball_dir/$new_tarball_name"
 else
     error "$(gettext "You did not give a name for chroot-tarball! Zeynep could not create a blank named tarball. Exiting... ")" && exit_function
 fi
@@ -352,84 +555,18 @@ test_tarballs () {
 ####################################################################################################################################################
 
 if [[ -f "$tarball.tar.xz" ]]; then
-    msg "$(gettext "Previously created %s tarball found. Zeynep will backup it.\nYou can find it in %s directory")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups"
-    if [[ ! -d "${chroot_directory}/zeynep_backups" ]]; then
-        run_command "mkdir -p ${chroot_directory}/zeynep_backups" || ( error "$(gettext "%s can not be created!")" "$chroot_directory/zeynep_backups" && overwrite_tarball )
+    msg "$(gettext "Previously created %s tarball found. Zeynep will backup it.\nYou can find it in %s directory")" "$tarball.tar.xz" "${tarball_dir}/zeynep_backups"
+    if [[ ! -d "${tarball_dir}/zeynep_backups" ]]; then
+        run_command "mkdir -p ${tarball_dir}/zeynep_backups" || ( error "$(gettext "%s can not be created!")" "$tarball_dir/zeynep_backups" && overwrite_tarball )
     fi
-    if mv -f $tarball.tar.xz ${chroot_directory}/zeynep_backups/$(date '+%Y%m%d%H%M')-chroot-mageia-${mga_version}-${arch}.tar.xz; then
-        msg "$(gettext "Backup completed succesfully. %s is backed up as %s in %s directory")" "chroot-mageia-${mga_version}-${arch}.tar.xz" "$(date '+%Y%m%d%H%M')-chroot-mageia-${mga_version}-${arch}.tar.xz" "${chroot_directory}/zeynep_backups"
+    if mv -f $tarball.tar.xz ${tarball_dir}/zeynep_backups/$(date '+%Y%m%d%H%M')-chroot-mageia-${mga_version}-${arch}.tar.xz; then
+        msg "$(gettext "Backup completed succesfully. %s is backed up as %s in %s directory")" "chroot-mageia-${mga_version}-${arch}.tar.xz" "$(date '+%Y%m%d%H%M')-chroot-mageia-${mga_version}-${arch}.tar.xz" "${tarball_dir}/zeynep_backups"
         create_tarball
     else
-        error "$(gettext "%s can not be moved to %s")" "$tarball.tar.xz" "${chroot_directory}/zeynep_backups" && overwrite_tarball 
+        error "$(gettext "%s can not be moved to %s")" "$tarball.tar.xz" "${tarball_dir}/zeynep_backups" && overwrite_tarball 
     fi
 else
     create_tarball
-fi
-
-}
-
-####################################################################################################################################################
-test_chroot_dir ()  {
-# Test if chroot directory is given; if not show error and exit
-####################################################################################################################################################
-
-if [[ -z ${chroot_directory} ]]; then
-    error "$(gettext "You tried to create a chroot tarball but did not provide a path where tarball(s) will created in. 
-Please check %s for possible errors. Exiting...")" "${log_file}"
-    exit_function
-else
-	if [[ ! -d $chroot_directory ]]; then
-		msg "$(gettext "%s can not be found. Zeynep will create it!")" "$chroot_directory"
-		run_command "mkdir -p $chroot_directory" ||  ( error "$(gettext "An error occured during chroot directory creation. Please check %s for possible errors.")" "${log_file}" && exit_function )
-	fi
-fi
-
-}
-
-####################################################################################################################################################
-create_tempdir () {
-# Warn user for its dangers and if not found then ask user if he/she wants to create temp directory for chroot.
-####################################################################################################################################################
-warning "$(gettext "Creating a chroot environment in a directory other than %s is dangerous.\nThis process needs to run some commands as root, therefore your path for chroot environment may not be readable or writeable for your user account. You' ve been warned")" "${TMPDIR}"
-
-if [[ ! -d ${tempdir} ]]; then
-        msg "$(gettext "%s can not be found. Zeynep will create it!")" "${tempdir}"
-		run_command "mkdir -p ${chroot_directory}" ||  ( error "$(gettext "An error occured during chroot directory creation. Please check %s for possible errors.")" "${log_file}" && exit_function )
-fi
-
-read -r -p "$(plain "$(gettext "%s can not be found. Would you like to 'zeynep' create it?\n If you don't want to, then 'zeynep' will use %s directory: [y/N]")" "${tempdir}" "${TMP}" )" tempdir_response
-case $tempdir_response in
-    [yY][eE][sS]|[yY] ) 
-                        run_command "mkdir -p ${tempdir}" ||  ( error "$(gettext "An error occured during chroot directory creation. Please check %s for possible errors.")" "${log_file}" && exit_function )
-                        ;;
-    *)
-                        
-                        tempdir="$(mktemp -dt zeynep-chroot-XXXX)"
-                        ;;
-esac
-
-chrootdir="${tempdir}/chroot"
-
-}
-
-####################################################################################################################################################
-set_chroot_dirs () {
-# This function setups chroot into TEMPDIR using chroot-tarball.tar.xz
-# Check if there is a user defined directory to create chrootdir, else use /tmp
-####################################################################################################################################################
-
-if [[ -n ${tempdir} ]]; then
-    create_tempdir    
-else
-    tempdir="$(mktemp -dt zeynep-chroot-XXXXXX)"
-    chrootdir="${tempdir}/chroot"
-fi
-
-# Set tarball upload directory as global variable for generate_chroot and sub functions
-if [[ -n ${tarball} ]]; then
-    tarball="${tarball}"
-else
-    tarball="${chroot_directory}/chroot-mageia-${mga_version}-${arch}"
 fi
 
 }
@@ -451,21 +588,22 @@ msg "$(gettext "You may need to type your "sudo" password several times during t
 set_chroot_dirs
 
 # Test if chroot directory is given; if not show error and exit
-test_chroot_dir
+test_tarball_dir
 
 # Create chroot directory
 run_command "mkdir -p ${chrootdir}" || ( error "$(gettext "'mkdir' command can not create chroot directory at %s. See %s for possible errors. Exiting...")" "$TMPDIR" "${log_file}" && exit_function )
 
-# Set tarball upload directory as global variable for generate_chroot and sub functions
-tarball="$chroot_directory/chroot-mageia-${mga_version}-${arch}"
+## Set tarball upload directory as global variable for generate_chroot and sub functions
+#tarball="${tarball_dir}/chroot-mageia-${mga_version}-${arch}"
 
 ## Run sub functions now:
+urpmi_addmedia
 chroot_urpmi_install
 control_rpmmacros
 create_installed_rpms_list
 test_tarballs
-#tidy_rpms "$cachedir"
 ## We should clean our mess :)
+tidy_rpms
 unmount_necessary_dirs
 
 }
@@ -490,38 +628,59 @@ unmount_necessary_dirs
 
 ####################################################################################################################################################
 ####################################################################################################################################################
+
 ####################################################################################################################################################
-create_chroot_user () {
+check_srpm () {
+# Checks if given file is an srpm, else shows error and exits
 ####################################################################################################################################################
-# Create user account and user home directory; then chown all files to user in chroot
-msg "$(gettext "Zeynep will try to setup '%s' user account and change ownership of all files in user HOME. Please wait a second...")" "${USER}"
-( su_in_chroot "useradd ${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors. Exiting...")" "${USER}" "${log_file}" &&  exit_function )
-( su_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors.")" "${USER}" "${log_file}" && exit_function )
+
+if [[ -n ${given_srpm} ]]; then
+    if [ ${given_srpm: -8} == ".src.rpm" ]; then
+        srpm="${given_srpm}"
+    else
+        error "$(gettext "Given %s file is not an srpm. Please supply a valid srpm and try again. Exiting...")" "${given_srpm}" && exit 1
+    fi
+else
+    [[ -n ${generate_tarball} ]] || ( error "$(gettext "You must supply a srpm file to build rpm packages using zeynep but none given. Exiting...")" && exit 1 )
+fi
 
 }
 
+####################################################################################################################################################
+package_or_chroot () {
+# Determine if we create chroot tarball or build rpm packages.
+####################################################################################################################################################
+if [[ -z ${generate_tarball} ]]; then build_in_chroot; else generate_chroot; fi
+
+}
 
 ####################################################################################################################################################
-mount_necessary_dirs () {
-# Mount necessary mountpoint in chroot:
+check_system_arch () {
+# We should check if system is 64 bit capable.
+# We should not try to build a 64 bit package/chroot on a 32 bit
+# system, should we ? :-)
 ####################################################################################################################################################
 
-# Check if user wants to use rpm cache:
-cache_option
-
-# Mount and error in for loop:
-for mount_points in $(echo "dev/pts dev sys"); do
-    run_command "sudo mount --bind /${mount_points} ${chrootdir}/${mount_points}" || ( error "$(gettext "Zeynep can not mount %s to %s. This is critical.  Please check %s for possible errors. Zeynep can not continue...")" "/${mount_points}" "${chrootdir}/${mount_points}" "${log_file}" && exit_function )
-done
-
-# Use special mount for proc
-sudo mount -t proc proc ${chrootdir}/proc || ( error "$(gettext "Zeynep can not mount %s .This is critical. Zeynep can not continue...")" "${mount_points}" && exit_function )
-
-# It is not harmful to add resolv.conf copying to here (needed for internet connection)
-run_command "sudo cp -f /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(gettext "Zeynep can not copy /etc/resolv.conf in chroot environment. Please check %s for possible errors.Exiting...")" "${log_file}" &&  exit_function )
-
-# Now we can create our user account and $HOME directory.
-create_chroot_user
+if [[ -n ${MGAARCH} ]]; then
+    if [[ $(arch) != "x86_64" ]] && [[ "${MGAARCH}" == "x86_64" || ${MGAARCH} == "both" ]]; then
+        error2 "$(gettext "You have set build arch as 64bit on a 32 bit machine which is impossible! Zeynep will create packages/chroot for 32bit architecture...")"
+        export arch="i586" && package_or_chroot
+    elif [[ -n ${srpm} ]] && [[ $(rpm -qp --queryformat %{MGAARCH} ${srpm}) == "noarch" ]]; then
+        msg "$(gettext "The rpm package ise a 'noarch' package.")"
+        export arch="i586" && package_or_chroot
+    elif [ $(arch) == "x86_64" ] && [ ${MGAARCH} == "x86_64" ] || [ ${MGAARCH} == "i586" ]; then
+            export arch="${MGAARCH}" && package_or_chroot
+    elif [ $(arch) != "x86_64" ] && [ ${MGAARCH} == "i586" ]; then
+            export arch="i586" && package_or_chroot 
+    elif [ ${MGAARCH} == "both" ]; then
+         unset arch
+         export arch="i586" && package_or_chroot
+         export arch="x86_64" && package_or_chroot
+    fi
+else
+    warning "$(gettext "You have specified an invalid/null argument for system architecture. Zeynep will build packages/tarballs for your system's main architecture")"
+    if [ $(arch) != "x86_64" ]; then export arch="i586" && package_or_chroot; else export arch="x86_64" && package_or_chroot; fi
+fi
 
 }
 
@@ -529,6 +688,7 @@ create_chroot_user
 extract_tarball () {
 # Extract chroot tarball into chrootdir.
 ####################################################################################################################################################
+
 if [[ -f ${tarball}.tar.xz ]]; then
     if [[ -d ${tempdir} ]]; then
         msg "$(gettext "Extracting %s to chroot directory. This may take a few minutes. Please wait...")"
@@ -543,102 +703,37 @@ fi
 
 }
 
-
-
 ####################################################################################################################################################
-search_array () {
-# Function for increment medias.(Used in urpmi_media function)
+create_chroot_user () {
 ####################################################################################################################################################
-    index=0
-    while [ "$index" -lt "${#media_array[@]}" ]; do
-        if [ "${media_array[$index]}" = "$1" ]; then
-            echo $index
-            return
-        fi
-        let "index++"
-    done
-}
-
-####################################################################################################################################################
-default_distrib_url () {
-# Helper function for urpmi functions.
-# This is needed to ensure we use a valid remote "distrib" medium. Using MIRRORLIST.
-####################################################################################################################################################
-
-urpmi.addmedia --urpmi-root ${chrootdir} --distrib --mirrorlist '$MIRRORLIST' || ( error "$(gettext "Zeynep can not add default MIRRORLIST distrib source. Zeynep can not continue without a distrib urpmi medium. Please check %s for possible errors. Exiting...")" "${log_file}" && exit_function )
-
-####################################################################################################################################################
-urpmi_addmedia () {
-# Add urpmi medias to get package lists and installation medium
-####################################################################################################################################################
-
-
-# Can be disabled with --no-default-medium option:
-if [[ ! -n $no_default_medium ]] || [[ "$no_default_medium" != "1" ]]; then
-    default_distrib_url
-fi
-
-if [[ -n $distrib_url  && -n $no_default_medium ]]; then
-    for distribs in ${distrib_array[*]}; do
-        run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --distrib ${distribs}/$RELEASE/$ARCH" || ( error "$(gettext "Zeynep can not add %s distrib source. Therefore will try the default distrib media source")" "${distribs}" && default_distrib_url )
-    done
-fi
-
-# And this is for urpmi medias:
-if [[ -n "${media_array}" ]]; then
-    for media_ in ${media_array[@]}; do
-        index=$(search_array $media_)
-        plain "$(gettext "Adding %s as %s urpmi media")" "${media_}" "media${index}"
-        if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} media${index} ${media_}"; then
-            plain "$(gettext "DONE!")"
-        else 
-            read -r -p "$(error "$(gettext "Zeynep can not add %s as %s urpmi media. Will continue without this media source. Do you want to proceed? [y/N]")" "${media_}" "media${index}" )" media_add_response
-            case $media_add_response in
-                [yY][eE][sS]|[yY] ) 
-                        echo
-                        ;;
-                *)
-                        
-                        exit_function
-                        ;;
-            esac
-        fi       
-    done
-fi
-
-# We should also think of Nonfree and Tainted medias; give an option to the user for enabling them:
-if [[ -n "$no_ignore_media" ]]; then
-    IFS=""
-    for non_ignored in ${no_ignore_media_array[*]}; do
-        msg "$(gettext "Enabling %s media as urpmi source in chroot environment")" "${non_ignored}"
-        if run_command "sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore ${non_ignored} && sudo urpmi.update --urpmi-root ${chrootdir} -a"; then
-            plain "$(gettext "DONE!")"
-        else 
-            read -r -p "$(error2 "$(gettext "Zeynep can not enable %s media. Will continue without this media enabled. Do you want to proceed? [y/N]")" "${non_ignored}" )" media_response
-            case $media_response in
-                [yY][eE][sS]|[yY] ) 
-                        echo
-                        ;;
-                *)
-                        
-                        exit_function
-                        ;;
-            esac
-        fi
-    done
-fi
+# Create user account and user home directory; then chown all files to user in chroot
+msg "$(gettext "Zeynep will try to setup '%s' user account and change ownership of all files in user HOME. Please wait a second...")" "${USER}"
+( su_in_chroot "useradd ${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors. Exiting...")" "${USER}" "${log_file}" &&  exit_function )
+( su_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors.")" "${USER}" "${log_file}" && exit_function )
 
 }
 
 ####################################################################################################################################################
-copy_srpm () {
-# Copy srpm into the chroot dir.
+mount_necessary_dirs () {
+# Mount necessary mountpoint in chroot:
 ####################################################################################################################################################
-if
-    run_command "cp -f ${srpm} ${chrootdir}/home/${USER}/" || ( error "$(gettext "Zeynep can not copy %s source rpm to %s. Can not continue. Please check %s for possible errors. Exiting...")" "${srpm}" "${chrootdir}/home/${USER}/" "${log_file}" && exit_function )
-then
-    urpmi_addmedia
-fi
+
+# Check if user wants to use rpm cache:
+cache_option
+
+# Use special mount for proc
+sudo mount -t proc proc ${chrootdir}/proc || ( error "$(gettext "Zeynep can not mount %s .This is critical. Zeynep can not continue...")" "${mount_points}" && exit_function )
+
+# Mount and error in for loop:
+for mount_points in $(echo "dev dev/pts sys"); do
+    run_command "sudo mount --bind /${mount_points} ${chrootdir}/${mount_points}" || ( error "$(gettext "Zeynep can not mount %s to %s. This is critical.  Please check %s for possible errors. Zeynep can not continue...")" "/${mount_points}" "${chrootdir}/${mount_points}" "${log_file}" && exit_function )
+done
+
+# It is not harmful to add resolv.conf copying to here (needed for internet connection)
+run_command "sudo cp -f /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(gettext "Zeynep can not copy /etc/resolv.conf in chroot environment. Please check %s for possible errors.Exiting...")" "${log_file}" &&  exit_function )
+
+# Now we can create our user account and $HOME directory.
+create_chroot_user
 
 }
 
@@ -649,14 +744,165 @@ unpack_srpm () {
 # If all good rebuild it using rpmbuild -ba.
 ####################################################################################################################################################
 
+# We should extract srpm name from path:
+pure_srpm="$(basename $srpm)"
 # Rebuild rpm database in chroot environment
-if
+#if
     msg "$(gettext "Rebuilding RPM database. Please wait a few seconds...")"
     su_in_chroot "rpm --rebuilddb" || error "$(gettext "Zeynep failed to rebuild rpm database. Will try without this. But expect errors.")"
+#then
+## Unpack srpm
+#    msg "$(gettext "Unpacking srpm...")"
+#    run_in_chroot "rpm -ivh /home/${USER}/${pure_srpm}" || ( error "$(gettext "Zeynep failed to unpack %s srpm file. This was mandatory. Exiting...")" "${srpm}" && exit_function )
+#fi
+
+}
+
+####################################################################################################################################################
+copy_srpm () {
+# Copy srpm into the chroot dir.
+####################################################################################################################################################
+if
+    run_command "cp -f ${srpm} ${chrootdir}/home/${USER}/" || ( error "$(gettext "Zeynep can not copy %s source rpm to %s. Can not continue. Please check %s for possible errors. Exiting...")" "${srpm}" "${chrootdir}/home/${USER}/" "${log_file}" && exit_function )
 then
-# Unpack srpm
-    msg "$(gettext "Unpacking srpm...")"
-    run_in_chroot "rpm -ivh /home/${USER}/${srpm}" || ( error "$(gettext "Zeynep failed to unpack %s srpm file. This was mandatory. Exiting...")" "${srpm}" && exit_function )
+    unpack_srpm
+fi
+
+}
+
+
+
+
+
+####################################################################################################################################################
+install_deps () {
+#Installs build dependencies using "urpmi --buildrequires" command
+####################################################################################################################################################
+
+urpmi_options+=("--buildrequires --auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
+urpmi_options_array="${urpmi_options[@]}"
+run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${srpm}" || ( error "$(gettext "Zeynep can not install build dependencies for %s. Please check %s for possible errors. Exiting...")" "${srpm}" "${log_file}" && exit_function )
+
+}
+
+####################################################################################################################################################
+build_rpm () {
+#Builds rpm package using "rpmbuild" utility in chroot environment
+# Note that postbuild_staff variable and postbuild_functions function should be set in user/global configuration file
+####################################################################################################################################################
+pure_srpm="$(basename $srpm)"
+msg "$(gettext "Zeynep will try to create rpm packages using %s.")" "${srpm}"
+run_in_chroot "rpmbuild --rebuild  /home/${USER}/${pure_srpm}" || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm. Please check %s for possible errors. Exiting...")" "${srpm}" "${log_file}" && exit_function )
+
+
+if [[ -n "${postbuild_stuff}" ]]; then
+    postbuild_functions
+fi
+
+}
+
+####################################################################################################################################################
+upload_rpms () {
+# Copies rpm files to upload directory
+####################################################################################################################################################
+local rpmbuild_rpms_root="$(run_in_chroot "rpm --eval %_rpmdir")"
+local rpm_packages="$(find ${chrootdir}${rpmbuild_rpms_root} -name "*.rpm")"
+for package in ${rpm_packages}; do
+    if [ ${package: -8} == ".src.rpm" ]; then
+        msg "$(gettext "Found %s srpm package. Not copying in %s upload directory and deleting in chroot environment")" "${package}" "${uploaddir}"
+        run_command "rm -f ${package}"
+    else
+        if [ ${package: -4} == ".rpm" ]; then
+            ( run_command "cp -f ${package} ${uploaddir}/" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep failed to upload %s rpm package to %s. Please check %s for possible errors. Exiting...")" "${package}" "${uploaddir}" "${log_file}" && exit_function )
+        fi
+    fi
+done
+
+}
+
+####################################################################################################################################################
+local_rpm_build() {
+# Local rpm build function.
+# First detect srpm dirctory, then create relevant RPM directories for created rpms
+# Finally move created rpms into newly created directories
+#
+# These below can be written in one liner but for now we leave them to be self explainory
+####################################################################################################################################################
+
+local srpm_base="$(realpath ${srpm}|rev|cut -d "/" -f2-20 | rev)"
+uploaddir="${srpm_base}/RPMS/$arch"
+
+if [[ ! -d "${uploaddir}" ]]; then
+    run_command "mkdir -p "${uploaddir}""
+    
+fi
+
+}
+
+####################################################################################################################################################
+signing_rpms () {
+#Function for rpm signing:
+# Note that prebuild_staff variable and prebuild_functions function should be set in user/global configuration file
+####################################################################################################################################################
+
+# Logic is create a list of rpms in upload dir before building packages:
+find "${uploaddir}" -name "*.rpm" >> "${uploaddir}"/build_before_list
+
+# Build package(s):
+
+if [[ -n "${prebuild_stuff}" ]]; then
+   prebuild_functions
+fi
+
+install_deps
+build_rpm
+upload_rpms
+
+# Create a new list which also contains new rpm(s)
+find "${uploaddir}" -name "*.rpm" >> "${uploaddir}"/build_after_list
+
+# Go to upload dir and compare two lists with sort and uniq to find recently build rpms
+# then sign new rpms and delete the lists we've created before.
+pushd ${uploaddir}
+    local rpm_packages="$(cat build_before_list build_before_list build_after_list | sort | uniq -u)"
+    rpm --addsign $(echo "${rpm_packages//\'}")
+    rm -f *_list
+popd
+
+}
+
+####################################################################################################################################################
+package_building () {
+# Main package building function with extra stuff
+# Note that prebuild_staff variable and prebuild_functions function should be set in user/global configuration file
+####################################################################################################################################################
+
+if [[ -n ${local_build} ]];then
+    local_rpm_build
+else
+    if [[ -z "${uploaddir}" ]] || [[ ! -d "${uploaddir}" ]]; then
+	    error2 "$(gettext "You did not specified a valid path to upload built rpms. Zeynep will put built rpms into srpm root directory tree.")"
+	    local_rpm_build
+    fi
+fi
+
+if [[ -n ${sign_rpms} ]]; then 
+    signing_rpms
+else
+    if [[ -n "${prebuild_stuff}" ]]; then
+        prebuild_functions
+    fi
+    install_deps
+    build_rpm
+    upload_rpms
+fi
+
+# We should check if rpms are sorted out in cache/upload directory before generating hdlists
+tidy_rpms
+
+# This is generate hdlist block
+if [ -n "${genhdlist}" ]; then
+    run_command "genhdlist2 --clean --allow-empty-media --xml-info ${uploaddir}" || warning "$(gettext "Zeynep failed to create (synthesis) hdlist file in %s. Please check %s for possible errors. Exiting...")" "${uploaddir}" "${log_file}"
 fi
 
 }
@@ -666,15 +912,139 @@ build_in_chroot () {
 # Main function for creating build chroot environment and package building
 ####################################################################################################################################################
 # Trap user aborts
-trap 'msg "$(gettext "Unmounting system mountpoints from chroot environment before exiting")"; unmount_necessary_dirs'  SIGINT SIGHUP
+trap 'msg "$(gettext "User aborted the operation. You can investigate %s logs. Cleaning up and exiting... ")" "${log_file}"; exit_function' SIGINT SIGHUP
 set_chroot_dirs
 extract_tarball
+copy_srpm
+urpmi_addmedia
+package_building
 unmount_necessary_dirs
 }
 
-generate_chroot
 
+####################################################################################################################################################
+### Start getopts code ###
 
+#Parse command line flags
+#If an option should be followed by an argument, it should be followed by a ":".
+#Notice there is no ":" after "h". The leading ":" suppresses error messages from
+#getopts. This is required to get my unrecognized option code to work.
+####################################################################################################################################################
+#m: mageia-version @argument
+#g: generate chroot tarball @argument
+#D: use given directory as tempdir instead of $TMP @argument
+#d: distrib url @argument
+#c: use cache=cachedir @argument
+#M: media_url @argument
+#n: no ignore media=media names (Nonfree, Tainted, Backports) @argument
+#u: upload directory @argument
+#U: user defined urpmi options
+#t: chroot tarball= is in this directory @argument
+#a: architecture @argument
+#C: tidy-cache
+#T: tidy-rpms
+#N: no clean chrootdir
+#v: be verbose
+#V: be very verbose
+#l: use local directory instead of uploading rpms
+#S: sign compiled rpms via rpm-sign
+#G: generate hdlists via genhdlist2
+#h: help
+passed_options=0
+while getopts ":gCTNvVlSGhm:D:d:c:M:n:u:a:U:t:s:" OPTION ; do
+    passed_options=1
+	case ${OPTION} in
+		m)
+			mga_version="$OPTARG"
+			;;
+		g)
+			generate_tarball="1"
+			;;
+		D)
+			tempdir="$OPTARG"
+			;;
+		d)
+			distrib_url="$OPTARG"
+			distrib_array+=("$distrib_url")
+			;;
 
+		c)  
+			use_cache=1
+			cachedir="$OPTARG"
+			;;
+		M)
+			media_url="$OPTARG"
+			media_array+=("$media_url")
+			;;
+		n)
+			no_ignore_media="$OPTARG"
+			no_ignore_media_array+=("${no_ignore_media}")
+			;;
+		U)
+			script_urpmi_options="1"
+			urpmi_options+=("${OPTARG}")
+			;;
+		u) 
+			uploaddir="$OPTARG"
+			;;		
+		a)
+		    MGAARCH="$OPTARG"
+		    ;;
+		t)
+			tarball_dir="$OPTARG"
+			;;		    
+		s)
+		    given_srpm="${OPTARG}"
+		    ;;			
+		C)
+		    tidy_cache="1"
+		    ;;		
+		T)
+		    tidy_upload_rpms_dir="1"
+		    ;;		
+		N)
+		    noclean="1"
+		    ;;		
+		v)
+		    set -x
+		    ;;		
+		V)  
+		    set -xv
+		    ;;		    
+		l)
+		    local_build="1"
+		    ;;		    
+		S)
+		    sign_rpms="1"
+		    ;;		
+		G)
+		    genhdlist="1"
+		    ;;		    
+		h)
+		    usage && exit 0
+		    ;;		    
+		\? )
+		    error "$(gettext "Unrecognized option: %s ")" "'-${OPTARG}'" >&2
+		    exit 1
+		    ;;
+		:)
+		    error "$(gettext "Missing option argument for %s")" "-${OPTARG}" >&2
+		    exit 1
+		    ;;
+		*)
+		    error "$(gettext "Unrecognized option: %s. Did you try to set option without '-' prefixed?")" "'${OPTARG}'" >&2
+		    exit 1
+		    ;;
+	esac
+done
 
+shift $((OPTIND-1))
 
+if ((!passed_options)); then
+  error "$(gettext "Zeynep needs an option to run but none given. Displaying brief usage for available options:")"
+  usage && exit 1
+fi
+
+# Start with main functions:
+check_srpm
+check_system_arch
