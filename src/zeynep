@@ -203,11 +203,13 @@ tidy_rpms () {
 # Global function to tidy downloaded rpms either in cache directory or rpm upload directory for future use
 ####################################################################################################################################################
 if [ -n "${tidy_cache}" ] && [ -e ${cachedir} ]; then
-    run_command "rpm-tidy -f --dir="${cachedir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory. Please check %s for possible errors. Exiting...")" "${cachedir}" "${log_file}"
+# First we need to change ownership of rpms to the user:
+#    if run_command "sudo chown ${USER}:${USER} ${cachedir}/*.rpm"; then rpm_tidy="rpm-tidy"; else rpm_tidy="sudo rpm-tidy"; fi
+    run_command "sudo rpm-tidy -f --dir="${cachedir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory. Please check %s for possible errors. Exiting...")" "${cachedir}" "${log_file}"
 fi
 
 if [ -n "${tidy_upload_rpms_dir}" ] && [ -e ${uploaddir} ]; then
-    run_command "rpm-tidy -f --dir="${uploaddir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory. Please check %s for possible errors. Exiting...")" "${uploaddir}" "${log_file}"
+    run_command "sudo rpm-tidy  -f --dir="${uploaddir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory. Please check %s for possible errors. Exiting...")" "${uploaddir}" "${log_file}"
 fi
 
 }
@@ -223,7 +225,7 @@ if [[ -z ${noclean} ]]; then
         msg "$(gettext "%s won't be deleted. Please remove it manually.")" "${chrootdir}"
     else
         msg "$(gettext "Deleting %s")" "${chrootdir}"
-        ( run_command "sudo rm -fr ${tempdir}" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}" )
+        ( run_command "sudo rm -fr ${tempdir}" && msg "$(gettext "... DONE!")" ) || ( error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}" )
     fi
 else
     msg "$(gettext "%s won't be deleted. Please remove it manually.")" "${chrootdir}"
@@ -243,7 +245,7 @@ if [[ -d ${chrootdir} ]]; then
         
     for mounted_dirs in ${mounted_points}; do
         if mount | grep ${chrootdir}/${mounted_dirs}; then
-           sudo umount -R ${chrootdir}/${mounted_dirs} || error "$(gettext "Zeynep can not unmount %s. Please do it manually. See %s for possible errors")" "${chrootdir}/${mounted_dirs}" "${log_file}"
+           ( sudo umount -R ${chrootdir}/${mounted_dirs} && msg "$(gettext "%s is succesfully unmounted!")" "${chrootdir}/${mounted_dirs}" ) || error "$(gettext "Zeynep can not unmount %s. Please do it manually. See %s for possible errors")" "${chrootdir}/${mounted_dirs}" "${log_file}"
         fi
     done
     unclean_temp
@@ -340,13 +342,14 @@ cache_option () {
 if [[ -n ${use_cache} && -d ${cachedir} ]];then
     if run_command "sudo mkdir -p ${chrootdir}/var/cache/urpmi/rpms";then
         if run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms"; then
-            urpmi_options+=("--noclean")
+        # We need to return noclean urpmi option from this function to the script
+        # http://bash.cyberciti.biz/guide/Returning_from_a_function
+            return 0
         else
-            error2 "$(gettext "Failed to mount %s. Zeynep will continue without cache enabled.")" "${cachedir}"
+            error2 "$(gettext "Failed to mount %s. Zeynep will continue without cache enabled.")" "${cachedir}" && return 1
         fi
     else
-        error2 "$(gettext "Failed to create mandatory %s directory for rpm cache usage. Zeynep will continue without cache enabled.")" "${chrootdir}/var/cache/urpmi/rpms"
-        
+        error2 "$(gettext "Failed to create mandatory %s directory for rpm cache usage. Zeynep will continue without cache enabled.")" "${chrootdir}/var/cache/urpmi/rpms" && return 1
     fi
 fi
 
@@ -395,7 +398,7 @@ if [[ -n "${media_array[*]}" ]]; then
         index=$(search_array $media_)
         plain "$(gettext "Adding %s as %s urpmi media")" "${media_}" "media${index}"
         if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} media${index} ${media_}"; then
-            plain "$(gettext "DONE!")"
+            plain "$(gettext "... DONE!")"
         else 
             read -r -p "$(error "$(gettext "Zeynep can not add %s as %s urpmi media. Will continue without this media source. Do you want to proceed? [y/N]")" "${media_}" "media${index}" )" media_add_response
             case $media_add_response in
@@ -417,7 +420,7 @@ if [[ -n "${no_ignore_media_array[*]}" ]]; then
     for non_ignored in ${no_ignore_media_array[*]}; do
         msg "$(gettext "Enabling %s media as urpmi source in chroot environment")" "${non_ignored}"
         if run_command "sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore ${non_ignored} && sudo urpmi.update --urpmi-root ${chrootdir} -a"; then
-            plain "$(gettext "DONE!")"
+            plain "$(gettext "... DONE!")"
         else 
             read -r -p "$(error2 "$(gettext "Zeynep can not enable %s media. Will continue without this media enabled. Do you want to proceed? [y/N]")" "${non_ignored}" )" media_response
             case $media_response in
@@ -474,16 +477,22 @@ chroot_urpmi_install () {
 # Main package installation function in chroot
 # Check if user wants to use cache option. If cache is not used run standalone_urpmi_install_in_chroot_function:
 ####################################################################################################################################################
-# Check that cache option is used
 
-cache_option
+# Check that cache option is used
+if cache_option; then urpmi_options+=("--noclean"); fi
+
+# Add medias:
+urpmi_addmedia
 
 # Main urpmi install
 msg "$(gettext "Starting to install base packages needed to create a build chroot environment: ")"
 local packages="basesystem-minimal locales rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl"
+
 # Default urpmi options. Should be stay as is.
 urpmi_options+=("--auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
 urpmi_options_array="${urpmi_options[@]}"
+
+# Install packages
 ( run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${packages}" && msg "$(gettext "Base packages installation was succesful. Starting to compressing operation")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit_function )
 
 }
@@ -496,7 +505,7 @@ create_tarball () {
 
 if mount | grep ${chrootdir}/var/cache/urpmi/rpms; then
     msg "$(gettext "Unmounting %s before starting to compress chroot environment")" "${chrootdir}/var/cache/urpmi/rpms"
-    ( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit_function )
+    ( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" && msg "$(gettext "... DONE!")" ) || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit_function )
 fi
 run_command "pushd ${tempdir}"
 plain "$(gettext "Starting to create xz compressed tarball:")"
@@ -597,7 +606,6 @@ run_command "mkdir -p ${chrootdir}" || ( error "$(gettext "'mkdir' command can n
 #tarball="${tarball_dir}/chroot-mageia-${mga_version}-${arch}"
 
 ## Run sub functions now:
-urpmi_addmedia
 chroot_urpmi_install
 control_rpmmacros
 create_installed_rpms_list
@@ -704,9 +712,10 @@ fi
 create_chroot_user () {
 ####################################################################################################################################################
 # Create user account and user home directory; then chown all files to user in chroot
-msg "$(gettext "Zeynep will try to setup '%s' user account and change ownership of all files in user HOME. Please wait a second...")" "${USER}"
-( su_in_chroot "useradd ${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors. Exiting...")" "${USER}" "${log_file}" &&  exit_function )
-( su_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors.")" "${USER}" "${log_file}" && exit_function )
+msg "$(gettext "Zeynep will try to setup '%s' user account. Please wait a second...")" "${USER}"
+( su_in_chroot "useradd ${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors. Exiting...")" "${USER}" "${log_file}" &&  exit_function )
+msg "$(gettext "Zeynep will try to change ownership of all files as %s in user HOME directory. Please wait a second...")" "${USER}"
+( su_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors.")" "${USER}" "${log_file}" && exit_function )
 
 }
 
@@ -714,9 +723,6 @@ msg "$(gettext "Zeynep will try to setup '%s' user account and change ownership 
 mount_necessary_dirs () {
 # Mount necessary mountpoint in chroot:
 ####################################################################################################################################################
-
-# Check if user wants to use rpm cache:
-cache_option
 
 # Use special mount for proc
 sudo mount -t proc proc ${chrootdir}/proc || ( error "$(gettext "Zeynep can not mount %s .This is critical. Zeynep can not continue...")" "${mount_points}" && exit_function )
@@ -748,14 +754,17 @@ update_rpms () {
 # Rebuild rpm database and try to update the system in chroot
 ####################################################################################################################################################
 
+# Check if user wants to use rpm cache:
+if cache_option; then urpmi_options+=("--noclean"); fi
+
 # Rebuild rpm database in chroot environment
 msg "$(gettext "Rebuilding RPM database. Please wait a few seconds...")"
-su_in_chroot "rpm --rebuilddb" || error "$(gettext "Zeynep failed to rebuild rpm database. Will try without this. But expect errors.")"
+( su_in_chroot "rpm --rebuilddb" && msg "$(gettext "... DONE!")" ) || error "$(gettext "Zeynep failed to rebuild rpm database. Will try without this. But expect errors.")"
 
 # Update rpms in chroot (There would be updated packages after chroot tarball creation)
 msg "$(gettext "There may be updated packages after chroot tarball creation. Zeynep will try to update chroot system. Please wait a few seconds...")"
 if su_in_chroot "urpmi --auto --auto-update"; then
-    msg "$(gettext "DONE!")"
+    msg "$(gettext "... DONE!")"
 else
     read -r -p "$(plain "$(gettext "Zeynep failed to update rpms in chroot. Would you like to continue [Y/n] ")")" continue_action
     case $continue_action in
@@ -775,9 +784,14 @@ fi
 install_deps () {
 #Installs build dependencies using "urpmi --buildrequires" command
 ####################################################################################################################################################
+# try to update the system in chroot:
+update_rpms
 
+# Define urpmi options
 urpmi_options+=("--buildrequires --auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
 urpmi_options_array="${urpmi_options[@]}"
+
+# Install build deps:
 run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${srpm}" || ( error "$(gettext "Zeynep can not install build dependencies for %s. Please check %s for possible errors. Exiting...")" "${srpm}" "${log_file}" && exit_function )
 
 }
@@ -810,7 +824,7 @@ for package in ${rpm_packages}; do
         run_command "rm -f ${package}"
     else
         if [ ${package: -4} == ".rpm" ]; then
-            ( run_command "cp -f ${package} ${uploaddir}/" && msg "$(gettext "DONE!")" ) || ( error "$(gettext "Zeynep failed to upload %s rpm package to %s. Please check %s for possible errors. Exiting...")" "${package}" "${uploaddir}" "${log_file}" && exit_function )
+            ( run_command "cp -f ${package} ${uploaddir}/" && msg "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep failed to upload %s rpm package to %s. Please check %s for possible errors. Exiting...")" "${package}" "${uploaddir}" "${log_file}" && exit_function )
         fi
     fi
 done
@@ -851,7 +865,6 @@ if [[ -n "${prebuild_stuff}" ]]; then
    prebuild_functions
 fi
 
-update_rpms
 install_deps
 build_rpm
 upload_rpms
@@ -890,7 +903,6 @@ else
     if [[ -n "${prebuild_stuff}" ]]; then
         prebuild_functions
     fi
-    update_rpms
     install_deps
     build_rpm
     upload_rpms
