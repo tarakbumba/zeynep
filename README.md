@@ -22,9 +22,9 @@ So, zeynep born.
 Overview
 ------------
 As you may see, zeynep is not ready for production. I intend to create three bash scripts:
-- zeynep-tarball-creator : Chroot environment generator and archiver (DONE)
-- zeynep-package-builder : Package builder and does other things that i think (NOT DONE)
-- zeynep : Master of the Universe. :) One bash script that combines above two.
+- zeynep-tarball-creator : Chroot environment generator and archiver (Merged in zeynep script)
+- zeynep-package-builder : Package builder and does other things that i think (Merged in zeynep script)
+- zeynep : Master of the Universe. :) One bash script that combines above two. (DONE)
 
 Usage
 ------------
@@ -70,6 +70,10 @@ Examples:
 Authors:
 -------------
 Atilla ÖNTAŞ <tarakbumba at gmail dot com >
+
+Bugs:
+-------------
+Please report any bugs you've found to https://github.com/tarakbumba/zeynep/issues/new
 
 
 
