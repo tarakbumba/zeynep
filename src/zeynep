@@ -665,17 +665,14 @@ if [[ -n ${MGAARCH} ]]; then
     if [[ $(arch) != "x86_64" ]] && [[ "${MGAARCH}" == "x86_64" || ${MGAARCH} == "both" ]]; then
         error2 "$(gettext "You have set build arch as 64bit on a 32 bit machine which is impossible! Zeynep will create packages/chroot for 32bit architecture...")"
         export arch="i586" && package_or_chroot
-    elif [[ -n ${srpm} ]] && [[ $(rpm -qp --queryformat %{MGAARCH} ${srpm}) == "noarch" ]]; then
-        msg "$(gettext "The rpm package ise a 'noarch' package.")"
-        export arch="i586" && package_or_chroot
     elif [ $(arch) == "x86_64" ] && [ ${MGAARCH} == "x86_64" ] || [ ${MGAARCH} == "i586" ]; then
-            export arch="${MGAARCH}" && package_or_chroot
+        export arch="${MGAARCH}" && package_or_chroot
     elif [ $(arch) != "x86_64" ] && [ ${MGAARCH} == "i586" ]; then
-            export arch="i586" && package_or_chroot 
+        export arch="i586" && package_or_chroot 
     elif [ ${MGAARCH} == "both" ]; then
-         unset arch
-         export arch="i586" && package_or_chroot
-         export arch="x86_64" && package_or_chroot
+        unset arch
+        export arch="i586" && package_or_chroot
+        export arch="x86_64" && package_or_chroot
     fi
 else
     warning "$(gettext "You have specified an invalid/null argument for system architecture. Zeynep will build packages/tarballs for your system's main architecture")"
@@ -738,41 +735,41 @@ create_chroot_user
 }
 
 ####################################################################################################################################################
-unpack_srpm () {
-# First, rebuild rpm database. I don't know if this is necessary but AUM makes this.
-# Second, unpack srpm into $chrootdir/home/$USER with rpm command. Then install build dependencies using "urpmi --buildrequires"
-# If all good rebuild it using rpmbuild -ba.
-####################################################################################################################################################
-
-# We should extract srpm name from path:
-pure_srpm="$(basename $srpm)"
-# Rebuild rpm database in chroot environment
-#if
-    msg "$(gettext "Rebuilding RPM database. Please wait a few seconds...")"
-    su_in_chroot "rpm --rebuilddb" || error "$(gettext "Zeynep failed to rebuild rpm database. Will try without this. But expect errors.")"
-#then
-## Unpack srpm
-#    msg "$(gettext "Unpacking srpm...")"
-#    run_in_chroot "rpm -ivh /home/${USER}/${pure_srpm}" || ( error "$(gettext "Zeynep failed to unpack %s srpm file. This was mandatory. Exiting...")" "${srpm}" && exit_function )
-#fi
-
-}
-
-####################################################################################################################################################
 copy_srpm () {
 # Copy srpm into the chroot dir.
 ####################################################################################################################################################
-if
-    run_command "cp -f ${srpm} ${chrootdir}/home/${USER}/" || ( error "$(gettext "Zeynep can not copy %s source rpm to %s. Can not continue. Please check %s for possible errors. Exiting...")" "${srpm}" "${chrootdir}/home/${USER}/" "${log_file}" && exit_function )
-then
-    unpack_srpm
-fi
+
+run_command "cp -f ${srpm} ${chrootdir}/home/${USER}/" || ( error "$(gettext "Zeynep can not copy %s source rpm to %s. Can not continue. Please check %s for possible errors. Exiting...")" "${srpm}" "${chrootdir}/home/${USER}/" "${log_file}" && exit_function )
 
 }
 
+####################################################################################################################################################
+update_rpms () {
+# Rebuild rpm database and try to update the system in chroot
+####################################################################################################################################################
 
+# Rebuild rpm database in chroot environment
+msg "$(gettext "Rebuilding RPM database. Please wait a few seconds...")"
+su_in_chroot "rpm --rebuilddb" || error "$(gettext "Zeynep failed to rebuild rpm database. Will try without this. But expect errors.")"
 
+# Update rpms in chroot (There would be updated packages after chroot tarball creation)
+msg "$(gettext "There may be updated packages after chroot tarball creation. Zeynep will try to update chroot system. Please wait a few seconds...")"
+if su_in_chroot "urpmi --auto --auto-update"; then
+    msg "$(gettext "DONE!")"
+else
+    read -r -p "$(plain "$(gettext "Zeynep failed to update rpms in chroot. Would you like to continue [Y/n] ")")" continue_action
+    case $continue_action in
+    [yY][eE][sS]|[yY] ) 
+                        msg "$(gettext "Zeynep will continue without updated system in chroot")"
+                        ;;
+    *)
+                        msg "$(gettext "User choose to not contiune without an updated chroot system. Exiting...")"
+                        exit_function
+                        ;;
+    esac
+fi
 
+}
 
 ####################################################################################################################################################
 install_deps () {
@@ -854,6 +851,7 @@ if [[ -n "${prebuild_stuff}" ]]; then
    prebuild_functions
 fi
 
+update_rpms
 install_deps
 build_rpm
 upload_rpms
@@ -892,6 +890,7 @@ else
     if [[ -n "${prebuild_stuff}" ]]; then
         prebuild_functions
     fi
+    update_rpms
     install_deps
     build_rpm
     upload_rpms
@@ -914,6 +913,7 @@ build_in_chroot () {
 # Trap user aborts
 trap 'msg "$(gettext "User aborted the operation. You can investigate %s logs. Cleaning up and exiting... ")" "${log_file}"; exit_function' SIGINT SIGHUP
 set_chroot_dirs
+msg "$(gettext "You may need to type your "sudo" password several times during this operation unless you configure your "sudoers" file in /etc not to do so.")"
 extract_tarball
 copy_srpm
 urpmi_addmedia
