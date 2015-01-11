@@ -1,0 +1,209 @@
+#! /usr/bin/env bash
+# Configuration file for zeynep
+#
+#############################################################
+#
+#
+# If you want to use options below, please uncomment that option and give appropriate argument.
+#
+#
+#
+
+# Type which URL should be used with urpmi.addmedia --distrib
+#
+#user_distrib_url=
+
+# Type which local directory should be used  with urpmi.addmedia --distrib
+#
+#config_distrib_url=$HOME/Mageia-Dev/RPMS/distrib
+
+# Medias which will not be ignored (useful for Nonfree and Tainted builds):
+#
+#user_no_ignore_media="Nonfree Release Nonfree Updates"
+
+# Type which directory should compiled rpms be uploaded:
+#
+#user_upload_directory=
+
+# To save bandwith and time, you can specify a directory of previously downloaded rpms
+# This directory will be used as urpmi cache.
+#
+#use_rpm_cache="1" # Yes, i want to use rpm cache
+#user_cache_directory="$HOME/Mageia-Dev/RPMS/cache"
+
+# Type here path of your previously created chroot-tarballs
+#
+user_chroot_directory="$HOME/Mageia-Dev/RPMS"
+
+# Type here a valid path for where chroot-tarballs will be created in by genchroot-tarball
+#
+user_chroot_tarball_directory="$HOME/Mageia-Dev/RPMS"
+
+# Do you want to delete old rpms in your rpm cache directory? Type 1 for Yes; 0 for No.
+#
+user_tidy_rpm_cache="1" #yes
+
+# Do you want to delete old rpms in your rpm upload directory? Type 1 for Yes; 0 for No.
+#
+user_tidy_uploaded_rpms="1" #yes
+
+# You can tell zeynep that you only want to compile packages for specified architectures below.
+# Valid options are: x86_64, i586 or both
+# The option "both" will compile package for both 64bit and 32bit architectures
+# Note that you *must* have a x86_64 system to use this "both" option.
+#
+#user_build_architecture="  "
+
+# Type here your chroot tarballs archive format,
+# At build time, zeynep looks for this archive format
+# Also, genchroot-tarball uses this archive format to compress chroot environment.
+#
+# Valid formats are "tar.xz", "tar.bz2" or "tar.gz"
+#
+user_archive_format="xz"
+
+# Do you want to sign your compiled rpms? Type here 1 for YES or 0 for NO:
+#
+#use_rpm_sign="1"
+
+# Do you want to generate hdlists in your rpm upload directory? Useful 
+# for adding this directory as urpmi media. Type here 1 for YES or 0 for NO:
+# 
+#user_generate_hdlists="1"
+
+# Do you want to use your SRPM directory as rpm upload directory?
+# Notice that this option causes that rpms uploaded in ../RPMS/$arch
+# Type here 1 for YES or 0 for NO:
+#
+#user_local_build="1"
+
+# After a failed or succesful build; zeynep/zeynep-builder removes chroot directory
+# which is in /tmp directory. If you want zeynep/zeynep-builder to don't  remove
+# chroot directory then type here 1 for YES or 0 for NO.
+# This option is useful for investigating problems in RPM_BUILD_ROOT
+# which is in /tmp/zeynep-builder-XX/chroot/home/zeynep-builder/ directory
+#
+# user_no_clean_build_dir="1"
+
+
+# Additional functions to use in zeynep:
+#
+# Uncomment below "prebuild_stuff" variable to source your functions
+#which should be used *JUST BEFORE* package building. This does not
+#interfere with setting up chroot environment and other stuff.
+# It runs user defined functions just before executing *zeynep-builder*
+# 
+# You can define functions as many as you wish. But you should include all
+#of them in a main "prebuild_functions" function. Zeyneper only reads and
+#sources that.
+#
+#prebuild_stuff="1"
+#prebuild_functions () {
+
+#}
+
+#
+# Uncomment below "postbuild_stuff" variable to source your functions
+#which should be used *JUST AFTER* package building. This does not
+#interfere with setting up chroot environment and other stuff.
+# It runs user defined functions just after executing *zeynep-builder*
+# 
+# You can define functions as many as you wish. But you should include all
+#of them in a main "postbuild_functions" function. Only exception to this
+#is if a function runs a function before. Then you should not include it in
+#our "postbuild_functions" function. Zeyneper only reads and sources that.
+#
+export postbuild_stuff="1"
+
+custom_hdlist_stuff () {
+# Copy hdlists to upper media_info directory
+if [ $(rpm -qp --queryformat %{ARCH} $srpm_file) == "noarch" -o ! $(arch) == "x86_64" ]; then
+	genhdlist2 --clean --xml-info $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/tarakbumba/release/
+	cp $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/tarakbumba/release/media_info/hdlist.cz \
+$HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/media_info/hdlist_tarakbumba_release.cz
+
+	cp $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/tarakbumba/release/media_info/synthesis.hdlist.cz \
+$HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/media_info/synthesis.hdlist_tarakbumba_release.cz
+
+	pushd $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/media_info/
+	md5sum *.cz > MD5SUM
+	popd
+
+else
+	genhdlist2 --clean --xml-info $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/tarakbumba/release/
+	genhdlist2 --clean --xml-info $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/media/tarakbumba/release/
+	cp $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/media/tarakbumba/release/media_info/hdlist.cz \
+$HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/media/media_info/hdlist_tarakbumba_release.cz
+
+	cp $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/media/tarakbumba/release/media_info/synthesis.hdlist.cz \
+$HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/media/media_info/synthesis.hdlist_tarakbumba_release.cz
+
+	cp $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/tarakbumba/release/media_info/hdlist.cz \
+$HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/media/media_info/hdlist_tarakbumba32_release.cz
+
+	cp $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/i586/media/tarakbumba/release/media_info/synthesis.hdlist.cz \
+$HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/media/media_info/synthesis.hdlist_tarakbumba32_release.cz
+	
+	pushd $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/media/media_info/
+	md5sum *.cz > MD5SUM
+	popd
+fi
+}
+
+custom_post_build () {
+# Move noarch packages to i586 media dir:
+for i in $(find $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/x86_64/ -name "*noarch.*"); do mv -f $i $rpm_upload_dir/ ; done
+
+# Remove older srpms from SRPMS directory using rpm-tidy
+rpm-tidy -f -s --dir="$HOME/Mageia-Dev/RPMS/distrib/$mageia_version/SRPMS"
+
+# Change permissions for all rpms:
+sudo chown $USER:$USER $rpm_upload_dir/*.rpm
+sudo chown $USER:$USER $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/SRPMS/*.rpm
+
+# Remove debuginfo rpms:
+rm -fr $rpm_upload_dir/*debuginfo*
+
+# Move any left srpms in upload directory to SRPMS directory
+for i in $(find $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/*/media/tarakbumba/release/ -name "*.src.rpm"); do mv -f $i $HOME/Mageia-Dev/RPMS/distrib/$mageia_version/SRPMS; done
+if [[ -n $used_depo_build ]] && [[ $used_depo_build -eq 1 ]]; then
+    if [[ $sign_rpms -eq 1 ]]; then signing_rpms; fi
+    custom_hdlist_stuff
+fi
+}
+
+postbuild_functions () {
+custom_post_build
+}
+
+
+##################################################################################################################################
+##################################################################################################################################
+###########################################                                      #################################################
+########################################### !!!DO NOT MODIFY OR DELETE BELOW !!! #################################################
+###########################################                                      #################################################
+##################################################################################################################################
+
+#sign_rpms=${sign_rpms:=$use_rpm_sign}
+#local_build=${local_build:=$user_local_build}
+#genhdlist=${genhdlist:=$user_generate_hdlists}
+#cache_dir=${cache_dir:=$user_cache_directory}
+#chroot_directory=${chroot_directory:=$user_chroot_directory}
+#archive_format=${archive_format:=$user_archive_format}
+#rpm_upload_dir=${rpm_upload_dir:=$user_upload_directory}
+#chroot_tarball_dir=${chroot_tarball_dir:=$user_chroot_tarball_directory}
+#noclean_option=${noclean_option:=$user_no_clean_build_dir}
+#tidy_cache=${tidy_cache:=$user_tidy_rpm_cache}
+#tidy_rpms=${tidy_rpms:=$user_tidy_uploaded_rpms}
+#zeynep-builder_arch=${zeynep-builder_arch:=$user_build_architecture}
+#no_default_medium=${no_default_medium:=$user_no_default_medium}
+#use_cache=${use_cache:=$use_rpm_cache}
+
+##################################################################################################################################
+##################################################################################################################################
+###########################################                                      #################################################
+########################################### !!!DO NOT MODIFY OR DELETE ABOVE !!! #################################################
+###########################################                                      #################################################
+##################################################################################################################################
+
+
