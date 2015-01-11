@@ -50,6 +50,7 @@ exec &> >(tee -a "$log_file"; sed -i -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK
 # The problem is urpmi < Mageia 5 does not understand new option and still uses "--no-suggests".
 # So, we should check that before package installing in chroot. (We will need this again when building packages)
 ####################################################################################################################################################
+
 if [[ ${mga_version} != "cauldron" && ${mga_version} < 5 ]]; then urpmi_options+=("--no-suggests"); else urpmi_options+=("--no-recommends"); fi
 
 
@@ -100,8 +101,8 @@ config_file () {
 # First control user defined, special configs for Releases (cauldron.conf, 4.conf, etc.) in user config dir:
 ####################################################################################################################################################
 
-if [[ -f $XDG_CONFIG_HOME/aumer/zeynep-$mga_version.conf ]];then
-    source $XDG_CONFIG_HOME/aumer/zeynep-$mga_version.conf
+if [[ -f $XDG_CONFIG_HOME/zeynep/zeynep-$mga_version.conf ]];then
+    source $XDG_CONFIG_HOME/zeynep/zeynep-$mga_version.conf
 elif [ -f /etc/zeynep.conf ];then    
     source /etc/zeynep.conf
 else
@@ -143,6 +144,7 @@ plain "$(gettext " -D        - Temporary directory for chroot environment. Can b
 plain "$(gettext " -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST")"
 plain "$(gettext " -c        - RPM cache directory which will be used for save time/bandwith. Default: Disabled")"
 plain "$(gettext " -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/mageia/4/media/i586'. Default: Disabled")"
+plain "$(gettext " -p        - Packages names to be installed in chroot. This option must be used with '-g' option and each package must be seperated by a space in quotes. E.g. 'locales-tr wget' Default: Disabled")"
 plain "$(gettext " -n        - Do not ignore specified medias in quote marks. E.g "%s"). Default: Disabled")" "Nonfree Tainted Backports"
 plain "$(gettext " -U        - Additional urpmi options to be used either in tarball creation or package building.")"
 plain "$(gettext " -u        - Upload directory for created rpm packages. Default: Use path which srpm resides")"
@@ -386,7 +388,7 @@ urpmi_addmedia () {
 
 if [[ -n "${distrib_array[*]}" ]]; then
     for distribs in ${distrib_array[*]}; do
-        run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --distrib ${distribs}/\$RELEASE/\$ARCH" || ( error "$(gettext "Zeynep can not add %s distrib source. Therefore will try the default distrib media source")" "${distribs}" && default_distrib_url )
+        run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --distrib ${distribs}/${mga_version}/${arch}" || ( error "$(gettext "Zeynep can not add %s distrib source. Therefore will try the default distrib media source")" "${distribs}" && default_distrib_url )
     done
 else 
     default_distrib_url
@@ -486,7 +488,8 @@ urpmi_addmedia
 
 # Main urpmi install
 msg "$(gettext "Starting to install base packages needed to create a build chroot environment: ")"
-local packages="basesystem-minimal locales rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl"
+chroot_rpms+=("basesystem-minimal locales rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl")
+local packages="${chroot_rpms[@]}"
 
 # Default urpmi options. Should be stay as is.
 urpmi_options+=("--auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
@@ -703,7 +706,7 @@ if [[ -f ${tarball}.tar.xz ]]; then
         exit_function
     fi
 else
-    ( error "$(gettext "Previously prepared chroot tarball is mandatory, but none found. Please create one via this script using '-g' switch. Please check %s for possible errors. Exiting now...")" "${log_file}" && exit_function )
+    ( error "$(gettext "Previously prepared chroot tarball is mandatory, but no %s tarball found. Please create one via this script using '-g' switch. Please check %s for possible errors. Exiting now...")" "${tarball}.tar.xz" "${log_file}" && exit_function )
 fi
 
 }
@@ -824,7 +827,8 @@ for package in ${rpm_packages}; do
         run_command "rm -f ${package}"
     else
         if [ ${package: -4} == ".rpm" ]; then
-            ( run_command "cp -f ${package} ${uploaddir}/" && msg "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep failed to upload %s rpm package to %s. Please check %s for possible errors. Exiting...")" "${package}" "${uploaddir}" "${log_file}" && exit_function )
+            package_name="$(basename ${package})"
+            ( run_command "cp -vf ${package} ${uploaddir}/" && msg "$(gettext "%s package is uploaded to %s directory")" "${package_name}" "${uploaddir}" ) || ( error "$(gettext "Zeynep failed to upload %s rpm package to %s. Please check %s for possible errors. Exiting...")" "${package_name}" "${uploaddir}" "${log_file}" && exit_function )
         fi
     fi
 done
@@ -963,47 +967,50 @@ unmount_necessary_dirs
 #G: generate hdlists via genhdlist2
 #h: help
 passed_options=0
-while getopts ":gCTNvVlSGhm:D:d:c:M:n:u:a:U:t:s:" OPTION ; do
+while getopts ":gCTNvVlSGhm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
     passed_options=1
 	case ${OPTION} in
 		m)
-			mga_version="$OPTARG"
+			mga_version="${OPTARG}"
 			;;
 		g)
 			generate_tarball="1"
 			;;
 		D)
-			tempdir="$OPTARG"
+			tempdir="${OPTARG}"
 			;;
 		d)
-			distrib_url="$OPTARG"
+			distrib_url="${OPTARG}"
 			distrib_array+=("$distrib_url")
 			;;
 
 		c)  
 			use_cache=1
-			cachedir="$OPTARG"
+			cachedir="${OPTARG}"
 			;;
 		M)
-			media_url="$OPTARG"
+			media_url="${OPTARG}"
 			media_array+=("$media_url")
 			;;
 		n)
-			no_ignore_media="$OPTARG"
+			no_ignore_media="${OPTARG}"
 			no_ignore_media_array+=("${no_ignore_media}")
+			;;
+		p)
+			chroot_rpms+=("${OPTARG}")
 			;;
 		U)
 			script_urpmi_options="1"
 			urpmi_options+=("${OPTARG}")
 			;;
 		u) 
-			uploaddir="$OPTARG"
+			uploaddir="${OPTARG}"
 			;;		
 		a)
-		    MGAARCH="$OPTARG"
+		    MGAARCH="${OPTARG}"
 		    ;;
 		t)
-			tarball_dir="$OPTARG"
+			tarball_dir="${OPTARG}"
 			;;		    
 		s)
 		    given_srpm="${OPTARG}"
@@ -1057,6 +1064,15 @@ if ((!passed_options)); then
   usage && exit 1
 fi
 
-# Start with main functions:
+####################################################################################################################################################
+# Start with main functions and variables:
+####################################################################################################################################################
+# Determine if Mageia version is given by user. If not, default to Cauldron
+if [[ -z ${mga_version} ]]; then
+    msg "$(gettext "You did not specify a Mageia version to built tarball/rpms. Zeynep is defaulting to Cauldron")"
+    mga_version="cauldron"
+fi
+
+config_file
 check_srpm
 check_system_arch

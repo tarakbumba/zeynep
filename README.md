@@ -37,7 +37,8 @@ zeynep [-g][options] [arguments] [-s] [srpm]
  * -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST
  * -c        - RPM cache directory which will be used for save time/bandwith. Default: Disabled
  * -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/mageia/4/media/i586'. Default: Disabled
- * -n        - Do not ignore specified medias in quote marks. E.g "Nonfree Tainted Backports"). Default: Disabled
+ * -p        - Packages names to be installed in chroot. This option must be used with '-g' option and each package must be seperated by a space in quotes. E.g. 'locales-tr wget' Default: Disabled
+ * -n        - Do not ignore specified medias in quote marks. E.g "Nonfree Tainted Backports". Default: Disabled
  * -U        - Additional urpmi options to be used either in tarball creation or package building.
  * -u        - Upload directory for created rpm packages. Default: Use path which srpm resides
  * -a        - Architecture of Mageia version. This could be i586 on a 32 machine or i586, x86-64 or both of them for a 64bit machine. Default: Current machine arch
@@ -54,9 +55,9 @@ zeynep [-g][options] [arguments] [-s] [srpm]
  
 Examples:
 
-* Creating a chroot tarball for Mageia 4 with cache for a x86_64 system:
+* Creating a chroot tarball for Mageia 4 with cache for a x86_64 system with user defined packages also installed:
 
-   zeynep -g -m 4 -a x86-64 -c $HOME/rpm/cache/x86_64
+   zeynep -g -m 4 -a x86-64 -c $HOME/rpm/cache/x86_64 -p "wget vim task-kde"
 
 * Creating signed rpms from a srpm for Mageia 4 with cache for a x86_64 system using a distrib mirror and creating genhdlist without upload dir: (Created rpms will reside in $HOME/RPMS/x86_64 directory)
 
