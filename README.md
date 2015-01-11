@@ -50,7 +50,7 @@ zeynep [-g][options] [arguments] [-s] [srpm]
  * -G        - Generate hdlists for compiled rpms upon exit. Default: Disabled
  * -v        - Be verbose. Default: Disabled
  * -V        - Be very verbose. Default: Disabled
-*  -h        - Display help
+ * -h        - Display help
  
 Examples:
 
