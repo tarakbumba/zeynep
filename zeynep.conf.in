@@ -15,11 +15,19 @@
 #user_no_ignore_media="Nonfree Release Nonfree Updates"
 
 # Type which directory should compiled rpms be uploaded:
+# You can use Mageia version and architecture for directories of
+# both i586 and x86_64 archs. Be sure that you use $arch variable
+# 
+# E.g. somedir/$mga_version/$arch ( Translated as somedir/cauldron/i586 in the script, depending of your choice)
 #
 #user_upload_directory=""
 
 # To save bandwith and time, you can specify a directory of previously downloaded rpms
 # This directory will be used as urpmi cache.
+# You can use Mageia version and architecture for directories of
+# both i586 and x86_64 archs. Be sure that you use $arch variable
+# 
+# E.g. some_cache_dir/$mga_version/$arch ( Translated as somedir/cauldron/i586 in the script, depending of your choice)
 #
 #use_rpm_cache="1" # Yes, i want to use rpm cache
 #user_cache_directory=""

@@ -35,6 +35,7 @@ zeynep [-g][options] [arguments] [-s] [srpm]
  * -s        - Exact path/name of the srpm file. E.g. /home/user/foo-1.0-1.mga4.src.rpm
  * -D        - Temporary directory for chroot environment. Can be used with '-g' option. Default: /tmp
  * -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST
+ * -z        - Force zeynep to not use given distrib media with -d switch/or from config file and default to MIRRORLIST
  * -c        - RPM cache directory which will be used for save time/bandwith. Default: Disabled
  * -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/mageia/4/media/i586'. Default: Disabled
  * -p        - Packages names to be installed in chroot. This option must be used with '-g' option and each package must be seperated by a space in quotes. E.g. 'locales-tr wget' Default: Disabled
