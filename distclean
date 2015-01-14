@@ -1,0 +1,6 @@
+#!/bin/sh
+
+make clean 2> /dev/null
+
+rm -rf build autom4te.cache Makefile configure Makefile.in
+

@@ -1,0 +1,160 @@
+2014-06-13 21:33:44 +0300 tarakbumba 
+
+	* Bump version to 1.6 (HEAD, master)
+
+2014-06-13 21:32:49 +0300 tarakbumba 
+
+	* Fix openHomepage option which was not work with https URLs
+
+2014-06-12 23:23:14 +0300 tarakbumba 
+
+	* - Update Readme.md (origin/master, origin/HEAD)
+
+2014-06-12 23:20:28 +0300 tarakbumba 
+
+	* Remove generating ChangeLog from Makefile. Instead use post-commit hook from git
+
+2014-06-12 22:47:10 +0300 tarakbumba 
+
+	* -Fix python-polib requirement at buildtime (tag: 1.5)
+
+2014-06-12 21:14:37 +0300 tarakbumba 
+
+	* Bump to 1.5 version
+
+2014-06-12 19:33:55 +0300 tarakbumba 
+
+	* - Make Nemo actions use translations from Actions directory - Merge translations at build time - Fix configure checks for prerequisties - Update translations
+
+2014-06-11 00:34:57 +0300 tarakbumba 
+
+	* Fix and fully integrate Nemo filemanager support (tag: 1.4)
+
+2014-04-10 18:14:22 +0300 tarakbumba 
+
+	* -Add Romanian from Tx
+
+2014-04-10 18:13:37 +0300 tarakbumba 
+
+	* -Updated translations from Tx
+
+2014-04-09 00:33:31 +0300 tarakbumba 
+
+	* Added Spanish and Greek translations from tx
+
+2014-04-09 00:30:23 +0300 tarakbumba 
+
+	* - Translation updates and new langs from tx
+
+2014-04-07 01:33:10 +0300 tarakbumba 
+
+	* - Update version info - Makefile does not copy Copying, ChangeLog, Readme in /usr (tag: 1.3)
+
+2014-04-07 01:31:01 +0300 tarakbumba 
+
+	* - Update ChangeLog
+
+2014-04-07 00:43:16 +0300 tarakbumba 
+
+	* - Translations from tx
+
+2014-04-07 00:34:45 +0300 tarakbumba 
+
+	* - Update LINGUAS
+
+2014-04-07 00:33:58 +0300 tarakbumba 
+
+	* - Remove executable bits
+
+2014-04-06 23:37:54 +0300 tarakbumba 
+
+	* - Add new translations from tx
+
+2013-12-30 01:17:21 +0200 tarakbumba 
+
+	* - Add changelog generation script to maintainers : gitlog-to-changelog.sh - Add automatic generation of tuncel.pot script: makepot - Combine git-to-changelog script and desktop_translations script into one script : maintain_jobs.sh
+
+2013-12-30 01:16:43 +0200 tarakbumba 
+
+	* - Add git generated ChangeLog
+
+2013-12-30 01:14:43 +0200 tarakbumba 
+
+	* - fix typo in po/LINGUAS file which broke package.
+
+2013-12-27 00:07:25 +0200 tarakbumba 
+
+	* - Re-add Italian and German translations (Both are partial): Actually no desktop translation is included.
+
+2013-12-27 00:06:01 +0200 tarakbumba 
+
+	* - Add updated Turkish kde translation - Update Readme
+
+2013-12-26 23:45:02 +0200 tarakbumba 
+
+	* - Update tuncel.pot due to previous commit - Remove Italian and German translations which are no longer valid. - Add actions Turkish translation
+
+2013-12-26 23:43:10 +0200 tarakbumba 
+
+	* Update translatable strings for more understandable form.
+
+2013-12-26 17:43:31 +0200 tarakbumba 
+
+	* - Update .desktop file strings and create new po files from them
+
+2013-12-26 06:04:42 +0200 tarakbumba 
+
+	* - Delete old backup file from .tx
+
+2013-12-26 06:03:47 +0200 tarakbumba 
+
+	* - Add Transifex client configuration directory
+
+2013-12-26 06:02:08 +0200 tarakbumba 
+
+	* - Modify Makefile.am due to directory structure changes - Add autogen.sh script
+
+2013-12-26 05:55:47 +0200 tarakbumba 
+
+	* - Merge nautilus and nemo directories into one "actions" directory - Merge kde3 and kde4 directories into one "kde" directory - Add gettext po translation files for both kde and actions .desktop files. These po files created using tuncel_desktop2po.py (requires python-polib) - Maintainers directory: useful for me :) Signed-off-by: tarakbumba <tarakbumba@gmail.com>
+
+2013-12-26 05:54:41 +0200 tarakbumba 
+
+	* - Reduce source directories: both kde3 and kde4; nautilus and nemo directories holds alike files. We do not need those. - Add gettext po translations in kde and actions desktop files using tuncel_desktop2po.py script - Add maintaniers directory; useful for myself.
+
+2013-12-26 05:50:56 +0200 tarakbumba 
+
+	* - Fixed again configure.ac: Default behaviour is enabling feature when requirements met. - Prepare configure.ac for directory changes in source
+
+2013-12-23 21:17:37 +0200 tarakbumba 
+
+	* Make configure.ac builds all without --enable-future flag (tag: 1.2)
+
+2013-12-19 13:20:33 +0200 tarakbumba 
+
+	* - Update README for latest commits
+
+2013-12-19 03:11:19 +0200 tarakbumba 
+
+	* - Fix actions desktop files: use %f not %u - Add Turkish translation to kde desktop files - Update translation catalogs - Fix textdomaindirs - Add translatable rpm querytags - Update rpm specfile (tag: tuncel-1.1)
+
+2013-12-19 01:00:07 +0200 tarakbumba 
+
+	* Update configure.ac script
+
+2013-12-12 21:51:00 +0200 tarakbumba 
+
+	* Fix spec file
+
+2013-12-12 21:38:40 +0200 tarakbumba 
+
+	* Commit tuncel files (tag: 1.0)
+
+2013-12-12 21:33:08 +0200 Atilla ÖNTAŞ 
+
+	* Update README.md
+
+2013-12-12 21:29:58 +0200 tarakbumba 
+
+	* first tuncel commit
+
