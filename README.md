@@ -83,7 +83,7 @@ and as root
 
   make install
  
-Without any option specified zeynep will install in /usr/local directory. Please refer to the INSTALL file for installation steps and options.
+Without any option specified zeynep will install in /usr directory. Please refer to the INSTALL file for installation steps and options.
 
 Runtime Dependencies:
 ---------------------
