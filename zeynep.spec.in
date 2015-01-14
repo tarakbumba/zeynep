@@ -1,0 +1,43 @@
+
+Name:       zeynep
+Summary:    RPM packages build tool in a clean Mageia chroot
+Version:    1.0.0
+Release:    %mkrel 1
+License:    GPLV2+
+Group:      Development/Other
+URL:        https://github.com/tarakbumba/zeynep
+Source0:    https://github.com/tarakbumba/zeynep/archive/zeynep-1.0.0.tar.gz
+BuildArch:  noarch
+BuildRequires:	gettext-devel
+
+Requires:   sudo
+Requires:   urpmi
+Requires:   sed
+Requires:   rpm-build
+%if %mgaver <= 4
+Suggests:   rpm-tidy
+%else
+Recommends: rpm-tidy
+%endif
+
+%description
+Zeynep is a bash script which generates a chroot environment,
+installs basesystem, compresses it into a tar.xz archive for
+future uses. It can creates a chroot environment using its own
+generated tar.xz archive; copies source rpm package into chroot;
+installs build dependencies and creates rpm packages.
+
+%prep
+%autosetup
+
+%build
+NOCONFIGURE=1 ./autogen.sh
+%configure --prefix=%{_prefix}
+%make
+%install
+%makeinstall_std
+
+%find_lang %{name}
+%files -f %{name}.lang
+%{_bindir}/zeynep
+%{_sysconfdir}/zeynep.conf
