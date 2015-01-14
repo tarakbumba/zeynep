@@ -552,7 +552,8 @@ urpmi_addmedia
 
 # Main urpmi install
 msg "$(gettext "Starting to install base packages needed to create a build chroot environment: ")"
-chroot_rpms+=("basesystem-minimal locales rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl")
+locales_packages="$(rpm -qa --queryformat "%{NAME}\n" | grep locales)"
+chroot_rpms+=("basesystem-minimal ${locales_packages} rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl")
 local packages="${chroot_rpms[*]}"
 
 # Default urpmi options. Should be stay as is.
