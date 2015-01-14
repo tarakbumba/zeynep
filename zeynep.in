@@ -594,7 +594,7 @@ create_installed_rpms_list () {
 ####################################################################################################################################################
 rpm_query_tags="%{NAME}-%{VERSION}-%{RELEASE} ==> [%{SOURCERPM}\n]"
 rpms_list="$tarball-rpms.lst"
-rpm -r ${chrootdir} -qa --queryformat "${rpm_query_tags}" | sort > ${rpms_list} || error "$(gettext "Can not export installed rpms to %s.Will continue without creating it")" "$rpms_list"
+rpm -r ${chrootdir} -qa --queryformat "${rpm_query_tags}" | sort > ${rpms_list} || error "$(gettext "Can not write the list of installed rpms to %s. Will continue without creating it")" "$rpms_list"
 
 }
 
