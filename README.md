@@ -67,7 +67,27 @@ Examples:
 * Creating signed rpms from a srpm for Mageia 4 with cache for a x86_64 system using a distrib mirror and creating genhdlist with upload dir:
 
    zeynep -TG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -u $HOME/rpms -s $HOME/foo-1.0-1.mga4.src.rpm
+   
 
+Installation:
+--------------
+You should have at least autoconf and gettext-devel packages installed to build and install zeynep. Normally you should run 
+
+  ./autogen.sh
+ 
+  ./configure
+ 
+  make
+ 
+and as root
+
+  make install
+ 
+Without any option specified zeynep will install in /usr/local directory. Please refer to the INSTALL file for installation steps and options.
+
+Runtime Dependencies:
+---------------------
+Zeynep needs to rpm, urpmi, rpmbuild, sed and sudo be install to run. For localization support you should have gettext package installed. Also rpm-tidy and rpm-sign should be installed to clean older rpms and rpm signing features.
 
 Authors:
 -------------
