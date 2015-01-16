@@ -6,7 +6,7 @@ Release:    %mkrel 1
 License:    GPLV2+
 Group:      Development/Other
 URL:        https://github.com/tarakbumba/zeynep
-Source0:    https://github.com/tarakbumba/zeynep/archive/zeynep-1.0.0.tar.gz
+Source0:    https://github.com/tarakbumba/zeynep/archive/%{name}-%{version}.tar.gz
 BuildArch:  noarch
 BuildRequires:	gettext-devel
 
