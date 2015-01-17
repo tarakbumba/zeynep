@@ -89,6 +89,10 @@ Runtime Dependencies:
 ---------------------
 Zeynep needs to rpm, urpmi, rpmbuild, sed and sudo be install to run. For localization support you should have gettext package installed. Also rpm-tidy and rpm-sign should be installed to clean older rpms and rpm signing features.
 
+Notice that, rpm-tidy can not compare package archs properly. It operates in a way that package arch (i586/noarch/x86_64) is calculated as version-release number.
+So rpm-tidy tries to remove i586/noarch packages if it finds a x86_64 package with the same EVR in same directory.
+Therefore, to prevent unnecessarily loss of rpms in cache directory or upload directory Zeynep checks this case and disables rpm-tidy usage.
+
 Authors:
 -------------
 Atilla ÖNTAŞ <tarakbumba at gmail dot com >
