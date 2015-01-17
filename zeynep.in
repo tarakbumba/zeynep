@@ -790,9 +790,9 @@ create_chroot_user () {
 ####################################################################################################################################################
 # Create user account and user home directory; then chown all files to user in chroot
 msg "$(gettext "Zeynep will try to setup '%s' user account. Please wait a second...")" "${USER}"
-( su_in_chroot "useradd ${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors. Exiting...")" "${USER}" "${log_file}" &&  exit_function )
-msg "$(gettext "Zeynep will try to change ownership of all files as %s in user HOME directory. Please wait a second...")" "${USER}"
-( su_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors.")" "${USER}" "${log_file}" && exit_function )
+( su_in_chroot "useradd -u ${UID} ${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors. Exiting...")" "${USER}" "${log_file}" &&  exit_function )
+#msg "$(gettext "Zeynep will try to change ownership of all files as %s in user HOME directory. Please wait a second...")" "${USER}"
+#( su_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors.")" "${USER}" "${log_file}" && exit_function )
 
 }
 
