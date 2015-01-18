@@ -197,7 +197,7 @@ run_command () {
 # It may be bad but i prefer hide them.
 ####################################################################################################################################################
     local command=$1; shift
-    ${command} >> ${log_file} 2>&1
+    ( echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}"\n" && ${command} ) >> ${log_file} 2>&1
 }
 
 ####################################################################################################################################################
@@ -205,7 +205,7 @@ su_in_chroot () {
 #Runs given commands in chroot as root
 ####################################################################################################################################################
     local command=$1; shift
-    sudo /sbin/chroot ${chrootdir} su -c "${command}"  2>&1
+    ( echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}"\n" && sudo /sbin/chroot ${chrootdir} su -c "${command}" ) >> ${log_file} 2>&1
 }
 
 ####################################################################################################################################################
@@ -213,7 +213,7 @@ run_in_chroot () {
 #Runs given commands in chroot as user
 ####################################################################################################################################################
     local command=$1; shift
-    sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}"  2>&1
+    ( echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}"\n" && sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}" ) >> ${log_file} 2>&1
 }
 
 ####################################################################################################################################################
@@ -801,6 +801,9 @@ mount_necessary_dirs () {
 # Mount necessary mountpoint in chroot:
 ####################################################################################################################################################
 
+# Message to user:
+msg "$(gettext "Zeynep tries to mount necessary mount points %s to %s chroot directory.")" "(/dev,/dev/pts,/sys,/proc)" "${chrootdir}"
+
 # Use special mount for proc
 sudo mount -t proc proc ${chrootdir}/proc || ( error "$(gettext "Zeynep can not mount %s .This is critical. Zeynep can not continue...")" "${mount_points}" && exit_function )
 
@@ -885,7 +888,7 @@ build_rpm () {
 ####################################################################################################################################################
 pure_srpm="$(basename $srpm)"
 msg "$(gettext "Zeynep will try to create rpm packages using %s.")" "${srpm}"
-run_in_chroot "rpmbuild --rebuild  /home/${USER}/${pure_srpm}" || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm. Please check %s for possible errors. Exiting...")" "${srpm}" "${log_file}" && exit_function )
+( run_in_chroot "rpmbuild --rebuild  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm. Please check %s for possible errors. Exiting...")" "${srpm}" "${log_file}" && exit_function )
 
 
 if [[ -n "${postbuild_stuff}" ]]; then
@@ -898,7 +901,7 @@ fi
 upload_rpms () {
 # Copies rpm files to upload directory
 ####################################################################################################################################################
-local rpmbuild_rpms_root="$(run_in_chroot "rpm --eval %_rpmdir")"
+local rpmbuild_rpms_root="$(sudo /sbin/chroot ${chrootdir} su ${USER} -c "rpm --eval %_rpmdir")"
 local rpm_packages="$(find ${chrootdir}${rpmbuild_rpms_root} -name "*.rpm")"
 for package in ${rpm_packages}; do
     if [ ${package: -8} == ".src.rpm" ]; then
@@ -996,6 +999,7 @@ tidy_rpms
 
 # This is generate hdlist block
 if [ -n "${genhdlist}" ]; then
+    msg "$(gettext "Creating hdlists in %s")" "${uploaddir}"
     run_command "genhdlist2 --clean --allow-empty-media --xml-info ${uploaddir}" || warning "$(gettext "Zeynep failed to create (synthesis) hdlist file in %s. Please check %s for possible errors. Exiting...")" "${uploaddir}" "${log_file}"
 fi
 
