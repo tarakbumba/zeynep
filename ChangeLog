@@ -1,5 +1,11 @@
 Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
 
+    - Be a bit verbose to screen in run_command functions.
+    - Silent rpm-tidy checks with 'ls' command.
+    - Tidy up error messages.
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+
      - Fix command run functionsto run commands properly (#2)
     - Ensure that user supplied paths do not contain '/' at the end of path
 
