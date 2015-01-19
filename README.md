@@ -58,15 +58,15 @@ Examples:
 
 * Creating a chroot tarball for Mageia 4 with cache for a x86_64 system with user defined packages also installed:
 
-   zeynep -g -m 4 -a x86-64 -c $HOME/rpm/cache/x86_64 -p "wget vim task-kde"
+ > zeynep -g -m 4 -a x86-64 -c $HOME/rpm/cache/x86_64 -p "wget vim task-kde"
 
 * Creating signed rpms from a srpm for Mageia 4 with cache for a x86_64 system using a distrib mirror and creating genhdlist without upload dir: (Created rpms will reside in $HOME/RPMS/x86_64 directory)
 
-   zeynep -TG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
+  > zeynep -TG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
     
 * Creating signed rpms from a srpm for Mageia 4 with cache for a x86_64 system using a distrib mirror and creating genhdlist with upload dir:
 
-   zeynep -TG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -u $HOME/rpms -s $HOME/foo-1.0-1.mga4.src.rpm
+  > zeynep -TG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -u $HOME/rpms -s $HOME/foo-1.0-1.mga4.src.rpm
    
 
 Installation:
@@ -89,9 +89,9 @@ Runtime Dependencies:
 ---------------------
 Zeynep needs to rpm, urpmi, rpmbuild, sed and sudo be install to run. For localization support you should have gettext package installed. Also rpm-tidy and rpm-sign should be installed to clean older rpms and rpm signing features.
 
-Notice that, rpm-tidy can not compare package archs properly. It operates in a way that package arch (i586/noarch/x86_64) is calculated as version-release number.
-So rpm-tidy tries to remove i586/noarch packages if it finds a x86_64 package with the same EVR in same directory.
-Therefore, to prevent unnecessarily loss of rpms in cache directory or upload directory Zeynep checks this case and disables rpm-tidy usage.
+Known Limitations:
+--------------------
+* rpm-tidy can not compare package archs properly. It operates in a way that package arch (i586/noarch/x86_64) is calculated as version-release number. So rpm-tidy tries to remove i586/noarch packages if it finds a x86_64 package with the same EVR in same directory. Therefore, to prevent unnecessarily loss of rpms in cache directory or upload directory Zeynep checks this case and disables rpm-tidy usage.
 
 Authors:
 -------------
