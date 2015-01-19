@@ -64,14 +64,6 @@ log_file="$(mktemp -t --suffix=".log" zeynep.XXXXXXXXXX )"
 exec &> >(tee -a "$log_file"; sed -i -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK(]//g" "$log_file"; sed -i 's/\x1b(B//g' "$log_file" )
 
 ####################################################################################################################################################
-# Beginning with Mageia 5, urpmi's "--no-suggests" option is deprecated in favor of "--no-recommends".
-# The problem is urpmi < Mageia 5 does not understand new option and still uses "--no-suggests".
-# So, we should check that before package installing in chroot. (We will need this again when building packages)
-####################################################################################################################################################
-
-if [[ ${mga_version} != "cauldron" && ${mga_version} < 5 ]]; then urpmi_options+=("--no-suggests"); else urpmi_options+=("--no-recommends"); fi
-
-####################################################################################################################################################
 plain () {
 # Function to display localized plain messages
 ####################################################################################################################################################
@@ -138,10 +130,10 @@ fi
 sign_rpms=${sign_rpms:=$use_rpm_sign}
 local_build=${local_build:=$user_local_build}
 genhdlist=${genhdlist:=$user_generate_hdlists}
-cachedir=${cachedir:=$user_cache_directory}
-tempdir=${tempdir:=$user_tempdir}
-uploaddir=${uploaddir:=$user_upload_directory}
-tarball_dir=${tarball_dir:=$user_tarball_directory}
+cache_path=${cache_path:=$user_cache_directory}
+temp_path=${temp_path:=$user_tempdir}
+upload_path=${upload_path:=$user_upload_directory}
+tarball_path=${tarball_path:=$user_tarball_directory}
 noclean=${noclean:=$user_no_clean}
 tidy_cache=${tidy_cache:=$user_tidy_rpm_cache}
 tidy_upload_rpms_dir=${tidy_upload_rpms_dir:=$user_tidy_uploaded_rpms}
@@ -150,6 +142,17 @@ use_cache=${use_cache:=$use_rpm_cache}
 distrib_array+=("${user_distrib_url}")
 media_array+=("${user_media_url}")
 no_ignore_media_array+=("${user_no_ignore_media}")
+
+# We should ensure that user supplied paths not end with "/". Otherwise, paths are wrong (https://github.com/tarakbumba/zeynep/issues/2)
+#
+# Tarball directory:
+if [[ "${tarball_path: -1}" == "/" ]]; then tarball_dir="${tarball_path%?}"; else tarball_dir="${tarball_path}"; fi
+# Cache directory:
+if [[ "${cache_path: -1}" == "/" ]]; then cachedir="${cache_path%?}"; else cachedir="${cache_path}"; fi
+# Tempdir:
+if [[ "${temp_path: -1}" == "/" ]]; then tempdir="${temp_path%?}"; else tempdir="${temp_path}"; fi
+# Upload dir:
+if [[ "${upload_path: -1}" == "/" ]]; then uploaddir="${upload_path%?}"; else uploaddir="${upload_path}"; fi
 
 }
 ####################################################################################################################################################
@@ -197,7 +200,8 @@ run_command () {
 # It may be bad but i prefer hide them.
 ####################################################################################################################################################
     local command=$1; shift
-    ( echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}"\n" && ${command} ) >> ${log_file} 2>&1
+    echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}":\n" >> ${log_file} 2>&1
+	${command} >> ${log_file} 2>&1
 }
 
 ####################################################################################################################################################
@@ -205,7 +209,8 @@ su_in_chroot () {
 #Runs given commands in chroot as root
 ####################################################################################################################################################
     local command=$1; shift
-    ( echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}"\n" && sudo /sbin/chroot ${chrootdir} su -c "${command}" ) >> ${log_file} 2>&1
+    echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}":\n" >> ${log_file} 2>&1
+	sudo /sbin/chroot ${chrootdir} su -c "${command}" >> ${log_file} 2>&1
 }
 
 ####################################################################################################################################################
@@ -213,7 +218,8 @@ run_in_chroot () {
 #Runs given commands in chroot as user
 ####################################################################################################################################################
     local command=$1; shift
-    ( echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}"\n" && sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}" ) >> ${log_file} 2>&1
+    echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}":\n" >> ${log_file} 2>&1
+	sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}" >> ${log_file} 2>&1
 }
 
 ####################################################################################################################################################
@@ -468,7 +474,10 @@ urpmi_addmedia () {
 
 if [[ -n "${distrib_array[*]}" && -z ${default_distrib} ]]; then
     for distribs in ${distrib_array[*]}; do
-        run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --distrib ${distribs}/${mga_version}/${arch}" || ( error "$(gettext "Zeynep can not add %s distrib source. Therefore will try the default distrib media source")" "${distribs}" && default_distrib_url )
+        # Ensure that distrib path not ends with "/":
+        if [[ "${distribs: -1}" == "/" ]]; then distrib_path="${distribs%?}"; else distrib_path="${distribs}"; fi
+        # Add distrib medias:
+        run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --distrib ${distrib_path}/${mga_version}/${arch}" || ( error "$(gettext "Zeynep can not add %s distrib source. Therefore will try the default distrib media source")" "${distrib_path}" && default_distrib_url )
     done
 else 
     default_distrib_url
@@ -478,11 +487,15 @@ fi
 if [[ -n "${media_array[*]}" ]]; then
     for media_ in ${media_array[@]}; do
         index=$(search_array $media_)
-        plain "$(gettext "Adding %s as %s urpmi media")" "${media_}" "media${index}"
-        if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} media${index} ${media_}"; then
+        # Ensure that distrib path not ends with "/":
+        if [[ "${media_: -1}" == "/" ]]; then media_path="${media_%?}"; else media_path="${media_}"; fi
+        # Message for user that we're about to add media:
+        plain "$(gettext "Adding %s as %s urpmi media")" "${media_path}" "media${index}"
+        # Add media to urpmi sources:
+        if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} media${index} ${media_path}"; then
             plain "$(gettext "... DONE!")"
         else 
-            read -r -p "$(error "$(gettext "Zeynep can not add %s as %s urpmi media. Will continue without this media source. Do you want to proceed? [y/N]")" "${media_}" "media${index}" )" media_add_response
+            read -r -p "$(error "$(gettext "Zeynep can not add %s as %s urpmi media. Will continue without this media source. Do you want to proceed? [y/N]")" "${media_path}" "media${index}" )" media_add_response
             case $media_add_response in
                 [yY][eE][sS]|[yY] ) 
                         echo
@@ -930,8 +943,7 @@ local srpm_base="$(realpath ${srpm}|rev|cut -d "/" -f2-20 | rev)"
 uploaddir="${srpm_base}/RPMS/$arch"
 
 if [[ ! -d "${uploaddir}" ]]; then
-    run_command "mkdir -p "${uploaddir}""
-    
+    run_command "mkdir -p "${uploaddir}""    
 fi
 
 }
@@ -1061,7 +1073,7 @@ while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 			generate_tarball="1"
 			;;
 		D)
-			tempdir="${OPTARG}"
+			temp_path="${OPTARG}"
 			;;
 		d)
 			distrib_url="${OPTARG}"
@@ -1070,7 +1082,7 @@ while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 
 		c)  
 			use_cache=1
-			cachedir="${OPTARG}"
+			cache_path="${OPTARG}"
 			;;
 		M)
 			media_url="${OPTARG}"
@@ -1088,13 +1100,13 @@ while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 			urpmi_options+=("${OPTARG}")
 			;;
 		u) 
-			uploaddir="${OPTARG}"
+			upload_path="${OPTARG}"
 			;;		
 		a)
 		    MGAARCH="${OPTARG}"
 		    ;;
 		t)
-			tarball_dir="${OPTARG}"
+			tarball_path="${OPTARG}"
 			;;		    
 		s)
 		    given_srpm="${OPTARG}"
@@ -1162,6 +1174,14 @@ fi
 
 # Look for urpmi bin. Not found then exit.
 run_command "which /sbin/urpmi" || ( error3 "$(gettext "urpmi tool can not be found. Are you trying to use zeynep on a non Mageia system?")" && exit 1 )
+
+####################################################################################################################################################
+# Beginning with Mageia 5, urpmi's "--no-suggests" option is deprecated in favor of "--no-recommends".
+# The problem is urpmi < Mageia 5 does not understand new option and still uses "--no-suggests".
+# So, we should check that before package installing in chroot. (We will need this again when building packages)
+####################################################################################################################################################
+
+if [[ ${mga_version} != "cauldron" && ${mga_version} < 5 ]]; then urpmi_options+=("--no-suggests"); else urpmi_options+=("--no-recommends"); fi
 
 # Preliminary checks
 if [[ -n ${MGAARCH} ]]; then    
