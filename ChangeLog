@@ -1,5 +1,9 @@
 Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
 
+    - Update translation catalogs
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+
     - Be a bit verbose to screen in run_command functions.
     - Silent rpm-tidy checks with 'ls' command.
     - Tidy up error messages.
