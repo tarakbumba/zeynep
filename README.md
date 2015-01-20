@@ -19,19 +19,13 @@ add futures that i need.
 
 So, zeynep born. 
 
-Overview
-------------
-As you may see, zeynep is not ready for production. I intend to create three bash scripts:
-- zeynep-tarball-creator : Chroot environment generator and archiver (Merged in zeynep script)
-- zeynep-package-builder : Package builder and does other things that i think (Merged in zeynep script)
-- zeynep : Master of the Universe. :) One bash script that combines above two. (DONE)
-
 Usage
 ------------
 zeynep [-g][options] [arguments] [-s] [srpm]
 
  * -m        - Mageia version which rpms build for. Default: Cauldron
  * -g        - Generate a chroot tarball which is used for building rpm
+ * -Z        - Do not use a chroot tarball. Instead create chroot environment from strach and build packages in there.
  * -s        - Exact path/name of the srpm file. E.g. /home/user/foo-1.0-1.mga4.src.rpm
  * -D        - Temporary directory for chroot environment. Can be used with '-g' option. Default: /tmp
  * -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST
@@ -43,7 +37,7 @@ zeynep [-g][options] [arguments] [-s] [srpm]
  * -U        - Additional urpmi options to be used either in tarball creation or package building.
  * -u        - Upload directory for created rpm packages. Default: Use path which srpm resides
  * -a        - Architecture of Mageia version. This could be i586 on a 32 machine or i586, x86-64 or both of them for a 64bit machine. Default: Current machine arch
- * -t        - Path of where chroot tarballs are/should reside. This option is mandatory.
+ * -t        - Path of where chroot tarballs are/should reside. If not set by user, zeynep will create a chroot and build packages in there.
  * -C        - Use 'rpm-tidy' utility to clean older rpms in cache directory. Default: Disabled
  * -T        - Use 'rpm-tidy' utility to clean older rpms in rpm upload directory. Default: Disabled
  * -N        - Do not clean chroot environment upon exit. Default: Disabled
@@ -62,12 +56,15 @@ Examples:
 
 * Creating signed rpms from a srpm for Mageia 4 with cache for a x86_64 system using a distrib mirror and creating genhdlist without upload dir: (Created rpms will reside in $HOME/RPMS/x86_64 directory)
 
-  > zeynep -TG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
+  > zeynep -SG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
     
 * Creating signed rpms from a srpm for Mageia 4 with cache for a x86_64 system using a distrib mirror and creating genhdlist with upload dir:
 
-  > zeynep -TG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -u $HOME/rpms -s $HOME/foo-1.0-1.mga4.src.rpm
+  > zeynep -SG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -u $HOME/rpms -s $HOME/foo-1.0-1.mga4.src.rpm
    
+* Building x86_64 arch rpm packages for Mageia 4 without pre-created tarball usage:
+
+  > zeynep -ZG -m 4 -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
 
 Installation:
 --------------

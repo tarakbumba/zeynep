@@ -174,6 +174,7 @@ echo "***************************************************************"
 plain "$(gettext "Usage: zeynep [-g][options] [arguments] [-s] [srpm]\n")"
 plain "$(gettext " -m        - Mageia version which rpms build for. Default: Cauldron")"
 plain "$(gettext " -g        - Generate a chroot tarball which is used for building rpm")"
+plain "$(gettext " -Z        - Do not use a chroot tarball. Instead create chroot environment from strach and build packages in there.")"
 plain "$(gettext " -s        - Exact path/name of the srpm file. E.g. /home/user/foo-1.0-1.mga4.src.rpm")"
 plain "$(gettext " -D        - Temporary directory for chroot environment. Can be used with '-g' option. Default: %s")" "${TMPDIR}"
 plain "$(gettext " -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST")"
@@ -187,7 +188,7 @@ plain "$(gettext " -U        - Additional urpmi options to be used either in tar
 plain "$(gettext " -u        - Upload directory for created rpm packages. Default: Use path which srpm resides")"
 plain "$(gettext " -a        - Architecture of Mageia version. This could be i586 on a 32bit machine or i586,
                  x86-64 or both of them for a 64bit machine. Default: Current machine arch")"
-plain "$(gettext " -t        - Path of where chroot tarballs are/should reside. This option is mandatory.")"
+plain "$(gettext " -t        - Path of where chroot tarballs are/should reside. If not set by user, zeynep will create a chroot and build packages in there.")"
 plain "$(gettext " -C        - Use 'rpm-tidy' utility to clean older rpms in cache directory. Default: Disabled")"
 plain "$(gettext " -T        - Use 'rpm-tidy' utility to clean older rpms in rpm upload directory. Default: Disabled")"
 plain "$(gettext " -N        - Do not clean chroot environment upon exit. Default: Disabled")"
@@ -309,6 +310,8 @@ if [[ -d ${chrootdir} ]]; then
         fi
     done
     unclean_temp
+else 
+    if [[ -d ${tempdir} ]]; then unclean_temp; fi
 fi
 
 }
@@ -695,7 +698,7 @@ set_chroot_dirs
 test_tarball_dir
 
 # Create chroot directory
-run_command "mkdir -p ${chrootdir}" || ( error "$(gettext "'mkdir' command can not create chroot directory at %s.")" "$TMPDIR" && exit_function )
+run_command "mkdir -p ${chrootdir}" || ( error "$(gettext "'mkdir' command can not create chroot directory at %s.")" "${tempdir}" && exit_function )
 
 ## Run sub functions now:
 chroot_urpmi_install
@@ -705,6 +708,60 @@ test_tarballs
 ## We should clean our mess :)
 tidy_rpms
 unmount_necessary_dirs
+
+}
+
+####################################################################################################################################################
+without_tarball_helper () {
+# This function is a helper function for without_tarball
+####################################################################################################################################################
+
+# Info for user at start:
+msg "$(gettext "Zeynep will try to install a base chroot environment to %s and then create rpms. This operation may require a lot of time and bandwith.")" "$tempdir"
+msg "$(gettext "You may need to type your "sudo" password several times during this operation unless you configure your "sudoers" file in /etc not to do so.")"
+
+# Create chroot directory
+run_command "mkdir -p ${chrootdir}" || ( error "$(gettext "'mkdir' command can not create chroot directory at %s.")" "${chrootdir}" && exit_function )
+                     
+# Run sub functions now:
+chroot_urpmi_install
+
+# Unmount cachedir; else it is mounted twice and can not be unmounted upon finishing:
+msg "$(gettext "Unmounting %s before starting to build rpm packages in chroot environment...")" "${chrootdir}/var/cache/urpmi/rpms"
+( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" && msg "$(gettext "... DONE! %s has been unmounted")" "${chrootdir}/var/cache/urpmi/rpms" ) || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit_function )
+
+control_rpmmacros
+
+mount_necessary_dirs
+
+}
+####################################################################################################################################################
+without_tarball () {
+# This function is meant to be used without pre-generated tarballs.
+# It simply does what generate_chroot function does but without creatin a tarball
+####################################################################################################################################################
+
+# Trap user terminates
+trap 'msg "$(gettext "User aborted the operation. You can investigate %s logs. Cleaning up and exiting... ")" "${log_file}"; exit_function' SIGINT SIGHUP
+
+if [[ -z ${withouttarball} ]]; then
+    # First messages to the user:
+    read -r -p "$(plain "$(gettext "
+Zeynep will try to install a base chroot environment to %s and then create rpms.
+This operation may require a lot of time and bandwith. Do you want to continue? [Y/n]")" "$tempdir" )" no_tarball
+    case $no_tarball in
+        [yY][eE][sS]|[yY] ) 
+                        without_tarball_helper
+                        ;;
+        *)
+                        msg "$(gettext "You choose not to create a chroot environment from stracth now.
+Zeynep will exit, you can also create a xz compressed chroot tarball later for this purpose. Use "-g" option")"
+                        unset no_tarball && exit_function
+                        ;;
+    esac
+else
+    without_tarball_helper
+fi
 
 }
 
@@ -800,7 +857,7 @@ if [[ -f ${tarball}.tar.xz ]]; then
         exit_function
     fi
 else
-    ( error "$(gettext "Previously prepared chroot tarball is mandatory, but no %s tarball found. Please create one via this script using '-g' switch.")" "${tarball}.tar.xz" && exit_function )
+    ( error2 "$(gettext "No previously created %s tarball found. You can create one via this script using '-g' switch for future uses to save time/bandwith.")" "${tarball}.tar.xz" && without_tarball )
 fi
 
 }
@@ -859,9 +916,6 @@ update_rpms () {
 # Rebuild rpm database and try to update the system in chroot
 ####################################################################################################################################################
 
-# Check if user wants to use rpm cache:
-if cache_option; then urpmi_options+=("--noclean"); fi
-
 # Update rpms in chroot (There would be updated packages after chroot tarball creation)
 msg "$(gettext "There may be updated packages after chroot tarball creation. Zeynep will try to update chroot system. Please wait a few seconds...")"
 if su_in_chroot "urpmi --auto --auto-update"; then
@@ -889,6 +943,8 @@ msg "$(gettext "Rebuilding RPM database. Please wait a few seconds...")"
 install_deps () {
 #Installs build dependencies using "urpmi --buildrequires" command
 ####################################################################################################################################################
+if cache_option; then urpmi_options+=("--noclean"); fi
+
 # try to update the system in chroot:
 update_rpms
 
@@ -1032,13 +1088,16 @@ build_in_chroot () {
 trap 'msg "$(gettext "User aborted the operation. You can investigate %s logs. Cleaning up and exiting... ")" "${log_file}"; exit_function' SIGINT SIGHUP
 set_chroot_dirs
 msg "$(gettext "You may need to type your "sudo" password several times during this operation unless you configure your "sudoers" file in /etc not to do so.")"
-extract_tarball
+
+# We should check whether user do not want to use tarball:
+if [[ -z ${withouttarball} ]]; then extract_tarball; else without_tarball; fi
+
 copy_srpm
 urpmi_addmedia
 package_building
 unmount_necessary_dirs
-}
 
+}
 
 ####################################################################################################################################################
 ### Start getopts code ###
@@ -1067,10 +1126,12 @@ unmount_necessary_dirs
 #l: use local directory instead of uploading rpms
 #S: sign compiled rpms via rpm-sign
 #G: generate hdlists via genhdlist2
+#Z: Do not use chroot-tarball and build in newly created chroot.
+#z: Use MIRRORLIST instead of user specified distrib source
 #h: help
 
 passed_options=0
-while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
+while getopts "gCTNvVlSGhzZm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
     passed_options=1
 	case ${OPTION} in
 		m)
@@ -1144,6 +1205,9 @@ while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 		    ;;		
 		z)
 		    default_distrib="1"
+		    ;;		
+		Z)
+		    withouttarball="1"		    
 		    ;;		    
 		h)
 		    usage && exit 0
