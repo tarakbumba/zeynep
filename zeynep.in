@@ -48,6 +48,13 @@ else
 fi
 readonly ALL_OFF BOLD BLUE GREEN RED YELLOW
 
+# We should check that if zeynep is running as root. Zeynep is not meant to run as root!
+if [[ $EUID -eq 0 ]]; then
+    printf "${RED}==> $(gettext "ERROR :: ")${ALL_OFF}${BOLD} $(gettext "Zeynep is not meant to be run as root user, but you tried to run it as root.
+Zeynep can not contiune. Please re-run zeynep as regular user")${ALL_OFF}\n" >&2
+    exit 1
+fi
+
 # Get the top level of this script (will be used in exit_function)
 export TOP_PID=$$
 
@@ -1112,10 +1119,10 @@ while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 		    given_srpm="${OPTARG}"
 		    ;;			
 		C)
-		    ( run_comand "which rpm-tidy" && tidy_cache="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_cache="")
+		    ( run_command "which rpm-tidy" && tidy_cache="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_cache="")
 		    ;;		
 		T)
-		    ( run_comand "which rpm-tidy" && tidy_upload_rpms_dir="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_upload_rpms_dir="")
+		    ( run_command "which rpm-tidy" && tidy_upload_rpms_dir="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_upload_rpms_dir="")
 		    ;;		
 		N)
 		    noclean="1"
@@ -1133,7 +1140,7 @@ while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 		    sign_rpms="1"
 		    ;;		
 		G)
-		     ( $(which genhdlist2) && genhdlist="1" ) || (error3 "$(gettext "genhdlist2 can not be found and option is disabled.")" && genhdlist="")
+		     ( run_command "which genhdlist2" && genhdlist="1" ) || (error3 "$(gettext "genhdlist2 can not be found and option is disabled.")" && genhdlist="")
 		    ;;		
 		z)
 		    default_distrib="1"
