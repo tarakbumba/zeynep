@@ -21,7 +21,10 @@ So, zeynep born.
 
 Usage
 ------------
-zeynep [-g][options] [arguments] [-s] [srpm]
+* First things firs; never try to run zeynep as root! It will use "sudo" when required. If you don't want to type your sudo password add zeynep to your /etc/sudoers file; but this may also RISKY! See below how to configure /etc/sudoers.
+
+
+* zeynep [-g][options] [arguments] [-s] [srpm]
 
  * -m        - Mageia version which rpms build for. Default: Cauldron
  * -g        - Generate a chroot tarball which is used for building rpm
@@ -52,19 +55,19 @@ Examples:
 
 * Creating a chroot tarball for Mageia 4 with cache for a x86_64 system with user defined packages also installed:
 
- > zeynep -g -m 4 -a x86-64 -c $HOME/rpm/cache/x86_64 -p "wget vim task-kde"
+		zeynep -g -m 4 -a x86-64 -c $HOME/rpm/cache/x86_64 -p "wget vim task-kde"
 
 * Creating signed rpms from a srpm for Mageia 4 with cache for a x86_64 system using a distrib mirror and creating genhdlist without upload dir: (Created rpms will reside in $HOME/RPMS/x86_64 directory)
 
-  > zeynep -SG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
+		zeynep -SG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
     
 * Creating signed rpms from a srpm for Mageia 4 with cache for a x86_64 system using a distrib mirror and creating genhdlist with upload dir:
 
-  > zeynep -SG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -u $HOME/rpms -s $HOME/foo-1.0-1.mga4.src.rpm
+		zeynep -SG -m 4 -t "$HOME/rpm/chroot-tarballs" -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -u $HOME/rpms -s $HOME/foo-1.0-1.mga4.src.rpm
    
 * Building x86_64 arch rpm packages for Mageia 4 without pre-created tarball usage:
 
-  > zeynep -ZG -m 4 -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
+		zeynep -ZG -m 4 -d http://ftp.linux.org.tr/mageia/distrib -a x86_64 -s $HOME/foo-1.0-1.mga4.src.rpm
 
 Installation:
 --------------
@@ -85,6 +88,16 @@ Without any option specified zeynep will install in /usr directory. Please refer
 Runtime Dependencies:
 ---------------------
 Zeynep needs to rpm, urpmi, rpmbuild, sed and sudo be install to run. For localization support you should have gettext package installed. Also rpm-tidy and rpm-sign should be installed to clean older rpms and rpm signing features.
+
+Configuration of /etc/sudoers (optional)
+---------------------
+This may be harmful for your setup and YOU'VE BEEN WARNED!
+
+You can configure your /etc/sudoers file in a way that you won't need to type your sudo password everytime needed.
+Add below lines at the end of your /etc/sudoers file. Note that you should use "visudo" command to do this:
+
+		your_username ALL=(root) NOPASSWD: /whare/zeynep_is_installed/zeynep
+
 
 Known Limitations:
 --------------------
