@@ -103,8 +103,11 @@ Known Limitations:
 --------------------
 * rpm-tidy can not compare package archs properly. It operates in a way that package arch (i586/noarch/x86_64) is calculated as version-release number. So rpm-tidy tries to remove i586/noarch packages if it finds a x86_64 package with the same EVR in same directory. Therefore, to prevent unnecessarily loss of rpms in cache directory or upload directory Zeynep checks this case and disables rpm-tidy usage.
 * Due to "getopts" limitations, if you type an argument required option before non argument required option zeynep will likely to fail. For example:
+
 		zeynep -mZ 4 -s foo.src.rpm
+
 You should notice that "Z" option follows "-m" option which requires an argument which is "4" here. Getopts parse these in a way that "Z" becomes argument for "-m" and this will result as mageia_version="Z" and of course zeynep will fail. So, do not use options like that. Altough this should work:
+
 		zeynep -Zm 4 -s foo.src.rpm
 
 
