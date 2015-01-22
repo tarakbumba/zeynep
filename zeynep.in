@@ -1127,11 +1127,12 @@ unmount_necessary_dirs
 #S: sign compiled rpms via rpm-sign
 #G: generate hdlists via genhdlist2
 #Z: Do not use chroot-tarball and build in newly created chroot.
+#R: Add rpmmacros file from user home directory (usually ~/.rpmmacros)
 #z: Use MIRRORLIST instead of user specified distrib source
 #h: help
 
 passed_options=0
-while getopts "gCTNvVlSGhzZm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
+while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
     passed_options=1
 	case ${OPTION} in
 		m)
