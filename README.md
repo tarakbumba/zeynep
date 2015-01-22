@@ -50,6 +50,7 @@ zeynep [-g][options] [arguments] [-s] [srpm]
  * -l        - Upload compiled rpms into srpm's directory. Default: Disabled unless you did not use '-u' option
  * -S        - Sign rpm packages via rpm-sign utility. Default: Disabled
  * -G        - Generate hdlists for compiled rpms upon exit. Default: Disabled
+ * -R        - Add rpmmacros file from user home dir (~/.rpmmacros). Default: Disabled
  * -v        - Be verbose. Default: Disabled
  * -V        - Be very verbose. Default: Disabled
  * -h        - Display help
