@@ -1197,6 +1197,9 @@ while getopts "gCTNvVlSGhzZm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 		l)
 		    local_build="1"
 		    ;;		    
+		R)
+		    use_rpm_macros="1"
+		    ;;		    
 		S)
 		    sign_rpms="1"
 		    ;;		
