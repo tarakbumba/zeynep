@@ -27,16 +27,37 @@
 # If you want to use options below, please uncomment that option and give appropriate argument.
 #
 # Type which URL should be used with urpmi.addmedia --distrib
+# Type the URL as /someurl/mageia/distrib
+# Do not add Mageia Version and arch paths to this URL
+# Zeynep will use this as /someurl/mageia/distrib/$mga-version/$arch
+# This URL may  your local directories as well which contains directories
+# for i586 or x86_64 or both and media.cfg file along with media_info directory
+# E.g. /home/user/rpms
+# See: https://wiki.mageia.org/en/Mirrors_policy for detailed information.
+# With this option enabled you don't need to use "-d" option with zeynep
 #
 #user_distrib_url=""
 
+# Type which URL of a media source should be used with urpmi.addmedia
+# Notice that this is different from urpmi.addmedia --distrib command
+# explained above. This URL may  your local directories as well.
+# E.g. /home/user/rpms
+# Type exact path of URL which holds rpm packages and media_info directory
+# You can type this as e.g. /someurl/mageia/$mga-version/$arch if
+# URL path includes both a mageia version and arch paths.
+# With this option enabled you don't need to use "-d" option with zeynep
+#
+#user_media_url=""
+
 # Medias which will not be ignored (useful for Nonfree and Tainted builds):
+# With this option enabled you don't need to use "-N" option with zeynep
 #
 #user_no_ignore_media="Nonfree Release Nonfree Updates"
 
 # Type which directory should compiled rpms be uploaded:
 # You can use Mageia version and architecture for directories of
 # both i586 and x86_64 archs. Be sure that you use $arch variable
+# With this option enabled you don't need to use "-u" option with zeynep
 # 
 # E.g. somedir/$mga_version/$arch ( Translated as somedir/cauldron/i586 in the script, depending of your choice)
 #
@@ -46,6 +67,7 @@
 # This directory will be used as urpmi cache.
 # You can use Mageia version and architecture for directories of
 # both i586 and x86_64 archs. Be sure that you use $arch variable
+# With this option enabled you don't need to use "-c" option with zeynep
 # 
 # E.g. some_cache_dir/$mga_version/$arch ( Translated as somedir/cauldron/i586 in the script, depending of your choice)
 #
@@ -53,35 +75,42 @@
 #user_cache_directory=""
 
 # Type here path of your chroot-tarballs (for creating or using)
+# With this option enabled you don't need to use "-t" option with zeynep
 #
 #user_tarball_directory=""
 
 # Do you want to delete old rpms in your rpm cache directory? Type 1 for Yes; 0 for No.
+# With this option enabled you don't need to use "-C" option with zeynep
 #
 #user_tidy_rpm_cache="1" #yes
 
 # Do you want to delete old rpms in your rpm upload directory? Type 1 for Yes; 0 for No.
+# With this option enabled you don't need to use "-T" option with zeynep
 #
 #user_tidy_uploaded_rpms="1" #yes
 
 # You can tell zeynep that you only want to compile packages for specified architectures below.
 # Valid options are: x86_64, i586 or both
 # The option "both" will compile package for both 64bit and 32bit architectures
-# Note that you *must* have a x86_64 system to use this "both" option.
+# Note that you *must* have a x86_64 system to use this "both" or "x86_64" option.
+# With this option enabled you don't need to use "-a" option with zeynep
 #
 #user_arch="  "
 
 # Do you want to sign your compiled rpms? Type here 1 for YES or 0 for NO:
+# With this option enabled you don't need to use "-S" option with zeynep
 #
 #use_rpm_sign="1"
 
 # Do you want to generate hdlists in your rpm upload directory? Useful 
 # for adding this directory as urpmi media. Type here 1 for YES or 0 for NO:
+# With this option enabled you don't need to use "-G" option with zeynep
 # 
 #user_generate_hdlists="1"
 
 # Do you want to use your SRPM directory as rpm upload directory?
 # Notice that this option causes that rpms uploaded in ../RPMS/$arch
+# With this option enabled you don't need to use "-l" option with zeynep
 # Type here 1 for YES or 0 for NO:
 #
 #user_local_build="1"
@@ -90,9 +119,18 @@
 # which is in /tmp directory by default. If you want zeynep to don't  remove
 # chroot directory then type here 1 for YES or 0 for NO.
 # This option is useful for investigating problems in RPM_BUILD_ROOT
-# which is in /tmp/zeynep-builder-XX/chroot/home/$USER/rpmbuild directory
+# which is in /tmp/zeynep-builder-XX/chroot/home/$USER/rpmbuild directory by default.
+# With this option enabled you don't need to use "-N" option with zeynep
 #
 # user_no_clean_build_dir="1"
+
+# You can set your temporary directory which chroot environment will be
+# created in. If this option is not set here or commandline zeynep will
+# create chroot environment in your $TMPDIR (usually /tmp directory)
+# With this option enabled you don't need to use "-D" option with zeynep
+#
+#user_tempdir=""
+
 
 
 # Additional functions to use in zeynep:
@@ -100,12 +138,14 @@
 # Uncomment below "prebuild_stuff" variable to source your functions
 # which should be used *JUST BEFORE* package building. This does not
 # interfere with setting up chroot environment and other stuff.
-# It runs user defined functions just before executing *zeynep-builder*
+# It runs user defined functions just before executing creating rpm packages.
 # 
-# You can define functions as many as you wish. But you should include all
+# You can define commands as many as you wish. But you should include all
 # of them in a main "prebuild_functions" function. Zeynep only reads and
-# sources that.
-#
+# sources that. Be sure that your multiple functions set before
+# prebuild_functions function. Bash only sources other functions in a function
+# if they are above the main one.
+
 #prebuild_stuff="1"
 #prebuild_functions () {
 
@@ -115,13 +155,16 @@
 # Uncomment below "postbuild_stuff" variable to source your functions
 # which should be used *JUST AFTER* package building. This does not
 # interfere with setting up chroot environment and other stuff.
-# It runs user defined functions just after executing *zeynep-builder*
+# It runs user defined functions just after executing package building.
 # 
-# You can define functions as many as you wish. But you should include all
+# You can define commands as many as you wish. But you should include all
 # of them in a main "postbuild_functions" function. Only exception to this
 # is if a function runs a function before. Then you should not include it in
 # our "postbuild_functions" function. Zeynep only reads and sources that.
-#
+# Be sure that your multiple functions set before prebuild_functions function.
+# Bash only sources other functions in a function
+# if they are above the main one.
+
 #postbuild_stuff="1"
 
 #postbuild_functions () {
