@@ -1067,10 +1067,11 @@ unmount_necessary_dirs
 #l: use local directory instead of uploading rpms
 #S: sign compiled rpms via rpm-sign
 #G: generate hdlists via genhdlist2
+#R: Add rpmmacros file from user home directory (usually ~/.rpmmacros)
 #h: help
 
 passed_options=0
-while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
+while getopts ":gCTNvVlSGhzRm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
     passed_options=1
 	case ${OPTION} in
 		m)
@@ -1135,7 +1136,10 @@ while getopts ":gCTNvVlSGhzm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 		    ;;		    
 		l)
 		    local_build="1"
-		    ;;		    
+		    ;;
+		R)
+                    use_rpm_macros="1"
+                    ;;	    
 		S)
 		    sign_rpms="1"
 		    ;;		
