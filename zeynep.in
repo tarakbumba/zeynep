@@ -178,6 +178,7 @@ plain "$(gettext " -s        - Exact path/name of the srpm file. E.g. /home/user
 plain "$(gettext " -D        - Temporary directory for chroot environment. Can be used with '-g' option. Default: %s")" "${TMPDIR}"
 plain "$(gettext " -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST")"
 plain "$(gettext " -z        - Force zeynep to not use given distrib media with -d switch/or from config file and default to MIRRORLIST")"
+plain "$(gettext " -R        - Copy rpmmacros file from user home directory into chroot environment. Use this option with '-g' option. Default: Disabled")"
 plain "$(gettext " -c        - RPM cache directory which will be used for save time/bandwith. Default: Disabled")"
 plain "$(gettext " -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/mageia/4/media/i586'. Default: Disabled")"
 plain "$(gettext " -p        - Packages names to be installed in chroot. This option must be used with '-g' option
@@ -1138,8 +1139,8 @@ while getopts ":gCTNvVlSGhzRm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 		    local_build="1"
 		    ;;
 		R)
-                    use_rpm_macros="1"
-                    ;;	    
+		    use_rpm_macros="1"
+		    ;;
 		S)
 		    sign_rpms="1"
 		    ;;		
