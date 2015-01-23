@@ -1,3 +1,87 @@
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+
+    Bug fixing in zeynep.in (Issue #4)
+    - Implement /etc/skel/.rpmmacros search and setting into control_rpmmacros
+    function. This commit should fix issue#4
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+
+    Bug fixing in zeynep.in
+    
+    - Fix a bug that prints all rpm-tidy functions output to screen
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-23
+
+    Add git.mk to po/Makefile.am
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+
+    Update zeynep.conf.in
+    
+    Add tempdir and media url options in configuration
+    Explain which options unneeded if it resides in configuration
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+
+    Update zeynep.in
+    
+    Add "R" option to getopts line.
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+
+    Update README.md
+    
+    - Added -R option explanation
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+
+    Update zeynep.in
+    
+    - Add forgotten option for rpmmacros usage (#4)
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+
+    Update README.md
+    
+    Fix github markup for known limitations part.
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+
+    Update README.md
+    
+    Add getopts limitations into known issues part
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+
+    Update README.md
+    
+    Added how to configure sudoers file.
+    Tidy up codes for github markup.
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+
+    - Update translation catalogs
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+
+    - Add option to not use chroot-tarball
+
+Merge: a53fb51 a4f1186
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+
+    Merge pull request #5 from tarakbumba/1.0
+    
+    Fixes typos and root run. Taken from 1.0.x branch
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-20
+
+    - Fix typo in searching installed utilities
+    - Add check for root run
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+
+    Update README.md
+
 Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
 
     - Fix translation catalogs.
