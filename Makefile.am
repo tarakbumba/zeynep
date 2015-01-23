@@ -71,3 +71,5 @@ UPDATE_PO:
 
 ##eof
 
+
+-include $(top_srcdir)/git.mk
