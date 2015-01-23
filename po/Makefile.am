@@ -335,3 +335,5 @@ $(DUMMYPOFILES):
 
 update-gmo: Makefile $(GMOFILES)
 	@:
+
+-include $(top_srcdir)/git.mk
