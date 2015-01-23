@@ -75,6 +75,11 @@
 #
 #use_rpm_sign="1"
 
+#Do you want zeynep to automatically add your rpmmacros file from your Home directory
+#into chroot environment? If you do, then uncomment below line
+#
+#use_rpm_macros="1"
+
 # Do you want to generate hdlists in your rpm upload directory? Useful 
 # for adding this directory as urpmi media. Type here 1 for YES or 0 for NO:
 # 
