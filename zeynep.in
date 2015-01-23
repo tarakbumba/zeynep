@@ -251,8 +251,8 @@ tidy_rpms () {
 if [ -n "${tidy_cache}" ] && [ -e ${cachedir} ]; then
 # First we need to change ownership of rpms to the user:
 #    if run_command "sudo chown ${USER}:${USER} ${cachedir}/*.rpm"; then rpm_tidy="rpm-tidy"; else rpm_tidy="sudo rpm-tidy"; fi
-    if  (( ls ${cachedir}/*.rpm | grep "i586" ) > /dev/null || ( ls ${cachedir}/*.rpm | grep "noarch" ) > /dev/null ) && ( ( ls ${cachedir}/*.rpm | grep "x86_64" ) > /dev/null ); then
-        error2 "$(gettext "You have both i586/noarch and x86_64 rpms in %s directory. Using rpm-tidy is dangerous because it doesn't calculate arch of package. Therefore your i586/noarch packages may deleted. To prevent loss of rpms disabling rpm-tidy...")" "${cachedir}"
+    if  ( ( ls ${cachedir}/*.rpm | grep "i586" ) > /dev/null ) && ( ( ls ${cachedir}/*.rpm | grep "x86_64" ) > /dev/null ); then
+        error2 "$(gettext "You have both i586 and x86_64 rpms in %s directory. Using rpm-tidy is dangerous because it doesn't calculate arch of package. Therefore your i586 packages may deleted. To prevent loss of rpms disabling rpm-tidy...")" "${cachedir}" 
     else
         run_command "sudo rpm-tidy -f --dir="${cachedir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory.")" "${cachedir}"
     fi
@@ -261,8 +261,8 @@ fi
 ( run_command "which rpm-tidy" && tidy_upload_rpms_dir="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_upload_rpms_dir="")
 
 if [[ -z ${generate_tarball} && -n "${tidy_upload_rpms_dir}" ]] && [ -e ${uploaddir} ]; then
-    if  (( ls ${uploaddir}/*.rpm | grep "i586" ) > /dev/null || ( ls ${uploaddir}/*.rpm | grep "noarch" ) > /dev/null ) && ( ( ls ${uploaddir}/*.rpm | grep "x86_64" ) > /dev/null ); then
-        error2 "$(gettext "You have both i586/noarch and x86_64 rpms in %s directory. Using rpm-tidy is dangerous because it doesn't calculate arch of package. Therefore your i586/noarch packages may deleted. To prevent loss of rpms disabling rpm-tidy...")" "${uploaddir}"
+    if  ( ( ls ${cachedir}/*.rpm | grep "i586" ) > /dev/null ) && ( ( ls ${cachedir}/*.rpm | grep "x86_64" ) > /dev/null ) ; then
+        error2 "$(gettext "You have both i586 and x86_64 rpms in %s directory. Using rpm-tidy is dangerous because it doesn't calculate arch of package. Therefore your i586 packages may deleted. To prevent loss of rpms disabling rpm-tidy...")" "${uploaddir}"
     else
         run_command "sudo rpm-tidy  -f --dir="${uploaddir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory.")" "${uploaddir}"
     fi
