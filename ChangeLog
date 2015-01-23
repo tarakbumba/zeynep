@@ -1,3 +1,51 @@
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+
+    Bug fixing in zeynep.in
+    
+    - Fix a bug that prints all rpm-tidy functions output to screen
+    - Add rpmmacros messages
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+
+    Update README.md
+    
+    - Add rpmmacros options in configuration file zeynep.conf.in
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-23
+
+    Add git.mk to po/Makefile.am
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-23
+
+    Update zeynep.in
+    - Add '-R' option usage to help
+    - Remove tab usage in R option for getopts
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+
+    Update README.md
+    
+    Added "-R" option explanation
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+
+    Update zeynep.in
+    
+    Add forgotten option for rpmmacros usage (#4)
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-20
+
+    - Fix typo in searching installed utilities
+    - Add check for root run
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+
+    Update README.md
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+
+    - Fix translation catalogs.
+
 Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
 
     - Update translation catalogs
