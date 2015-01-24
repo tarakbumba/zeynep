@@ -19,7 +19,7 @@ dnl
 
 AC_PREREQ([2.69])
 
-AC_INIT([zeynep], [1.0.4], [https://github.com/tarakbumba/zeynep/issues], [https://github.com/tarakbumba/zeynep])
+AC_INIT([zeynep], [1.0.5], [https://github.com/tarakbumba/zeynep/issues], [https://github.com/tarakbumba/zeynep])
 
 AM_INIT_AUTOMAKE([1.9 tar-ustar dist-xz foreign no-dist-gzip])
 
