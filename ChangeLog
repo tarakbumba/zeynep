@@ -1,179 +1,205 @@
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-24
+
+    Update translations
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-24
+
+    Update gettext catalogs
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-24
+
+    Fixed some bugs in zeynep.in
+    
+    - Change from $MIRRORLIST to http://mirrors.mageia.org/api/mageia.${mga_version}.${arch}.list
+      Before this change; zeynep always got i586 mirrorlist when 'both' argument passed to '-a' option.
+    
+    - Fix usage of $mga_version and $arch variables at commandline
+      If user types paths or URLs for options like cache or media using $mga_arch or $arch, zeynep
+      couldn't fill these variables thus paths or URLs were failing. This commit fixes this issue.
+    
+    - Fix building with 'both' argument usage for '-a' option
+      If user tries to build packages or tarballs for both archs (i586/x86_64) using 'both' argument;
+      zeynep was failing to perform tasks with x86_64 arch. There were leftover variable assignements
+      from i586 task. This commit hopefully fix this issue.
+    
+    - Update ChangeLog
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-24
 
     Update Changelog
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-24
 
     Bug fixing in zeynep.in (Issue #4)
     - Implement /etc/skel/.rpmmacros search and setting into control_rpmmacros
     function. This commit should fix issue#4
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-24
 
     Bug fixing in zeynep.in
     
     - Fix a bug that prints all rpm-tidy functions output to screen
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-23
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-23
 
     Add git.mk to po/Makefile.am
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-22
 
     Update zeynep.conf.in
     
     Add tempdir and media url options in configuration
     Explain which options unneeded if it resides in configuration
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-22
 
     Update zeynep.in
     
     Add "R" option to getopts line.
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-22
 
     Update README.md
     
     - Added -R option explanation
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-22
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-22
 
     Update zeynep.in
     
     - Add forgotten option for rpmmacros usage (#4)
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-21
 
     Update README.md
     
     Fix github markup for known limitations part.
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-21
 
     Update README.md
     
     Add getopts limitations into known issues part
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-21
 
     Update README.md
     
     Added how to configure sudoers file.
     Tidy up codes for github markup.
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-21
 
     - Update translation catalogs
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-21
 
     - Add option to not use chroot-tarball
 
 Merge: a53fb51 a4f1186
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-21
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-21
 
     Merge pull request #5 from tarakbumba/1.0
     
     Fixes typos and root run. Taken from 1.0.x branch
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-20
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-20
 
     - Fix typo in searching installed utilities
     - Add check for root run
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-19
 
     Update README.md
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-19
 
     - Fix translation catalogs.
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-19
 
     - Update translation catalogs
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-19
 
     - Be a bit verbose to screen in run_command functions.
     - Silent rpm-tidy checks with 'ls' command.
     - Tidy up error messages.
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-19
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-19
 
      - Fix command run functionsto run commands properly (#2)
     - Ensure that user supplied paths do not contain '/' at the end of path
 
-tarakbumba <tarakbumba@gmail.com>	2015-01-18
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-18
 
     - Fix bug with rpm upload function
     - Add debug of running commands to log file
     - More messages for user
 
-tarakbumba <tarakbumba@gmail.com>	2015-01-18
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-18
 
     - Create user in chroot with same id/name of the zeynep user
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-17
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-17
 
     - Update README.md
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-17
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-17
 
     - Update pot catalogs and translations
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-17
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-17
 
     - Fix source line in rpm specfile example
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-17
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-17
 
     - Workaround rpm-tidy bug regarding to rpm's arch in comparison
 
-tarakbumba <tarakbumba@gmail.com>	2015-01-14
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-14
 
     - For tarball creation: Add locale packages installation same as host systems to add locales support in chroot
 
-tarakbumba <tarakbumba@gmail.com>	2015-01-14
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-14
 
     - Fix typo in tidy_rpms function
 
-tarakbumba <tarakbumba@gmail.com>	2015-01-14
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-14
 
     - Add rpm specfile
 
-tarakbumba <tarakbumba@gmail.com>	2015-01-14
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-14
 
     - Fix installation dir in README.md
 
-tarakbumba <tarakbumba@gmail.com>	2015-01-14
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-14
 
     - Updated translation catalogs
     - Fix a message in rpm list function
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-14
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-14
 
     Update README.md
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-14
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-14
 
     Add files from previous commit
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-14
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-14
 
     - Add autotools files
     - Empty src dir and move zeynep script to top level dir as zeynep.in
     - Add external utilities check to zeynep.in
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-13
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-13
 
     - Fix bug when arch=both used
     - Add sourcing configurations
     - Add an option to use default 'MIRRORLIST' urpmi source
     - Add more informational messages
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-11
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-11
 
     - Add config file sourcing
     - Update config file skeleton and README
@@ -181,63 +207,63 @@ Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-11
     - Fix Mageia version and arch when urpmi distrib medium is added
     - Add check statement if user specified Mageia version, if not default to cauldron
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-11
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-11
 
     Update README.md
     
     Add bug reporting link
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-11
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-11
 
     Update README.md
     
     Fix help option display
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-11
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-11
 
     Update README.md
     
     Fix wrong wrapping of zeynep options
 
-tarakbumba <tarakbumba@gmail.com>	2015-01-11
+tarakbumba <tarakbumba@gmail.com>Date:   2015-01-11
 
     Add a config file skeleton
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-11
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-11
 
     - Fix noclean option usage
     - Fix rpm-tidy to actually tidy rpms
     - Add more messages
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-11
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-11
 
     - Remove noarch package checks
     - Add updating rpms in chroot environment before package building.
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-10
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-10
 
     First working script
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-02
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-02
 
     Remove unused tidy_log_file and trap_function functions
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-01
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-01
 
      Add gitignore file
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-01
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2015-01-01
 
      Add first and incomplete zeynep script
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2014-12-24
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2014-12-24
 
     - Add a simple readme
 
-tarakbumba <tarakbumba@gmail.com>	2014-12-23
+tarakbumba <tarakbumba@gmail.com>Date:   2014-12-23
 
     Initial commit with chroot-builder script
 
-Atilla ÖNTAŞ <tarakbumba@gmail.com>	2014-12-23
+Atilla ÖNTAŞ <tarakbumba@gmail.com>Date:   2014-12-23
 
     Initial commit

@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Atilla ÖNTAŞ <tarakbumba@gmail.com>
+# Copyright (C) 2015 Atilla ÖNTAŞ <tarakbumba@gmail.com>
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zeynep 1.0.0\n"
-"Report-Msgid-Bugs-To: https://github.com/tarakbumba/zeynep/issues\n"
-"POT-Creation-Date: 2015-01-24 12:09+0200\n"
+"Report-Msgid-Bugs-To: https://github.com/tarakbumba/zeynep/issues/new\n"
+"POT-Creation-Date: 2015-01-24 12:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
