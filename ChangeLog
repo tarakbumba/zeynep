@@ -1,5 +1,35 @@
 Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
 
+    Bug fixing in zeynep.in (Issue #4)
+    
+    - Implement /etc/skel/.rpmmacros search and setting into control_rpmmacros
+    function. This commit should fix issue#4
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+
+    Fixed two bugs in zeynep.in
+    
+    - Change from $MIRRORLIST to http://mirrors.mageia.org/api/mageia.${mga_version}.${arch}.list
+      Before this change; zeynep always got i586 mirrorlist when 'both' argument passed to '-a' option.
+    
+    - Fix building with 'both' argument usage for '-a' option
+      If user tries to build packages or tarballs for both archs (i586/x86_64) using 'both' argument;
+      zeynep was failing to perform tasks with x86_64 arch. There were leftover variable assignements
+      from i586 task. This commit hopefully fix this issue.
+    
+    - Update ChangeLog
+
+Merge: 49dd0ef 6ffac54
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+
+    WIP on 1.0: 49dd0ef Update Changelog
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+
+    index on 1.0: 49dd0ef Update Changelog
+
+Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
+
     Update Changelog
 
 Atilla ÖNTAŞ <tarakbumba@gmail.com>	2015-01-24
