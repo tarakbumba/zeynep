@@ -576,12 +576,20 @@ control_rpmmacros () {
 if [[ -n $use_rpm_macros ]]; then
     if [[ -f $HOME/.rpmmacros ]]; then
         if [[ -d ${chrootdir}/etc/skel ]]; then
+            msg "$(gettext "Zeynep is adding your %s rpmmacros file into %s in chroot")" "${HOME}/.rpmmacros" "${chrootdir}/etc/skel"
             run_command "sudo cp -f ${HOME}/.rpmmacros ${chrootdir}/etc/skel/" || error2 "$(gettext "Specified rpmmacros file can not be copied")"
         else
             error2 "$(gettext "%s directory can not be found in %s chroot")" "/etc/skel" "${chrootdir}"
         fi
+    elif [[ -f /etc/skel/.rpmmacros ]]; then
+        if [[ -d ${chrootdir}/etc/skel ]]; then
+            msg "$(gettext "Zeynep is adding your %s rpmmacros file into %s in chroot")" "/etc/skel/.rpmmacros" "${chrootdir}/etc/skel"
+            run_command "sudo cp -f /etc/skel/.rpmmacros ${chrootdir}/etc/skel/" || error2 "$(gettext "Specified rpmmacros file can not be copied")"
+        else
+            error2 "$(gettext "%s directory can not be found in %s chroot")" "/etc/skel" "${chrootdir}"
+        fi
     else
-        warning "$(gettext "Specified rpmmacros file can not be found. Will continue without rpmmacros installation")"
+        warning "$(gettext "%s or %s rpmmacros file can not be found. Will continue without rpmmacros installation")" "${HOME}/.rpmmacros" "/etc/skel/.rpmmacros"
     fi
 fi
 }
