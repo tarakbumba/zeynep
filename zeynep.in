@@ -155,10 +155,32 @@ no_ignore_media_array+=("${user_no_ignore_media}")
 # Tarball directory:
 if [[ "${tarball_path: -1}" == "/" ]]; then tarball_dir="${tarball_path%?}"; else tarball_dir="${tarball_path}"; fi
 # Cache directory:
+# First ensure that mga_version and arch is set if they are used at commandline:
+if (echo ${cache_path} | grep '$HOME' > /dev/null ); then
+	cache_path="${cache_path/\$HOME/$HOME}"
+fi
+if (echo ${cache_path} | grep '$mga_version' > /dev/null ); then
+	cache_path="${cache_path/\$mga_version/$mga_version}"
+fi
+if (echo ${cache_path} | grep '$arch' > /dev/null ); then
+	cache_path="${cache_path/\$arch/$arch}"
+fi
+# Then set cachedir
 if [[ "${cache_path: -1}" == "/" ]]; then cachedir="${cache_path%?}"; else cachedir="${cache_path}"; fi
 # Tempdir:
 if [[ "${temp_path: -1}" == "/" ]]; then tempdir="${temp_path%?}"; else tempdir="${temp_path}"; fi
 # Upload dir:
+# First ensure that mga_version and arch is set if they are used at commandline:
+if (echo ${upload_path} | grep '$HOME' > /dev/null ); then
+	upload_path="${upload_path/\$HOME/$HOME}"
+fi
+if (echo ${upload_path} | grep '$mga_version' > /dev/null ); then
+	upload_path="${upload_path/\$mga_version/$mga_version}"
+fi
+if (echo ${upload_path} | grep '$arch' > /dev/null ); then
+	upload_path="${upload_path/\$arch/$arch}"
+fi
+# Then set uploaddir
 if [[ "${upload_path: -1}" == "/" ]]; then uploaddir="${upload_path%?}"; else uploaddir="${upload_path}"; fi
 
 }
@@ -287,11 +309,16 @@ else
     msg "$(gettext "%s won't be deleted. Please remove it manually.")" "${chrootdir}"
 fi
 
-# We must unset some variable for future uses. Else it would be invoked twice...
+# We must unset some variable for future uses. Else they passed to another run of below functions. This is especially true if
+# user uses "-a 'both'" option.
 unset tempdir
 unset tarball
 unset cachedir
 unset urpmi_options_array
+unset arch
+unset uploaddir
+[[ -z "${distrib_array[*]}" ]] && unset distrib_array
+[[ -z "${media_array[*]}" ]] && unset media_array
 }
 
 ####################################################################################################################################################
@@ -443,7 +470,7 @@ else
     msg "$(gettext "User forced zeynep to use default distrib urpmi source: MIRRORLIST")"
 fi
 
-run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --auto --distrib --mirrorlist \$MIRRORLIST" || ( error "$(gettext "Zeynep can not add default MIRRORLIST distrib source. Zeynep can not continue without a distrib urpmi medium.")" && exit_function )
+run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --auto --distrib --mirrorlist http://mirrors.mageia.org/api/mageia.${mga_version}.${arch}.list" || ( error "$(gettext "Zeynep can not add default MIRRORLIST distrib source. Zeynep can not continue without a distrib urpmi medium.")" && exit_function )
 
 }
 
@@ -549,13 +576,12 @@ control_rpmmacros () {
 if [[ -n $use_rpm_macros ]]; then
     if [[ -f $HOME/.rpmmacros ]]; then
         if [[ -d ${chrootdir}/etc/skel ]]; then
-            msg "$(gettext "Zeynep is adding your %s rpmmacros file into %s in chroot")" "${HOME}/.rpmmacros" "${chrootdir}/etc/skel"
             run_command "sudo cp -f ${HOME}/.rpmmacros ${chrootdir}/etc/skel/" || error2 "$(gettext "Specified rpmmacros file can not be copied")"
         else
             error2 "$(gettext "%s directory can not be found in %s chroot")" "/etc/skel" "${chrootdir}"
         fi
     else
-        warning "$(gettext "%s rpmmacros file can not be found. Will continue without rpmmacros installation")" "${HOME}/.rpmmacros"
+        warning "$(gettext "Specified rpmmacros file can not be found. Will continue without rpmmacros installation")"
     fi
 fi
 }
@@ -777,9 +803,17 @@ if [[ -n ${MGAARCH} ]]; then
     elif [ $(arch) != "x86_64" ] && [ ${MGAARCH} == "i586" ]; then
         export arch="i586" && package_or_chroot 
     elif [ ${MGAARCH} == "both" ]; then
+		# "Both" argument needs special treatment. We must unset arch from previous run and must export new arch to the functions.
         unset arch && export arch="i586" && package_or_chroot
         msg "$(gettext "\nZeynep will try to create package/tarball for x86_64 system now.\n")"
-        unset arch && export arch="x86_64" && package_or_chroot
+		unset arch
+		# Also setting x86_64 here needs special treatment. Setting new arch is not enough. Whatever i did it seems that "arch" portion of
+		# a path always lingering. This is especially true for cache and upload paths. So, it seems to me replacing arches in those vars are
+		# the only option which works. Also, we should unset some vars in unclean_temp function.
+		export arch="x86_64"
+		export cache_path="${cache_path/i586/x86_64}"
+		export upload_path="${upload_path/i586/x86_64}"
+		package_or_chroot
     fi
 else
     warning "$(gettext "You have specified an invalid argument for system architecture. Zeynep will build packages/tarballs for your system's main architecture")"
