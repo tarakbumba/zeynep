@@ -908,7 +908,9 @@ if cache_option; then urpmi_options+=("--noclean"); fi
 
 # Update rpms in chroot (There would be updated packages after chroot tarball creation)
 msg "$(gettext "There may be updated packages after chroot tarball creation. Zeynep will try to update chroot system. Please wait a few seconds...")"
-if su_in_chroot "urpmi --auto --auto-update"; then
+urpmi_options+=("--auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
+urpmi_options_array="${urpmi_options[@]}"
+if run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} --auto-update"; then
     msg "$(gettext "... DONE!")"
 else
     read -r -p "$(plain "$(gettext "Zeynep failed to update rpms in chroot. Would you like to continue [Y/n] ")")" continue_action
@@ -936,12 +938,12 @@ install_deps () {
 # try to update the system in chroot:
 update_rpms
 
-# Define urpmi options
-urpmi_options+=("--buildrequires --auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
-urpmi_options_array="${urpmi_options[@]}"
+# Define urpmi options (Not needed now. This function takes over these urpmi options from update_rpms function
+#urpmi_options+=("--buildrequires --auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
+#urpmi_options_array="${urpmi_options[@]}"
 
 # Install build deps:
-run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${srpm}" || ( error "$(gettext "Zeynep can not install build dependencies for %s.")" "${srpm}" && exit_function )
+run_command "sudo urpmi --urpmi-root ${chrootdir} --buildrequires ${urpmi_options_array} ${srpm}" || ( error "$(gettext "Zeynep can not install build dependencies for %s.")" "${srpm}" && exit_function )
 
 }
 
