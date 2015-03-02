@@ -206,7 +206,7 @@ plain "$(gettext " -c        - RPM cache directory which will be used for save t
 plain "$(gettext " -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/mageia/4/media/i586'. Default: Disabled")"
 plain "$(gettext " -p        - Packages names to be installed in chroot. This option must be used with '-g' option
                  and each package must be seperated by a space in quotes. E.g. 'locales-tr wget' Default: Disabled")"
-plain "$(gettext " -n        - Do not ignore specified medias in quote marks. E.g "%s". Default: Disabled")" "Nonfree Tainted Backports"
+plain "$(gettext " -n        - Do not ignore comma seperated medias in quote marks. E.g "%s". Default: Disabled")" "\"Nonfree Release,Tainted Updates,Backports Relese\""
 plain "$(gettext " -U        - Additional urpmi options to be used either in tarball creation or package building.")"
 plain "$(gettext " -u        - Upload directory for created rpm packages. Default: Use path which srpm resides")"
 plain "$(gettext " -a        - Architecture of Mageia version. This could be i586 on a 32bit machine or i586,

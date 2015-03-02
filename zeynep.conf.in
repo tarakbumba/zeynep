@@ -49,10 +49,10 @@
 #
 #user_media_url=""
 
-# Medias which will not be ignored (useful for Nonfree and Tainted builds):
-# With this option enabled you don't need to use "-N" option with zeynep
+# Medias which will not be ignored in a comma seperated list (useful for Nonfree and Tainted builds):
+# With this option enabled you don't need to use "-n" option with zeynep
 #
-#user_no_ignore_media="Nonfree Release Nonfree Updates"
+#user_no_ignore_media="Nonfree Release,Nonfree Updates,Nonfree Backports,Tainted Release,Tainted Updates,Tainted Backports"
 
 # Type which directory should compiled rpms be uploaded:
 # You can use Mageia version and architecture for directories of
