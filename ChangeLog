@@ -1,3 +1,19 @@
+tarakbumba <tarakbumba@gmail.com>Date:   2015-03-03
+
+    Update "-n" option instructions
+    
+    This patch updates instructions for "-n" option.
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-03-03
+
+    Fix media sources
+    
+    This commit fixes media sources (Nonfree, Tainted etc.) enabling.
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-03-01
+
+    Fix updating packages in chroot with defined urpmi options (fixes also cache usage)
+
 tarakbumba <tarakbumba@gmail.com>Date:   2015-02-27
 
     Update specfile for source line and github api
