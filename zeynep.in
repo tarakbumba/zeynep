@@ -480,10 +480,17 @@ care_medias () {
 ####################################################################################################################################################
 
 if [[ -n "${no_ignore_media_array[*]}" ]]; then
-    local IFS=""
-    for non_ignored in ${no_ignore_media_array[*]}; do
-        msg "$(gettext "Enabling %s media as urpmi source in chroot environment")" "${non_ignored}"
-        if run_command "sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore ${non_ignored} && sudo urpmi.update --urpmi-root ${chrootdir} -a"; then
+	msg "$(gettext "Enabling %s media as urpmi source in chroot environment")" "${non_ignored}"
+	old_ifs="$IFS"
+   	IFS=","
+	added_media_branches="${no_ignore_media_array[*]}"
+    for non_ignored in ${added_media_branches}; do
+        IFS="$old_ifs"
+		command="sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore "${non_ignored}" && sudo urpmi.update --urpmi-root ${chrootdir} -a"
+		echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
+		if
+			sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore "${non_ignored}" && sudo urpmi.update --urpmi-root ${chrootdir} -a >> ${log_file} 2>&1
+		then
             plain "$(gettext "... DONE!")"
         else 
             read -r -p "$(error2 "$(gettext "Zeynep can not enable %s media. Will continue without this media enabled. Do you want to proceed? [y/N]")" "${non_ignored}" )" media_response
@@ -498,6 +505,7 @@ if [[ -n "${no_ignore_media_array[*]}" ]]; then
             esac
         fi
     done
+	IFS="$old_ifs"
 fi
 
 }
