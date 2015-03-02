@@ -30,9 +30,9 @@
 #
 #user_distrib_url=""
 
-# Medias which will not be ignored (useful for Nonfree and Tainted builds):
+# Medias which will not be ignored in a comma seperated list (useful for Nonfree and Tainted builds):
 #
-#user_no_ignore_media="Nonfree Release Nonfree Updates"
+#user_no_ignore_media="Nonfree Release,Nonfree Updates"
 
 # Type which directory should compiled rpms be uploaded:
 # You can use Mageia version and architecture for directories of
