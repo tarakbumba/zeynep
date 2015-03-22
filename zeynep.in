@@ -1234,6 +1234,11 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 			;;		    
 		s)
 		    given_srpm="${OPTARG}"
+		    # Check that given srpm is there...
+            if [[ !  -f ${given_srpm} ]]; then
+                error "$(gettext "Specified src.rpm file can not be found in path. Please check and try again.")"
+                exit 1
+            fi
 		    ;;			
 		C)
 		    ( run_command "which rpm-tidy" && tidy_cache="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_cache="")
