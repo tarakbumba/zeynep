@@ -189,11 +189,13 @@ usage () {
 # Display brief usage.
 ####################################################################################################################################################
 echo ""
-plain "$(gettext "  Zeynep - version %s\n")" "${app_version}"
+plain "$(gettext "  Zeynep - version %s")" "${app_version}"
+echo ""
 echo "***************************************************************"
-plain "$(gettext "  A rpm build utility with lots of features in clean chroot environment for Mageia GNU/Linux Distribution\n")"
+plain "$(gettext "  A rpm build utility with lots of features in clean chroot environment for Mageia GNU/Linux Distribution")"
 echo "***************************************************************"
-plain "$(gettext "Usage: zeynep [-g][options] [arguments] [-s] [srpm]\n")"
+plain "$(gettext "Usage: zeynep [-g][options] [arguments] [-s] [srpm]")"
+echo ""
 plain "$(gettext " -m        - Mageia version which rpms build for. Default: Cauldron")"
 plain "$(gettext " -g        - Generate a chroot tarball which is used for building rpm")"
 plain "$(gettext " -Z        - Do not use a chroot tarball. Instead create chroot environment from strach and build packages in there.")"
@@ -221,7 +223,13 @@ plain "$(gettext " -G        - Generate hdlists for compiled rpms upon exit. Def
 plain "$(gettext " -v        - Be verbose. Default: Disabled")"
 plain "$(gettext " -V        - Be very verbose. Default: Disabled")"
 plain "$(gettext " -h        - Display this help")"
-plain "$(gettext "\nZeynep have to use previously created chroot environment to build packages.\nTherefore it provides a chroot tarball creation function via its '-g' switch.\nZeynep also can read most of these options from a local (~/.config/zeynep/zeynep-[mageia version].conf)\nconfigure file or from global (/etc/zeynep.conf) file.\nConfiguration file supplied with zeynep is quite self-explainatory.\nPlease see that file.")"
+plain "$(gettext "
+Zeynep have to use previously created chroot environment to build packages.
+Therefore it provides a chroot tarball creation function via its '-g' switch.
+Zeynep also can read most of these options from a local (~/.config/zeynep/zeynep-[mageia version].conf)
+configure file or from global (/etc/zeynep.conf) file.
+Configuration file supplied with zeynep is quite self-explainatory.
+Please see that file.")"
 
 }
 
@@ -358,10 +366,12 @@ kill -s TERM ${TOP_PID} && exit 1
 create_tempdir () {
 # Warn user for its dangers and if not found then ask user if he/she wants to create temp directory for chroot.
 ####################################################################################################################################################
-warning "$(gettext "Creating a chroot environment in a directory other than %s is dangerous.\nThis process needs to run some commands as root, therefore your path for chroot environment may not be readable or writeable for your user account. You' ve been warned")" "${TMPDIR}"
+warning "$(gettext "Creating a chroot environment in a directory other than %s is dangerous.
+This process needs to run some commands as root, therefore your path for chroot environment may not be readable or writeable for your user account. You' ve been warned")" "${TMPDIR}"
 
 if [[ ! -d ${tempdir} ]]; then
-    read -r -p "$(plain "$(gettext "%s can not be found. Would you like to 'zeynep' create it?\n If you don't want to, then 'zeynep' will use %s directory: [y/N]")" "${tempdir}" "${TMP}" )" tempdir_response
+    read -r -p "$(plain "$(gettext "%s can not be found. Would you like to 'zeynep' create it?
+If you don't want to, then 'zeynep' will use %s directory: [y/N]")" "${tempdir}" "${TMP}" )" tempdir_response
     case $tempdir_response in
         [yY][eE][sS]|[yY] ) 
                         run_command "mkdir -p ${tempdir}" ||  ( error "$(gettext "An error occured during chroot directory creation.")" && exit_function )
@@ -706,7 +716,8 @@ test_tarballs () {
 ####################################################################################################################################################
 
 if [[ -f "$tarball.tar.xz" ]]; then
-    msg "$(gettext "Previously created %s tarball found. Zeynep will backup it.\nYou can find it in %s directory")" "$tarball.tar.xz" "${tarball_dir}/zeynep_backups"
+    msg "$(gettext "Previously created %s tarball found. Zeynep will backup it.
+You can find it in %s directory")" "$tarball.tar.xz" "${tarball_dir}/zeynep_backups"
     if [[ ! -d "${tarball_dir}/zeynep_backups" ]]; then
         run_command "mkdir -p ${tarball_dir}/zeynep_backups" || ( error "$(gettext "%s can not be created!")" "$tarball_dir/zeynep_backups" && overwrite_tarball )
     fi
@@ -854,7 +865,8 @@ else
         # Create tarballs
         generate_chroot
     else
-        ( error "$(gettext "You must supply a srpm file to build rpm packages using zeynep but none given.\nOr do you forget to use '-s' switch? Exiting...")" && exit 1 )
+        ( error "$(gettext "You must supply a srpm file to build rpm packages using zeynep but none given.
+Or do you forget to use '-s' switch? Exiting...")" && exit 1 )
     fi
 fi
 
@@ -878,7 +890,9 @@ if [[ -n ${MGAARCH} ]]; then
     elif [ ${MGAARCH} == "both" ]; then
 		# "Both" argument needs special treatment. We must unset arch from previous run and must export new arch to the functions.
         unset arch && export arch="i586" && package_or_chroot
-        msg "$(gettext "\nZeynep will try to create package/tarball for x86_64 system now.\n")"
+        msg "$(gettext "
+Zeynep will try to create package/tarball for x86_64 system now.
+")"
 		unset arch
 		# Also setting x86_64 here needs special treatment. Setting new arch is not enough. Whatever i did it seems that "arch" portion of
 		# a path always lingering. This is especially true for cache and upload paths. So, it seems to me replacing arches in those vars are
