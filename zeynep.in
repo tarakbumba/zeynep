@@ -317,8 +317,8 @@ unset cachedir
 unset urpmi_options_array
 unset arch
 unset uploaddir
-[[ -z "${distrib_array[*]}" ]] && unset distrib_array
-[[ -z "${media_array[*]}" ]] && unset media_array
+if [[ -z "${distrib_array[*]}" ]]; then unset distrib_array; fi
+if [[ -z "${media_array[*]}" ]]; then unset media_array; fi
 }
 
 ####################################################################################################################################################
