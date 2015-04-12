@@ -276,7 +276,7 @@ echo -e " \n"
 tidy_rpms () {
 # Global function to tidy downloaded rpms either in cache directory or rpm upload directory for future use
 ####################################################################################################################################################
-( run_command "which rpm-tidy" && tidy_cache="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_cache="")
+if which rpm-tidy > /dev/null; then tidy_cache="1"; else (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_cache=""); fi
 
 if [ -n "${tidy_cache}" ] && [ -e ${cachedir} ]; then
 # First we need to change ownership of rpms to the user:
