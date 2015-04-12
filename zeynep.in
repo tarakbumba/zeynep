@@ -1033,16 +1033,10 @@ run_command "sudo urpmi --urpmi-root ${chrootdir} --buildrequires ${urpmi_option
 ####################################################################################################################################################
 build_rpm () {
 #Builds rpm package using "rpmbuild" utility in chroot environment
-# Note that postbuild_staff variable and postbuild_functions function should be set in user/global configuration file
 ####################################################################################################################################################
 pure_srpm="$(basename $srpm)"
 msg "$(gettext "Zeynep will try to create rpm packages using %s.")" "${srpm}"
 ( run_in_chroot "rpmbuild --rebuild  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
-
-
-if [[ -n "${postbuild_stuff}" ]]; then
-    postbuild_functions
-fi
 
 }
 
@@ -1103,6 +1097,10 @@ install_deps
 build_rpm
 upload_rpms
 
+if [[ -n "${postbuild_stuff}" ]]; then
+    postbuild_functions
+fi
+
 # Create a new list which also contains new rpm(s)
 find "${uploaddir}" -name "*.rpm" >> "${uploaddir}"/build_after_list
 
@@ -1140,6 +1138,9 @@ else
     install_deps
     build_rpm
     upload_rpms
+    if [[ -n "${postbuild_stuff}" ]]; then
+        postbuild_functions
+    fi
 fi
 
 # We should check if rpms are sorted out in cache/upload directory before generating hdlists
