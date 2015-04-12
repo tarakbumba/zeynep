@@ -1326,7 +1326,12 @@ if [[ -z ${mga_version} ]]; then
 fi
 
 # Look for urpmi bin. Not found then exit.
-run_command "which /sbin/urpmi" || ( error3 "$(gettext "urpmi tool can not be found. Are you trying to use zeynep on a non Mageia system?")" && exit 1 )
+if which /sbin/urpmi > /dev/null ; then
+    echo " "
+else
+    error3 "$(gettext "urpmi tool can not be found. Are you trying to use zeynep on a non Mageia system?")"
+    exit_function
+fi
 
 ####################################################################################################################################################
 # Beginning with Mageia 5, urpmi's "--no-suggests" option is deprecated in favor of "--no-recommends".
