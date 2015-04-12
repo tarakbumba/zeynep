@@ -65,10 +65,9 @@ export TOP_PID=$$
 # Make sure that we have only one log file:
 rm -f ${TMPDIR}/zeynep*.log 2>&1
 log_file="$(mktemp -t --suffix=".log" zeynep.XXXXXXXXXX )"
-#mkfifo ${log_file}.pipe
-#sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK(]//g" | sed 's/\x1b(B//g' | tee < ${log_file}.pipe ${log_file} & 
-#exec &> ${log_file}.pipe
-exec &> >(tee -a "$log_file"; sed -i -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK(]//g" "$log_file"; sed -i 's/\x1b(B//g' "$log_file" )
+mkfifo ${log_file}.pipe
+tee "${log_file}" < "${log_file}.pipe" &
+exec &> ${log_file}.pipe
 
 ####################################################################################################################################################
 plain () {
@@ -240,7 +239,7 @@ run_command () {
 ####################################################################################################################################################
     local command=$1; shift
     echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
-	${command} >> ${log_file} 2>&1
+	${command} >> ${log_file}.pipe 2>&1
 }
 
 ####################################################################################################################################################
@@ -249,7 +248,7 @@ su_in_chroot () {
 ####################################################################################################################################################
     local command=$1; shift
     echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
-	sudo /sbin/chroot ${chrootdir} su -c "${command}" >> ${log_file} 2>&1
+	sudo /sbin/chroot ${chrootdir} su -c "${command}" >> ${log_file}.pipe 2>&1
 }
 
 ####################################################################################################################################################
@@ -258,7 +257,7 @@ run_in_chroot () {
 ####################################################################################################################################################
     local command=$1; shift
     echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
-	sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}" >> ${log_file} 2>&1
+	sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}" >> ${log_file}.pipe 2>&1
 }
 
 ####################################################################################################################################################
@@ -349,6 +348,11 @@ if [[ -d ${chrootdir} ]]; then
 else 
     if [[ -d ${tempdir} ]]; then unclean_temp; fi
 fi
+# Remove pipe file now.
+if [[ -p ${log_file}.pipe ]]; then rm "${log_file}.pipe"; fi
+
+# Tidy log file created by tput mess...
+sed -i -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK(]//g" "$log_file" && sed -i 's/\x1b(B//g' "$log_file"
 
 }
 
@@ -502,7 +506,7 @@ if [[ -n "${no_ignore_media_array[*]}" ]]; then
 		command="sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore "${non_ignored}" && sudo urpmi.update --urpmi-root ${chrootdir} -a"
 		echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
 		if
-			sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore "${non_ignored}" && sudo urpmi.update --urpmi-root ${chrootdir} -a >> ${log_file} 2>&1
+			sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore "${non_ignored}" && sudo urpmi.update --urpmi-root ${chrootdir} -a >> ${log_file}.pipe 2>&1
 		then
             plain "$(gettext "... DONE!")"
         else 
