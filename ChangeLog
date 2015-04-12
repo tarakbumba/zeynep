@@ -1,3 +1,61 @@
+tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
+
+    Fix postbuild_functions
+    
+    We had used postbuild_functions function just after building phase. But, users
+    may want to do extra stuff *after* rpms upload to upload path.
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
+
+    Silence rpm-tidy detection
+    
+    Redirect "which" command output to /dev/null in order to hide unnecessary
+    verbosity
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
+
+    Silence urpmi detection
+    
+    Redirect "which" command output to /dev/null in order to hide unnecessary
+    verbosity.
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
+
+    Fix logging and trapping
+    
+    Redirecting stdout and stderr to tee directly somehow breaks traps. The only
+    way i have found is using mkfifo...
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
+
+    Fix unnecessary rpm-tidy verbosity and be more accurate
+    
+    In tidy_rpms function, detecting different arch rpms in same directory was done
+    by "ls" command usage. But this was not accurate. Instead we' re now using "test"
+    and "find" command with extra arguments. Basically, test command evaluates "find"
+    commands findings are none or not. Find is executed only in basedir and doesn't
+    search subdirs thanks to "-maxdepth 0". It also prints its findings (test evaluates
+    this).
+    
+    We also now succesfully hide find's search results from console and log file.
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-03-29
+
+    Remove newline sequences from gettext dialogs and update gettext catalogs
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-03-23
+
+    Add src.rpm existance check
+    - Altough zeynep tries to detect given file's type and exists if it's not a
+    srpm file; zeynep should also check if given srpm file exists. It should exit
+    if srpm file doesn't exist at the very beginning.
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-03-03
+
+    Update translation catalogs
+    
+    Update changelog file too...
+
 tarakbumba <tarakbumba@gmail.com>Date:   2015-03-03
 
     Update "-n" option instructions
