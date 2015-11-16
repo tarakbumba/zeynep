@@ -59,17 +59,6 @@ fi
 export TOP_PID=$$
 
 ####################################################################################################################################################
-# Log file creation.
-# I have tried infamous (exec > tee) stuff. Unfortunately i couldn't manage traps to work. This is the only working way that i' ve found:
-####################################################################################################################################################
-# Make sure that we have only one log file:
-rm -f ${TMPDIR}/zeynep*.log 2>&1
-log_file="$(mktemp -t --suffix=".log" zeynep.XXXXXXXXXX )"
-mkfifo ${log_file}.pipe
-tee "${log_file}" < "${log_file}.pipe" &
-exec &> ${log_file}.pipe
-
-####################################################################################################################################################
 plain () {
 # Function to display localized plain messages
 ####################################################################################################################################################
@@ -1249,7 +1238,10 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
             if [[ !  -f ${given_srpm} ]]; then
                 error "$(gettext "Specified src.rpm file can not be found in path. Please check and try again.")"
                 exit 1
-            fi
+		    fi
+
+		    srpm_path="$(dirname $(readlink -f ${given_srpm}))"
+
 		    ;;			
 		C)
 		    ( run_command "which rpm-tidy" && tidy_cache="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_cache="")
@@ -1308,6 +1300,19 @@ if ((!passed_options)); then
   error "$(gettext "Zeynep needs an option to run but none given. Displaying brief usage for available options:")"
   usage && exit 1
 fi
+
+####################################################################################################################################################
+# Log file creation.
+# I have tried infamous (exec > tee) stuff. Unfortunately i couldn't manage traps to work. This is the only working way that i' ve found:
+####################################################################################################################################################
+# Make sure that we have only one log file:
+rm -f ${srpm_path}/zeynep*.log* 2>&1
+
+# Create log file in srpm path and start logging from here:
+log_file="$(mktemp -p ${srpm_path} --suffix=".log" zeynep.XXXXXXXXXX )"
+mkfifo ${log_file}.pipe
+tee "${log_file}" < "${log_file}.pipe" &
+exec &> ${log_file}.pipe
 
 ####################################################################################################################################################
 # Start with main functions and variables:
