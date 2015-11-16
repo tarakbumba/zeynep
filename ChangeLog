@@ -1,3 +1,38 @@
+tarakbumba <tarakbumba@gmail.com>Date:   2015-11-16
+
+    Add ability to pass arguments to rpmbuild via "-b" switch
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-11-16
+
+    Don't use $XDG_CONFIG_HOME for ~/.config, some setups don't set that variable
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-11-16
+
+    * Create log file in srpm path not in /tmp
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-05-12
+
+    Tidy rpms even they are different archs
+    Before this commit, rpm-tidy usage would gave error if
+    rpms directory has different arch type rpms. Now it
+    correctly handles obsolete rpms which have same arch.
+
+Merge: eea99f4 a851176
+tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
+
+    Merge branch 'master' of https://github.com/tarakbumba/zeynep
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
+
+    Update changelog and translations
+
+tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
+
+    Fix postbuild_functions
+    
+    We had used postbuild_functions function just after building phase. But, users
+    may want to do extra stuff *after* rpms upload to upload path.
+
 tarakbumba <tarakbumba@gmail.com>Date:   2015-04-13
 
     Fix postbuild_functions
