@@ -113,8 +113,8 @@ config_file () {
 # First control user defined, special configs for Releases (cauldron.conf, 4.conf, etc.) in user config dir:
 ####################################################################################################################################################
 
-if [[ -f $XDG_CONFIG_HOME/zeynep/zeynep-$mga_version.conf ]];then
-    source $XDG_CONFIG_HOME/zeynep/zeynep-$mga_version.conf
+if [[ -f $HOME/.config/zeynep/zeynep-$mga_version.conf ]];then
+    source $HOME/.config/zeynep/zeynep-$mga_version.conf
 elif [ -f @sysconfdir@/zeynep.conf ];then    
     source @sysconfdir@/zeynep.conf
 else
