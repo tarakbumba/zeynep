@@ -197,7 +197,7 @@ plain "$(gettext " -M        - URL to retrive packages from. E.g. 'www.someurl.o
 plain "$(gettext " -p        - Packages names to be installed in chroot. This option must be used with '-g' option
                  and each package must be seperated by a space in quotes. E.g. 'locales-tr wget' Default: Disabled")"
 plain "$(gettext " -n        - Do not ignore comma seperated medias in quote marks. E.g "%s". Default: Disabled")" "\"Nonfree Release,Tainted Updates,Backports Relese\""
-plain "$(gettext " -U        - Additional urpmi options to be used either in tarball creation or package building.")"
+plain "$(gettext " -U        - Additional urpmi options to be used either in tarball creation or package building. Use in double quotes.")"
 plain "$(gettext " -u        - Upload directory for created rpm packages. Default: Use path which srpm resides")"
 plain "$(gettext " -a        - Architecture of Mageia version. This could be i586 on a 32bit machine or i586,
                  x86-64 or both of them for a 64bit machine. Default: Current machine arch")"
@@ -207,15 +207,20 @@ plain "$(gettext " -T        - Use 'rpm-tidy' utility to clean older rpms in rpm
 plain "$(gettext " -N        - Do not clean chroot environment upon exit. Default: Disabled")"
 plain "$(gettext " -l        - Upload compiled rpms into srpm's directory. Default: Disabled unless you did not use '-u' option")"
 plain "$(gettext " -S        - Sign rpm packages via rpm-sign utility. Default: Disabled")"
+plain "$(gettext " -b        - Commandline parameters to pass on rpmbuild. Use in double quotes")"
 plain "$(gettext " -G        - Generate hdlists for compiled rpms upon exit. Default: Disabled")"
 plain "$(gettext " -v        - Be verbose. Default: Disabled")"
 plain "$(gettext " -V        - Be very verbose. Default: Disabled")"
 plain "$(gettext " -h        - Display this help")"
 plain "$(gettext "
-Zeynep have to use previously created chroot environment to build packages.
-Therefore it provides a chroot tarball creation function via its '-g' switch.
-Zeynep also can read most of these options from a local (~/.config/zeynep/zeynep-[mageia version].conf)
-configure file or from global (/etc/zeynep.conf) file.
+
+Zeynep have to use previously created chroot environment
+to build packages.Therefore it provides a chroot tarball
+creation function via its '-g' switch. Zeynep also can
+read most of these options from a local
+(~/.config/zeynep/zeynep-[mageia version].conf) configure
+file or from global (/etc/zeynep.conf) file.
+
 Configuration file supplied with zeynep is quite self-explainatory.
 Please see that file.")"
 
@@ -1016,8 +1021,10 @@ build_rpm () {
 #Builds rpm package using "rpmbuild" utility in chroot environment
 ####################################################################################################################################################
 pure_srpm="$(basename $srpm)"
+#Assign rpmbuild options array to a variable
+rpmbuild_options_array="${rpmbuild_opts[@]}"
 msg "$(gettext "Zeynep will try to create rpm packages using %s.")" "${srpm}"
-( run_in_chroot "rpmbuild --rebuild  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
+( run_in_chroot "rpmbuild --rebuild ${rpmbuild_options_array}  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
 
 }
 
@@ -1184,10 +1191,11 @@ unmount_necessary_dirs
 #Z: Do not use chroot-tarball and build in newly created chroot.
 #R: Add rpmmacros file from user home directory (usually ~/.rpmmacros)
 #z: Use MIRRORLIST instead of user specified distrib source
+#b: user defined rpmbuild options
 #h: help
 
 passed_options=0
-while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
+while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:s:" OPTION ; do
     passed_options=1
 	case ${OPTION} in
 		m)
@@ -1275,7 +1283,10 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:s:" OPTION ; do
 		    ;;		
 		Z)
 		    withouttarball="1"		    
-		    ;;		    
+		    ;;
+		b)
+		    rpmbuild_opts+=("${OPTARG}")
+ 		    ;;
 		h)
 		    usage && exit 0
 		    ;;		    
