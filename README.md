@@ -21,7 +21,7 @@ So, zeynep born.
 
 Usage
 ------------
-* First things firs; never try to run zeynep as root! It will use "sudo" when required. If you don't want to type your sudo password add zeynep to your /etc/sudoers file; but this may also RISKY! See below how to configure /etc/sudoers.
+* First things first; never try to run zeynep as root! It will use "sudo" when required. If you don't want to type your sudo password every time needed; then add zeynep to your /etc/sudoers file; but this may also RISKY! See below how to configure /etc/sudoers.
 
 
 * zeynep [-g][options] [arguments] [-s] [srpm]
@@ -46,6 +46,7 @@ Usage
  * -N        - Do not clean chroot environment upon exit. Default: Disabled
  * -l        - Upload compiled rpms into srpm's directory. Default: Disabled unless you did not use '-u' option
  * -S        - Sign rpm packages via rpm-sign utility. Default: Disabled
+ * -b        - Commandline arguments to be passed on rpmbuild. Use the arguments in double quotes
  * -G        - Generate hdlists for compiled rpms upon exit. Default: Disabled
  * -R        - Add rpmmacros file from user home dir (~/.rpmmacros). Default: Disabled
  * -v        - Be verbose. Default: Disabled
@@ -74,15 +75,15 @@ Installation:
 --------------
 You should have at least autoconf and gettext-devel packages installed to build and install zeynep. Normally you should run 
 
-  ./autogen.sh
+		./autogen.sh
  
-  ./configure
+		./configure
  
-  make
+		make
  
 and as root
 
-  make install
+		make install
  
 Without any option specified zeynep will install in /usr directory. Please refer to the INSTALL file for installation steps and options.
 
@@ -102,7 +103,6 @@ Add below lines at the end of your /etc/sudoers file. Note that you should use "
 
 Known Limitations:
 --------------------
-* rpm-tidy can not compare package archs properly. It operates in a way that package arch (i586/noarch/x86_64) is calculated as version-release number. So rpm-tidy tries to remove i586/noarch packages if it finds a x86_64 package with the same EVR in same directory. Therefore, to prevent unnecessarily loss of rpms in cache directory or upload directory Zeynep checks this case and disables rpm-tidy usage.
 * Due to "getopts" limitations, if you type an argument required option before non argument required option zeynep will likely to fail. For example:
 
 		zeynep -mZ 4 -s foo.src.rpm
