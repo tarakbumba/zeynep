@@ -1323,11 +1323,24 @@ fi
 # Log file creation.
 # I have tried infamous (exec > tee) stuff. Unfortunately i couldn't manage traps to work. This is the only working way that i' ve found:
 ####################################################################################################################################################
+# Helper function to ensure if one or more log file exists: 
+# http://stackoverflow.com/questions/24615535/bash-check-if-file-exists-with-double-bracket-test-and-wildcards
+#
+# file_check() { [[ -f $1 ]]; }
+
+# Check that if we are dealing with chroot creation or package building:
+if [[ $generate_tarball != "1" ]] && [[ -d ${srpm_path} ]]; then
+    logdir="${srpm_path}"
+else
+    logdir="${TMPDIR}"
+fi
+
 # Make sure that we have only one log file:
-rm -f ${srpm_path}/zeynep*.log* 2>&1
+#rm -f ${srpm_path}/zeynep*.log* 2>&1
 
 # Create log file in srpm path and start logging from here:
-log_file="$(mktemp -p ${srpm_path} --suffix=".log" zeynep.XXXXXXXXXX )"
+log_file="$(mktemp -p ${logdir} --suffix=".log" zeynep_$(date +%Y%m%d_%H%m).XXXXXXXXXX)"
+msg "$(gettext "You can investigate zeynep log as %s ")" ${log_file}
 mkfifo ${log_file}.pipe
 tee "${log_file}" < "${log_file}.pipe" &
 exec &> ${log_file}.pipe

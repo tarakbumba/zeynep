@@ -1,4 +1,16 @@
-### Fix minor bugs: * Fix rpmmacros file copy and usage in rpm building. * Fix an issue about displayed message when installation media fails. (HEAD -> master)
+### * Fix minor bug and add new Changelog (HEAD -> master)
+>Sat, 21 Nov 2015 01:46:04 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- Fix displayed message when urpmi media installation fails
+- Add a new format Changelog file
+
+
+
+### Fix minor bugs: * Fix rpmmacros file copy and usage in rpm building. * Fix an issue about displayed message when installation media fails. (origin/master, origin/HEAD)
 >Sat, 21 Nov 2015 01:40:00 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -8,7 +20,7 @@
 
 
 
-### Update Readme.md (origin/master, origin/HEAD)
+### Update Readme.md
 >Mon, 16 Nov 2015 23:04:08 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
