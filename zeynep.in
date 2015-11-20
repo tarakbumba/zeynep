@@ -586,21 +586,21 @@ control_rpmmacros () {
 ####################################################################################################################################################
 if [[ -n $use_rpm_macros ]]; then
     if [[ -f $HOME/.rpmmacros ]]; then
-        if [[ -d ${chrootdir}/etc/skel ]]; then
-            msg "$(gettext "Zeynep is adding your %s rpmmacros file into %s in chroot")" "${HOME}/.rpmmacros" "${chrootdir}/etc/skel"
-            run_command "sudo cp -f ${HOME}/.rpmmacros ${chrootdir}/etc/skel/" || error2 "$(gettext "Specified rpmmacros file can not be copied")"
+        if [[ -d ${chrootdir}@sysconfdir@/skel ]]; then
+            msg "$(gettext "Zeynep is adding your %s rpmmacros file into %s in chroot")" "${HOME}/.rpmmacros" "${chrootdir}@sysconfdir@/skel"
+            run_command "sudo cp -f ${HOME}/.rpmmacros ${chrootdir}@sysconfdir@/skel/" || error2 "$(gettext "Specified rpmmacros file can not be copied")"
         else
-            error2 "$(gettext "%s directory can not be found in %s chroot")" "/etc/skel" "${chrootdir}"
+            error2 "$(gettext "%s directory can not be found in %s chroot")" "@sysconfdir@/skel" "${chrootdir}"
         fi
-    elif [[ -f /etc/skel/.rpmmacros ]]; then
-        if [[ -d ${chrootdir}/etc/skel ]]; then
-            msg "$(gettext "Zeynep is adding your %s rpmmacros file into %s in chroot")" "/etc/skel/.rpmmacros" "${chrootdir}/etc/skel"
-            run_command "sudo cp -f /etc/skel/.rpmmacros ${chrootdir}/etc/skel/" || error2 "$(gettext "Specified rpmmacros file can not be copied")"
+    elif [[ -f @sysconfdir@/skel/.rpmmacros ]]; then
+        if [[ -d ${chrootdir}@sysconfdir@/skel ]]; then
+            msg "$(gettext "Zeynep is adding your %s rpmmacros file into %s in chroot")" "@sysconfdir@/skel/" "${chrootdir}@sysconfdir@/skel"
+            run_command "sudo cp -f @sysconfdir@/skel/.rpmmacros ${chrootdir}@sysconfdir@/skel/" || error2 "$(gettext "Specified rpmmacros file can not be copied")"
         else
-            error2 "$(gettext "%s directory can not be found in %s chroot")" "/etc/skel" "${chrootdir}"
+            error2 "$(gettext "%s directory can not be found in %s chroot")" "@sysconfdir@/skel" "${chrootdir}"
         fi
     else
-        warning "$(gettext "%s or %s rpmmacros file can not be found. Will continue without rpmmacros installation")" "${HOME}/.rpmmacros" "/etc/skel/.rpmmacros"
+        warning "$(gettext "%s or %s rpmmacros file can not be found. Will continue without rpmmacros installation")" "${HOME}/.rpmmacros" "@sysconfdir@/skel/.rpmmacros"
     fi
 fi
 }
@@ -916,6 +916,7 @@ else
     ( error2 "$(gettext "No previously created %s tarball found. You can create one via this script using '-g' switch for future uses to save time/bandwith.")" "${tarball}.tar.xz" && without_tarball )
 fi
 
+
 }
 
 ####################################################################################################################################################
@@ -946,15 +947,21 @@ for mount_points in $(echo "dev dev/pts sys"); do
 done
 
 # It is not harmful to add resolv.conf copying to here (needed for internet connection)
-if [[ -f /etc/resolv.conf ]]; then
-    run_command "sudo cp -f /etc/resolv.conf ${chrootdir}/etc/resolv.conf" || ( error "$(gettext "Zeynep can not copy /etc/resolv.conf in chroot environment.")" &&  exit_function )
+if [[ -f @sysconfdir@/resolv.conf ]]; then
+    run_command "sudo cp -f @sysconfdir@/resolv.conf ${chrootdir}@sysconfdir@/resolv.conf" || ( error "$(gettext "Zeynep can not copy @sysconfdir@/resolv.conf in chroot environment.")" &&  exit_function )
 else
-    error "$(gettext "Zeynep can not locate /etc/resolv.conf in chroot environment.")"
+    error "$(gettext "Zeynep can not locate @sysconfdir@/resolv.conf in chroot environment.")"
     exit_function
 fi
 
 # Now we can create our user account and $HOME directory.
 create_chroot_user
+
+# We should ensure that rpmmacros file is used:
+if [[ -f ${chrootdir}@sysconfdir@/skel/.rpmmacros ]]; then
+    ( run_command "sudo cp -f  ${chrootdir}@sysconfdir@/skel/.rpmmacros ${chrootdir}/home/${USER}/" && run_command "sudo chown  ${USER}:${USER} ${chrootdir}/home/${USER}/.rpmmacros" ) \
+        || error2 "$(gettext "Zeynep can not copy %s in %s directory. Proceeding with default rpm setup.")" "${chrootdir}@sysconfdir@/skel/.rpmmacros" "${chrootdir}home/${USER}"
+fi
 
 }
 
