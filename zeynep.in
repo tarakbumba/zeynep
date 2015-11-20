@@ -541,7 +541,7 @@ if [[ -n "${media_array[*]}" ]]; then
         if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} media${index} ${media_path}"; then
             plain "$(gettext "... DONE!")"
         else 
-            read -r -p "$(error "$(gettext "Zeynep can not add %s as %s urpmi media. Will continue without this media source. Do you want to proceed? [y/N]")" "${media_path}" "media${index}" )" media_add_response
+            read -r -p "$(plain "$(gettext "Zeynep can not add %s as %s urpmi media. Will continue without this media source. Do you want to proceed? [y/N]")" "${media_path}" "media${index}" )" media_add_response
             case $media_add_response in
                 [yY][eE][sS]|[yY] ) 
                         echo
