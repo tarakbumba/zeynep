@@ -1,4 +1,16 @@
-### *  Fix a bug of log file path (HEAD -> master)
+### Fix some messages and update gettext catalogs (HEAD -> master)
+>Sat, 21 Nov 2015 02:12:26 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+* For easy translation some MAKEFILE variables removed from strings.
+* Updated Turkish translation catalog also.
+
+
+
+### *  Fix a bug of log file path (origin/master, origin/HEAD)
 >Sat, 21 Nov 2015 01:56:40 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -12,7 +24,7 @@ logs.
 
 
 
-### * Fix minor bug and add new Changelog (origin/master, origin/HEAD)
+### * Fix minor bug and add new Changelog
 >Sat, 21 Nov 2015 01:46:04 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)

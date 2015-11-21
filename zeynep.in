@@ -481,12 +481,15 @@ run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --auto --distrib --mi
 care_medias () {
 # We should also think of Nonfree and Tainted medias; give an option to the user for enabling them:
 ####################################################################################################################################################
+# Parse array elements:
+array_elements="$(echo ${no_ignore_media_array[@]} | wc -w)"
 
-if [[ -n "${no_ignore_media_array[*]}" ]]; then
+# If array elements are not empty enable medias; if empty skip this step
+if [ $array_elements -ne 0 ] ; then
 	msg "$(gettext "Enabling %s media as urpmi source in chroot environment")" "${non_ignored}"
 	old_ifs="$IFS"
    	IFS=","
-	added_media_branches="${no_ignore_media_array[*]}"
+	added_media_branches="${no_ignore_media_array[@]}"
     for non_ignored in ${added_media_branches}; do
         IFS="$old_ifs"
 		command="sudo urpmi.update --urpmi-root ${chrootdir} --no-ignore "${non_ignored}" && sudo urpmi.update --urpmi-root ${chrootdir} -a"
