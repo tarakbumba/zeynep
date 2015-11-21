@@ -1,4 +1,18 @@
-### * Fix minor bug and add new Changelog (HEAD -> master)
+### *  Fix a bug of log file path (HEAD -> master)
+>Sat, 21 Nov 2015 01:56:40 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- Zeynep now ensures that if a srpm is given and logs into srpm path;
+otherwise it puts logs into /tmp directory.
+- Zeynep now uses timestamp for log file name and doesn't delete old
+logs.
+
+
+
+### * Fix minor bug and add new Changelog (origin/master, origin/HEAD)
 >Sat, 21 Nov 2015 01:46:04 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -10,7 +24,7 @@
 
 
 
-### Fix minor bugs: * Fix rpmmacros file copy and usage in rpm building. * Fix an issue about displayed message when installation media fails. (origin/master, origin/HEAD)
+### Fix minor bugs: * Fix rpmmacros file copy and usage in rpm building. * Fix an issue about displayed message when installation media fails.
 >Sat, 21 Nov 2015 01:40:00 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)

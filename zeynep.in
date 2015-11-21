@@ -948,9 +948,9 @@ done
 
 # It is not harmful to add resolv.conf copying to here (needed for internet connection)
 if [[ -f @sysconfdir@/resolv.conf ]]; then
-    run_command "sudo cp -f @sysconfdir@/resolv.conf ${chrootdir}@sysconfdir@/resolv.conf" || ( error "$(gettext "Zeynep can not copy @sysconfdir@/resolv.conf in chroot environment.")" &&  exit_function )
+    run_command "sudo cp -f @sysconfdir@/resolv.conf ${chrootdir}@sysconfdir@/resolv.conf" || ( error "$(gettext "Zeynep can not copy %s in chroot environment.")" "@sysconfdir@/resolv.conf" &&  exit_function )
 else
-    error "$(gettext "Zeynep can not locate @sysconfdir@/resolv.conf in chroot environment.")"
+    error "$(gettext "Zeynep can not locate %s in chroot environment.")" "@sysconfdir@/resolv.conf"
     exit_function
 fi
 
