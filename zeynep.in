@@ -501,8 +501,8 @@ if [ $array_elements -ne 0 ] ; then
         else 
             read -r -p "$(error2 "$(gettext "Zeynep can not enable %s media. Will continue without this media enabled. Do you want to proceed? [y/N]")" "${non_ignored}" )" media_response
             case $media_response in
-                [yY][eE][sS]|[yY] ) 
-                        echo
+                [yY]|[eE]|[sS]||[oO] )
+                        continue
                         ;;
                 *)
                         

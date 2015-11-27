@@ -1,4 +1,18 @@
-### Fix some messages and update gettext catalogs (HEAD -> master)
+### Fix minor bug for enabled media types function (HEAD -> master)
+>Sun, 22 Nov 2015 01:11:47 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+* Our "care_medias" function, which is responsible for enabling media
+repos (non-free, tainted,*-testing etc.) was unsuccesfull to detect
+if relevant option is used when running zeynep. Now it corretcly detects
+this and runs code block if "-n" option is used with zeynep.
+
+
+
+### Fix some messages and update gettext catalogs (origin/master, origin/HEAD)
 >Sat, 21 Nov 2015 02:12:26 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -10,7 +24,7 @@
 
 
 
-### *  Fix a bug of log file path (origin/master, origin/HEAD)
+### *  Fix a bug of log file path
 >Sat, 21 Nov 2015 01:56:40 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
