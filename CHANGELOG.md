@@ -1,4 +1,22 @@
-### Fix a bug in care_medias function (HEAD -> master)
+### Adjust rpmmacros for Mageia 6 macro changes for package suffix (HEAD -> master)
+>Sat, 28 Nov 2015 00:24:08 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- Mageia 6 introduces a new approach for package naming scheme (.mga part.)
+  Beginnign with Mageia 6 %distsuffix macro is ignored and %dist macro is
+  introduced. We now check for changes and modify rpmmacro file accordingly.
+
+- Remove unneeded copying /etc/skel/.rpmmacros to home dir introduced by
+  commit 1df0aaa3feee48b4e23ba87d640ea6b11c206e3c
+
+- As usual update gettext catalogs and Changelog
+
+
+
+### Fix a bug in care_medias function (origin/master, origin/HEAD)
 >Sat, 28 Nov 2015 00:08:52 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -12,7 +30,7 @@
 
 
 
-### Fix minor bug for enabled media types function (origin/master, origin/HEAD)
+### Fix minor bug for enabled media types function
 >Sun, 22 Nov 2015 01:11:47 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
