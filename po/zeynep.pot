@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeynep 1.0.3\n"
 "Report-Msgid-Bugs-To: https://github.com/tarakbumba/zeynep/issues/new\n"
-"POT-Creation-Date: 2015-11-22 01:15+0200\n"
+"POT-Creation-Date: 2015-11-28 00:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -230,7 +230,7 @@ msgstr ""
 msgid "RUN COMMAND (DEBUG) ==> "
 msgstr ""
 
-#: zeynep.in:273 zeynep.in:281 zeynep.in:1265 zeynep.in:1268
+#: zeynep.in:273 zeynep.in:281 zeynep.in:1292 zeynep.in:1295
 msgid "rpm-tidy can not be found and option is disabled."
 msgstr ""
 
@@ -249,8 +249,8 @@ msgstr ""
 msgid "Deleting %s"
 msgstr ""
 
-#: zeynep.in:300 zeynep.in:500 zeynep.in:545 zeynep.in:930 zeynep.in:993
-#: zeynep.in:1009 zeynep.in:1037
+#: zeynep.in:300 zeynep.in:500 zeynep.in:545 zeynep.in:930 zeynep.in:1017
+#: zeynep.in:1033 zeynep.in:1064
 msgid "... DONE!"
 msgstr ""
 
@@ -488,7 +488,7 @@ msgid ""
 "distribution for %s architecture"
 msgstr ""
 
-#: zeynep.in:740 zeynep.in:769 zeynep.in:1162
+#: zeynep.in:740 zeynep.in:769 zeynep.in:1189
 msgid ""
 "You may need to type your sudo password several times during this operation "
 "unless you configure your sudoers file in /etc not to do so."
@@ -584,151 +584,152 @@ msgstr ""
 msgid "Zeynep can not create %s user account in chroot environment."
 msgstr ""
 
-#: zeynep.in:942
+#: zeynep.in:946
+msgid ""
+"Checking %s macros '%s' or '%s' usage and modifying it for your Mageia %s "
+"build."
+msgstr ""
+
+#: zeynep.in:972
 msgid "Zeynep tries to mount necessary mount points %s to %s chroot directory."
 msgstr ""
 
-#: zeynep.in:945
+#: zeynep.in:975
 msgid "Zeynep can not mount %s .This is critical. Zeynep can not continue..."
 msgstr ""
 
-#: zeynep.in:949
+#: zeynep.in:979
 msgid ""
 "Zeynep can not mount %s to %s. This is critical.Zeynep can not continue..."
 msgstr ""
 
-#: zeynep.in:954
+#: zeynep.in:984
 msgid "Zeynep can not copy %s in chroot environment."
 msgstr ""
 
-#: zeynep.in:956
+#: zeynep.in:986
 msgid "Zeynep can not locate %s in chroot environment."
 msgstr ""
 
-#: zeynep.in:966
-msgid ""
-"Zeynep can not copy %s in %s directory. Proceeding with default rpm setup."
-msgstr ""
-
-#: zeynep.in:976
+#: zeynep.in:1000
 msgid "Zeynep can not copy %s source rpm to %s. Can not continue."
 msgstr ""
 
-#: zeynep.in:989
+#: zeynep.in:1013
 msgid ""
 "There may be updated packages after chroot tarball creation. Zeynep will try "
 "to update chroot system. Please wait a few seconds..."
 msgstr ""
 
-#: zeynep.in:995
+#: zeynep.in:1019
 msgid ""
 "Zeynep failed to update rpms in chroot. Would you like to continue [Y/n] "
 msgstr ""
 
-#: zeynep.in:998
+#: zeynep.in:1022
 msgid "Zeynep will continue without updated system in chroot"
 msgstr ""
 
-#: zeynep.in:1001
+#: zeynep.in:1025
 msgid ""
 "User choose to not contiune without an updated chroot system. Exiting..."
 msgstr ""
 
-#: zeynep.in:1008
+#: zeynep.in:1032
 msgid "Rebuilding RPM database. Please wait a few seconds..."
 msgstr ""
 
-#: zeynep.in:1009
+#: zeynep.in:1033
 msgid ""
 "Zeynep failed to rebuild rpm database. Will try without this. But expect "
 "errors."
 msgstr ""
 
-#: zeynep.in:1025
+#: zeynep.in:1049
 msgid "Zeynep can not install build dependencies for %s."
 msgstr ""
 
-#: zeynep.in:1036
+#: zeynep.in:1063
 msgid "Zeynep will try to create rpm packages using %s."
 msgstr ""
 
-#: zeynep.in:1037
+#: zeynep.in:1064
 msgid "Zeynep failed to create rpm package from %s srpm."
 msgstr ""
 
-#: zeynep.in:1049
+#: zeynep.in:1076
 msgid ""
 "Found %s srpm package. Not copying in %s upload directory and deleting in "
 "chroot environment"
 msgstr ""
 
-#: zeynep.in:1054
+#: zeynep.in:1081
 msgid "%s package is uploaded to %s directory"
 msgstr ""
 
-#: zeynep.in:1054
+#: zeynep.in:1081
 msgid "Zeynep failed to upload %s rpm package to %s."
 msgstr ""
 
-#: zeynep.in:1125
+#: zeynep.in:1152
 msgid ""
 "You did not specified a valid path to upload built rpms. Zeynep will put "
 "built rpms into srpm root directory tree."
 msgstr ""
 
-#: zeynep.in:1149
+#: zeynep.in:1176
 msgid "Creating hdlists in %s"
 msgstr ""
 
-#: zeynep.in:1150
+#: zeynep.in:1177
 msgid "Zeynep failed to create (synthesis) hdlist file in %s."
 msgstr ""
 
-#: zeynep.in:1257
+#: zeynep.in:1284
 msgid ""
 "Specified src.rpm file can not be found in path. Please check and try again."
 msgstr ""
 
-#: zeynep.in:1289
+#: zeynep.in:1316
 msgid "genhdlist2 can not be found and option is disabled."
 msgstr ""
 
-#: zeynep.in:1304
+#: zeynep.in:1331
 msgid "Unrecognized option: %s "
 msgstr ""
 
-#: zeynep.in:1308
+#: zeynep.in:1335
 msgid "Missing option argument for %s"
 msgstr ""
 
-#: zeynep.in:1312
+#: zeynep.in:1339
 msgid ""
 "Unrecognized option: %s. Did you try to set option without '-' prefixed?"
 msgstr ""
 
-#: zeynep.in:1321
+#: zeynep.in:1348
 msgid ""
 "Zeynep needs an option to run but none given. Displaying brief usage for "
 "available options:"
 msgstr ""
 
-#: zeynep.in:1346
+#: zeynep.in:1373
 msgid "You can investigate zeynep log as %s "
 msgstr ""
 
-#: zeynep.in:1356
+#: zeynep.in:1383
 msgid ""
 "You did not specify a Mageia version to built tarball/rpms. Zeynep is "
 "defaulting to Cauldron"
 msgstr ""
 
-#: zeynep.in:1364
+#: zeynep.in:1391
 msgid ""
 "urpmi tool can not be found. Are you trying to use zeynep on a non Mageia "
 "system?"
 msgstr ""
 
-#: zeynep.in:1380
+#: zeynep.in:1407
 msgid ""
 "You have specified no argument for system architecture. Zeynep will build "
 "packages/tarballs for your system's main architecture"

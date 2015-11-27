@@ -1,4 +1,18 @@
-### Fix minor bug for enabled media types function (HEAD -> master)
+### Fix a bug in care_medias function (HEAD -> master)
+>Sat, 28 Nov 2015 00:08:52 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- When a media can not be enabled, user input was ignored and script exits.
+  This commit solves this bug and adds French support for user input.
+
+- As usual gettext catalogs and Changlog are updated.
+
+
+
+### Fix minor bug for enabled media types function (origin/master, origin/HEAD)
 >Sun, 22 Nov 2015 01:11:47 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -12,7 +26,7 @@ this and runs code block if "-n" option is used with zeynep.
 
 
 
-### Fix some messages and update gettext catalogs (origin/master, origin/HEAD)
+### Fix some messages and update gettext catalogs
 >Sat, 21 Nov 2015 02:12:26 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)

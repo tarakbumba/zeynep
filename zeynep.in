@@ -934,6 +934,36 @@ msg "$(gettext "Zeynep will try to setup '%s' user account. Please wait a second
 }
 
 ####################################################################################################################################################
+check_dist () {
+####################################################################################################################################################
+# Little helper function for checking %dist or %distsuffix in .rpmmacros file.
+#
+# This function is needed if user created tarball with .rpmmacros file. Since Mageia 6, setting
+# %distsuffix in .rpmmacros won't work anymore. We should define %dist for mga >= 6
+
+if [[ -f ${chrootdir}/home/${USER}/.rpmmacros ]]; then
+    chroot_rpmmacros="/home/${USER}/.rpmmacros"
+    msg "$(gettext "Checking %s macros '%s' or '%s' usage and modifying it for your Mageia %s build.")" "${chrootdir}${chroot_rpmmacros}" "%dist" "%distsuffix" "${mga_version}"
+    if [[ ${mga_version} == "cauldron" ]] | [[ ${mga_version} -gt 5 ]]; then
+        local dist_suffix="$(grep %distsuffix ${chrootdir}$chroot_rpmmacros | grep -oE '[^ ]+$')" > /dev/null
+        if (grep %distsuffix ${chrootdir}$chroot_rpmmacros | grep -oE '^#'); then
+            (run_in_chroot "sed -i '/%distsuffix/c\#%dist $dist_suffix%{distro_release}' $chroot_rpmmacros")
+        else
+            (run_in_chroot "sed -i '/%distsuffix/c\%dist $dist_suffix%{distro_release}' $chroot_rpmmacros")
+        fi
+    else
+        local dist_macro="$(grep '%dist\ ' ${chrootdir}$chroot_rpmmacros | grep -oE '[^ ]+$' | cut -d "%" -f1)" > /dev/null
+        if (grep %dist ${chrootdir}$chroot_rpmmacros | grep -oE '^#'); then
+            (run_in_chroot "sed -i '/'%dist\ '/c\#%distsuffix $dist_macro' $chroot_rpmmacros")
+        else
+            (run_in_chroot "sed -i '/'%dist\ '/c\%distsuffix $dist_macro' $chroot_rpmmacros")
+        fi
+    fi
+fi
+
+}
+
+####################################################################################################################################################
 mount_necessary_dirs () {
 # Mount necessary mountpoint in chroot:
 ####################################################################################################################################################
@@ -959,12 +989,6 @@ fi
 
 # Now we can create our user account and $HOME directory.
 create_chroot_user
-
-# We should ensure that rpmmacros file is used:
-if [[ -f ${chrootdir}@sysconfdir@/skel/.rpmmacros ]]; then
-    ( run_command "sudo cp -f  ${chrootdir}@sysconfdir@/skel/.rpmmacros ${chrootdir}/home/${USER}/" && run_command "sudo chown  ${USER}:${USER} ${chrootdir}/home/${USER}/.rpmmacros" ) \
-        || error2 "$(gettext "Zeynep can not copy %s in %s directory. Proceeding with default rpm setup.")" "${chrootdir}@sysconfdir@/skel/.rpmmacros" "${chrootdir}home/${USER}"
-fi
 
 }
 
@@ -1030,6 +1054,9 @@ run_command "sudo urpmi --urpmi-root ${chrootdir} --buildrequires ${urpmi_option
 build_rpm () {
 #Builds rpm package using "rpmbuild" utility in chroot environment
 ####################################################################################################################################################
+# Ensure that we have correct macros in .rpmmacros
+check_dist
+
 pure_srpm="$(basename $srpm)"
 #Assign rpmbuild options array to a variable
 rpmbuild_options_array="${rpmbuild_opts[@]}"
