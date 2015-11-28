@@ -1,4 +1,16 @@
-### Adjust rpmmacros for Mageia 6 macro changes for package suffix (HEAD -> master)
+### Fix a regression in care_medias function user input (HEAD -> master)
+>Sat, 28 Nov 2015 00:41:19 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- Fix regression introduced by commit 8c7f35fe5479a24278ad21a54033337db359cadd
+- As usual update gettext catalogs and Changelog
+
+
+
+### Adjust rpmmacros for Mageia 6 macro changes for package suffix (origin/master, origin/HEAD)
 >Sat, 28 Nov 2015 00:24:08 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -16,7 +28,7 @@
 
 
 
-### Fix a bug in care_medias function (origin/master, origin/HEAD)
+### Fix a bug in care_medias function
 >Sat, 28 Nov 2015 00:08:52 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)

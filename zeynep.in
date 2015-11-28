@@ -323,7 +323,7 @@ unmount_necessary_dirs () {
 msg "$(gettext "Unmounting system mountpoints from chroot environment before exiting")"
 
 if [[ -d ${chrootdir} ]]; then
-    mounted_points="proc dev dev/pts sys var/cache/urpmi/rpms"
+    mounted_points="proc dev dev/pts dev/shm sys var/cache/urpmi/rpms"
         
     for mounted_dirs in ${mounted_points}; do
         if mount | grep ${chrootdir}/${mounted_dirs}; then
