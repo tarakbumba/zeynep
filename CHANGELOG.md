@@ -1,4 +1,19 @@
-### Fix a regression in care_medias function user input (HEAD -> master)
+### Fix a minor bug in unmount_necessary_dirs function (HEAD -> master)
+>Sat, 28 Nov 2015 19:45:56 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- /dev/shm used for building some packages like webkit/chromium browser.
+ Thus we need to explicitly ensure that /dev/shm is unmounted upon exit.
+ (Fixes #9. Thanks to Alexander Khryukin)
+
+- As usual gettext catalogs and Changelog are updated
+
+
+
+### Fix a regression in care_medias function user input (origin/master, origin/HEAD)
 >Sat, 28 Nov 2015 00:41:19 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -10,7 +25,7 @@
 
 
 
-### Adjust rpmmacros for Mageia 6 macro changes for package suffix (origin/master, origin/HEAD)
+### Adjust rpmmacros for Mageia 6 macro changes for package suffix
 >Sat, 28 Nov 2015 00:24:08 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)

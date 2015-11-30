@@ -191,7 +191,7 @@ plain "$(gettext " -s        - Exact path/name of the srpm file. E.g. /home/user
 plain "$(gettext " -D        - Temporary directory for chroot environment. Can be used with '-g' option. Default: %s")" "${TMPDIR}"
 plain "$(gettext " -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST")"
 plain "$(gettext " -z        - Force zeynep to not use given distrib media with -d switch/or from config file and default to MIRRORLIST")"
-plain "$(gettext " -R        - Copy rpmmacros file from user home directory into chroot environment. Use this option with '-g' option. Default: Disabled")"
+plain "$(gettext " -R        - Copy rpmmacros file from user home directory into chroot environment. You can use this option with '-g' option. Default: Disabled")"
 plain "$(gettext " -c        - RPM cache directory which will be used for save time/bandwith. Default: Disabled")"
 plain "$(gettext " -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/mageia/4/media/i586'. Default: Disabled")"
 plain "$(gettext " -p        - Packages names to be installed in chroot. This option must be used with '-g' option
@@ -430,20 +430,22 @@ cache_option () {
 # Checks if cache option is used and if used, mount cache dir and also add --noclean option for urpmi
 ####################################################################################################################################################
 
-if [[ -n ${use_cache} && -d ${cachedir} ]];then
-    if run_command "sudo mkdir -p ${chrootdir}/var/cache/urpmi/rpms";then
-        if run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms"; then
-        # We need to return noclean urpmi option from this function to the script
-        # http://bash.cyberciti.biz/guide/Returning_from_a_function
-            return 0
+if [[ -n ${use_cache} ]]; then
+    if [[ -d ${cachedir} ]]; then
+        if run_command "sudo mkdir -p ${chrootdir}/var/cache/urpmi/rpms";then
+            if run_command "sudo mount -R ${cachedir} ${chrootdir}/var/cache/urpmi/rpms"; then
+            # We need to return noclean urpmi option from this function to the script
+            # http://bash.cyberciti.biz/guide/Returning_from_a_function
+                return 0
+            else
+                error2 "$(gettext "Failed to mount %s. Zeynep will continue without cache enabled.")" "${cachedir}"
+            fi
         else
-            error2 "$(gettext "Failed to mount %s. Zeynep will continue without cache enabled.")" "${cachedir}" && return 1
+            error2 "$(gettext "Failed to create mandatory %s directory for rpm cache usage. Zeynep will continue without cache enabled.")" "${chrootdir}/var/cache/urpmi/rpms"
         fi
     else
-        error2 "$(gettext "Failed to create mandatory %s directory for rpm cache usage. Zeynep will continue without cache enabled.")" "${chrootdir}/var/cache/urpmi/rpms" && return 1
+        if [[ ! -d ${cachedir} ]]; then error2 "$(gettext "%s cache directory can not be found. Zeynep will continue without cache enabled.")" "${cachedir}"; fi
     fi
-else
-    if [[ ! -d ${cachedir} ]]; then error2 "$(gettext "%s cache directory can not be found. Zeynep will continue without cache enabled.")" "${cachedir}" && return 1; fi
 fi
 
 }
@@ -473,7 +475,12 @@ else
     msg "$(gettext "User forced zeynep to use default distrib urpmi source: MIRRORLIST")"
 fi
 
-run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --auto --distrib --mirrorlist http://mirrors.mageia.org/api/mageia.${mga_version}.${arch}.list" || ( error "$(gettext "Zeynep can not add default MIRRORLIST distrib source. Zeynep can not continue without a distrib urpmi medium.")" && exit_function )
+if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --auto --distrib --mirrorlist http://mirrors.mageia.org/api/mageia.${mga_version}.${arch}.list"; then
+    care_medias
+else
+    error "$(gettext "Zeynep can not add default MIRRORLIST distrib source. Zeynep can not continue without a distrib urpmi medium.")"
+    exit_function
+fi
 
 }
 
@@ -556,9 +563,11 @@ if [[ -n "${media_array[*]}" ]]; then
             esac
         fi       
     done
+
+    care_medias
 fi
 
-care_medias
+
 
 }
 
@@ -615,7 +624,7 @@ chroot_urpmi_install () {
 ####################################################################################################################################################
 
 # Check that cache option is used
-if cache_option; then urpmi_options+=("--noclean"); fi
+if [[ -n ${use_cache} ]]; then cache_option && urpmi_options+=("--noclean"); fi
 
 # Add medias:
 urpmi_addmedia
@@ -633,9 +642,12 @@ urpmi_options_array="${urpmi_options[*]}"
 # Install packages
 ( run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${packages}" && msg "$(gettext "Base packages installation was succesful. Starting to compressing operation")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit_function )
 
+
+if [[ -f ${tarball}.tar.xz ]]; then
 # We should remove leftover medium sources before archiving chroot env.
-msg "$(gettext "Removing configured urpmi sources before compressing chroot directory...")"
-( run_command "sudo urpmi.removemedia --urpmi-root ${chrootdir} -a" && msg "$(gettext "...DONE!")" ) || error2 "$(gettext "Removing urpmi sources failed.")"
+    msg "$(gettext "Removing configured urpmi sources before compressing chroot directory...")"
+    ( run_command "sudo urpmi.removemedia --urpmi-root ${chrootdir} -a" && msg "$(gettext "...DONE!")" ) || error2 "$(gettext "Removing urpmi sources failed.")"
+fi
 
 }
 
@@ -692,7 +704,7 @@ overwrite_tarball () {
 
 read -r -p "$(plain "$(gettext "Do you want to overwrite old tarball with the new one? [Y/n]")")" response
 case $response in
-    [yY][eE][sS]|[yY] ) 
+    [yY]|[eE]|[sS]|[oO] )
                         create_tarball
                         ;;
     *)
@@ -760,6 +772,20 @@ unmount_necessary_dirs
 }
 
 ####################################################################################################################################################
+create_chroot_user () {
+####################################################################################################################################################
+# At this stage we should check if user wants to put .rpmmacros file into chroot
+# because after user account creation .rpmmacros would not placed in $HOME
+
+control_rpmmacros
+
+# Create user account and user home directory; then chown all files to user in chroot
+msg "$(gettext "Zeynep will try to setup '%s' user account. Please wait a second...")" "${USER}"
+( su_in_chroot "useradd -u ${UID} ${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment.")" "${USER}" &&  exit_function )
+
+}
+
+####################################################################################################################################################
 without_tarball_helper () {
 # This function is a helper function for without_tarball
 ####################################################################################################################################################
@@ -775,10 +801,15 @@ run_command "mkdir -p ${chrootdir}" || ( error "$(gettext "'mkdir' command can n
 chroot_urpmi_install
 
 # Unmount cachedir; else it is mounted twice and can not be unmounted upon finishing:
-msg "$(gettext "Unmounting %s before starting to build rpm packages in chroot environment...")" "${chrootdir}/var/cache/urpmi/rpms"
-( run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms" && msg "$(gettext "... DONE! %s has been unmounted")" "${chrootdir}/var/cache/urpmi/rpms" ) || ( error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms" && exit_function )
-
-control_rpmmacros
+if [[ -n ${use_cache} ]]; then
+    msg "$(gettext "Unmounting %s before starting to build rpm packages in chroot environment...")" "${chrootdir}/var/cache/urpmi/rpms"
+    if run_command "sudo umount ${chrootdir}/var/cache/urpmi/rpms";then
+        msg "$(gettext "... DONE! %s has been unmounted")" "${chrootdir}/var/cache/urpmi/rpms"
+    else
+        error "$(gettext "An error occured during unmounting %s. Please unmount manually.")" "${chrootdir}/var/cache/urpmi/rpms"
+        exit_function
+    fi
+fi
 
 mount_necessary_dirs
 
@@ -798,7 +829,7 @@ if [[ -z ${withouttarball} ]]; then
 Zeynep will try to install a base chroot environment to %s and then create rpms.
 This operation may require a lot of time and bandwith. Do you want to continue? [Y/n]")" "$tempdir" )" no_tarball
     case $no_tarball in
-        [yY][eE][sS]|[yY] ) 
+        [yY]|[eE]|[sS]|[Oo] )
                         without_tarball_helper
                         ;;
         *)
@@ -919,17 +950,6 @@ else
     ( error2 "$(gettext "No previously created %s tarball found. You can create one via this script using '-g' switch for future uses to save time/bandwith.")" "${tarball}.tar.xz" && without_tarball )
 fi
 
-
-}
-
-####################################################################################################################################################
-create_chroot_user () {
-####################################################################################################################################################
-# Create user account and user home directory; then chown all files to user in chroot
-msg "$(gettext "Zeynep will try to setup '%s' user account. Please wait a second...")" "${USER}"
-( su_in_chroot "useradd -u ${UID} ${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment.")" "${USER}" &&  exit_function )
-#msg "$(gettext "Zeynep will try to change ownership of all files as %s in user HOME directory. Please wait a second...")" "${USER}"
-#( su_in_chroot "chown -R ${USER}:${USER} /home/${USER}" && plain "$(gettext "... DONE!")" ) || ( error "$(gettext "Zeynep can not create %s user account in chroot environment. Please check %s for possible errors.")" "${USER}" "${log_file}" && exit_function )
 
 }
 
