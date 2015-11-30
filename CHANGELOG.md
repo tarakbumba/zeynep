@@ -1,4 +1,17 @@
-### Fix a minor bug in unmount_necessary_dirs function (HEAD -> master)
+### Fix a crashing bug when no tarball is existed or used (#10) (HEAD -> master)
+>Mon, 30 Nov 2015 21:42:24 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- Zeynep should not try to unmount /var/cache/rpms when cache option isn't used
+- Add check for user input in French ("Oui)
+- Update gettext catalogs and Changelog
+
+
+
+### Fix a minor bug in unmount_necessary_dirs function (origin/master, origin/HEAD)
 >Sat, 28 Nov 2015 19:45:56 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -13,7 +26,7 @@
 
 
 
-### Fix a regression in care_medias function user input (origin/master, origin/HEAD)
+### Fix a regression in care_medias function user input
 >Sat, 28 Nov 2015 00:41:19 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)

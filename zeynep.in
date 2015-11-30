@@ -475,7 +475,7 @@ else
     msg "$(gettext "User forced zeynep to use default distrib urpmi source: MIRRORLIST")"
 fi
 
-if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --auto --distrib --mirrorlist http://mirrors.mageia.org/api/mageia.${mga_version}.${arch}.list"; then
+if run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --distrib --mirrorlist http://mirrors.mageia.org/api/mageia.${mga_version}.${arch}.list"; then
     care_medias
 else
     error "$(gettext "Zeynep can not add default MIRRORLIST distrib source. Zeynep can not continue without a distrib urpmi medium.")"
