@@ -1,4 +1,27 @@
-### Fix a crashing bug when no tarball is existed or used (#10) (HEAD -> master)
+### - Update gettext catalogs and Changelog (HEAD -> master)
+>Mon, 7 Dec 2015 00:36:11 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+
+
+
+### Fix minor bug with urpmi.addmedia options (origin/master, origin/HEAD)
+>Mon, 30 Nov 2015 23:08:59 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- urpmi.addmedia doesn't have an "--auto" option. Remove "--auto".
+  Fixes #12
+- As usual update gettext catalogs and Changelog
+
+
+
+### Fix a crashing bug when no tarball is existed or used (#10)
 >Mon, 30 Nov 2015 21:42:24 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -11,7 +34,7 @@
 
 
 
-### Fix a minor bug in unmount_necessary_dirs function (origin/master, origin/HEAD)
+### Fix a minor bug in unmount_necessary_dirs function
 >Sat, 28 Nov 2015 19:45:56 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
