@@ -1,4 +1,19 @@
-### - Update gettext catalogs and Changelog (HEAD -> master)
+### Add feature to re-create src.rpm packages in chroot environment (HEAD -> master)
+>Mon, 28 Dec 2015 21:23:09 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+This feature allows users to re-create src.rpm packages in chroot
+environment and upload them into user defined directory. So, users
+have a stable release src.rpm from a cauldron one.
+
+- As usual also update gettext catalogs and ChangeLog
+
+
+
+### - Update gettext catalogs and Changelog (origin/master, origin/HEAD)
 >Mon, 7 Dec 2015 00:36:11 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -8,7 +23,7 @@
 
 
 
-### Fix minor bug with urpmi.addmedia options (origin/master, origin/HEAD)
+### Fix minor bug with urpmi.addmedia options
 >Mon, 30 Nov 2015 23:08:59 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)

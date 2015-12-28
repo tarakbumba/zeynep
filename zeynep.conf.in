@@ -54,7 +54,7 @@
 #
 #user_no_ignore_media="Nonfree Release,Nonfree Updates,Nonfree Backports,Tainted Release,Tainted Updates,Tainted Backports"
 
-# Type which directory should compiled rpms be uploaded:
+# Path for compiled rpm packages to be uploaded/copied:
 # You can use Mageia version and architecture for directories of
 # both i586 and x86_64 archs. Be sure that you use $arch variable
 # With this option enabled you don't need to use "-u" option with zeynep
@@ -62,6 +62,13 @@
 # E.g. somedir/$mga_version/$arch ( Translated as somedir/cauldron/i586 in the script, depending of your choice)
 #
 #user_upload_directory=""
+
+# Path for re-created srpm packages to be uploaded/copied
+# You can use Mageia version $mgaversion variable for this
+# 
+# E.g. some_dir/$mga_version/SRPMS ( Translated as somedir/cauldron/SRPMS in the script, depending of your choice)
+#
+#user_srpms_upload_directory=""
 
 # To save bandwith and time, you can specify a directory of previously downloaded rpms
 # This directory will be used as urpmi cache.

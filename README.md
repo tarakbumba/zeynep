@@ -49,7 +49,8 @@ Usage
  * -b        - Commandline arguments to be passed on rpmbuild. Use the arguments in double quotes
  * -G        - Generate hdlists for compiled rpms upon exit. Default: Disabled
  * -R        - Add rpmmacros file from user home dir (~/.rpmmacros). Default: Disabled
- * -v        - Be verbose. Default: Disabled
+ * -P         - Upload re-created srpms into user defined path. Default: Disabled
+ * -v         - Be verbose. Default: Disabled
  * -V        - Be very verbose. Default: Disabled
  * -h        - Display help
  
