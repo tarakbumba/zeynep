@@ -1391,9 +1391,9 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:P:s:" OPTION ; do
 		b)
 		    rpmbuild_opts+=("${OPTARG}")
  		    ;;
-        P)
+		P)
 			upload_srpms_path="${OPTARG}"
-            ;;
+ 		    ;;
 
 		h)
 		    usage && exit 0

@@ -1,4 +1,25 @@
-### Add feature to re-create src.rpm packages in chroot environment (HEAD -> master)
+### Fix spacing in commandline options (HEAD -> master)
+>Mon, 28 Dec 2015 21:37:43 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+
+
+
+### Update config file and README.md (origin/master, origin/HEAD)
+>Mon, 28 Dec 2015 21:31:11 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+- As usual gettext catalogs and ChangeLog update
+
+
+
+### Add feature to re-create src.rpm packages in chroot environment
 >Mon, 28 Dec 2015 21:23:09 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -13,7 +34,7 @@ have a stable release src.rpm from a cauldron one.
 
 
 
-### - Update gettext catalogs and Changelog (origin/master, origin/HEAD)
+### - Update gettext catalogs and Changelog
 >Mon, 7 Dec 2015 00:36:11 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
