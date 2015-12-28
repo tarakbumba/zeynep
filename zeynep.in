@@ -1098,7 +1098,7 @@ pure_srpm="$(basename $srpm)"
 #Assign rpmbuild options array to a variable
 rpmbuild_options_array="${rpmbuild_opts[@]}"
 msg "$(gettext "Zeynep will try to create rpm packages using %s.")" "${srpm}"
-( run_in_chroot "rpmbuild --rebuild ${rpmbuild_options_array}  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
+( run_in_chroot "rpmbuild -ra ${rpmbuild_options_array}  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
 
 }
 

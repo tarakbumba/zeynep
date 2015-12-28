@@ -1,4 +1,14 @@
-### Fix spacing in commandline options (HEAD -> master)
+### Fix rpmbuild command for new build features (HEAD -> master)
+>Mon, 28 Dec 2015 22:57:10 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+
+
+
+### Fix spacing in commandline options (origin/master, origin/HEAD)
 >Mon, 28 Dec 2015 21:37:43 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Update config file and README.md (origin/master, origin/HEAD)
+### Update config file and README.md
 >Mon, 28 Dec 2015 21:31:11 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
