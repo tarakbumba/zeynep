@@ -128,6 +128,7 @@ genhdlist=${genhdlist:=$user_generate_hdlists}
 cache_path=${cache_path:=$user_cache_directory}
 temp_path=${temp_path:=$user_tempdir}
 upload_path=${upload_path:=$user_upload_directory}
+upload_srpms_path=${upload_srpms_path:=$user_srpms_upload_directory}
 tarball_path=${tarball_path:=$user_tarball_directory}
 noclean=${noclean:=$user_no_clean}
 tidy_cache=${tidy_cache:=$user_tidy_rpm_cache}
@@ -168,9 +169,18 @@ fi
 if (echo ${upload_path} | grep '$arch' > /dev/null ); then
 	upload_path="${upload_path/\$arch/$arch}"
 fi
-# Then set uploaddir
+if (echo ${upload_srpms_path} | grep '$HOME' > /dev/null ); then
+	upload_srpms_path="${upload_srpms_path/\$HOME/$HOME}"
+fi
+if (echo ${upload_srpms_path} | grep '$mga_version' > /dev/null ); then
+	upload_srpms_path="${upload_srpms_path/\$mga_version/$mga_version}"
+fi
+if (echo ${upload_srpms_path} | grep '$arch' > /dev/null ); then
+	upload_srpms_path="${upload_srpms_path/\$arch/$arch}"
+fi
+# Then set uploaddirs
 if [[ "${upload_path: -1}" == "/" ]]; then uploaddir="${upload_path%?}"; else uploaddir="${upload_path}"; fi
-
+if [[ "${upload_srpms_path: -1}" == "/" ]]; then upload_srpmsdir="${upload_srpms_path%?}"; else upload_srpmsdir="${upload_srpms_path}"; fi
 }
 ####################################################################################################################################################
 usage () {
@@ -209,6 +219,7 @@ plain "$(gettext " -l        - Upload compiled rpms into srpm's directory. Defau
 plain "$(gettext " -S        - Sign rpm packages via rpm-sign utility. Default: Disabled")"
 plain "$(gettext " -b        - Commandline parameters to pass on rpmbuild. Use in double quotes")"
 plain "$(gettext " -G        - Generate hdlists for compiled rpms upon exit. Default: Disabled")"
+plain "$(gettext " -P        - Upload re-created srpms into user defined path. Default: Disabled")"
 plain "$(gettext " -v        - Be verbose. Default: Disabled")"
 plain "$(gettext " -V        - Be very verbose. Default: Disabled")"
 plain "$(gettext " -h        - Display this help")"
@@ -280,8 +291,13 @@ fi
 
 if which rpm-tidy > /dev/null; then tidy_upload_rpms_dir="1" ; else (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_upload_rpms_dir=""); fi
 
-if [[ -z ${generate_tarball} && -n "${tidy_upload_rpms_dir}" ]] && [ -e ${uploaddir} ]; then
-    run_command "sudo rpm-tidy  -f -x "${exclude_arch}" --dir="${uploaddir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory.")" "${uploaddir}"
+if [[ -z ${generate_tarball} && -n "${tidy_upload_rpms_dir}" ]]; then
+    if [ -e ${uploaddir} ]; then
+        run_command "sudo rpm-tidy  -f -x "${exclude_arch}" --dir="${uploaddir}"" || warning "$(gettext "Zeynep failed to delete older rpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory.")" "${uploaddir}"
+    fi
+    if [[ -n ${upload_srpms_path} && -e ${upload_srpms_path} ]]; then
+        run_command "sudo rpm-tidy  -fs --dir="${upload_srpmsdir}"" || warning "$(gettext "Zeynep failed to delete older srpms in %s using rpm-tidy utility. This is not critical. However you will have older versions/releases of same packages in the same directory.")" "${upload_srpmsdir}"
+    fi
 fi
 
 }
@@ -311,6 +327,7 @@ unset cachedir
 unset urpmi_options_array
 unset arch
 unset uploaddir
+unset upload_srpmsdir
 [[ -z "${distrib_array[*]}" ]] && unset distrib_array
 [[ -z "${media_array[*]}" ]] && unset media_array
 }
@@ -1089,18 +1106,19 @@ msg "$(gettext "Zeynep will try to create rpm packages using %s.")" "${srpm}"
 upload_rpms () {
 # Copies rpm files to upload directory
 ####################################################################################################################################################
-local rpmbuild_rpms_root="$(sudo /sbin/chroot ${chrootdir} su ${USER} -c "rpm --eval %_rpmdir")"
+local rpmbuild_rpms_root="$(sudo /sbin/chroot ${chrootdir} su ${USER} -c "rpm --eval %_topdir")"
 local rpm_packages="$(find ${chrootdir}${rpmbuild_rpms_root} -name "*.rpm")"
 for package in ${rpm_packages}; do
-    if [ ${package: -8} == ".src.rpm" ]; then
-        msg "$(gettext "Found %s srpm package. Not copying in %s upload directory and deleting in chroot environment")" "${package}" "${uploaddir}"
-        run_command "rm -f ${package}"
-    else
-        if [ ${package: -4} == ".rpm" ]; then
-            package_name="$(basename ${package})"
-            ( run_command "cp -vf ${package} ${uploaddir}/" && msg "$(gettext "%s package is uploaded to %s directory")" "${package_name}" "${uploaddir}" ) || ( error "$(gettext "Zeynep failed to upload %s rpm package to %s.")" "${package_name}" "${uploaddir}" && exit_function )
-        fi
-    fi
+    if [[ ${package: -8} == ".src.rpm" && -n ${upload_srpms_path} ]]; then
+        msg "$(gettext "Found %s srpm package. Copying to %s directory")" "${package}" "${upload_srpmsdir}"
+        local package_srpm="$(basename ${package})"
+        ( run_command "cp -f ${package} ${upload_srpmsdir}/" && msg "$(gettext "%s package is uploaded to %s directory")" "${package_srpm}" "${upload_srpmsdir}" ) || ( error "$(gettext "Zeynep failed to upload %s rpm package to %s.")" "${package_srpm}" "${upload_srpmsdir}" && exit_function )
+     else
+         if [ ${package: -4} == ".rpm" ]; then
+            local package_name="$(basename ${package})"
+             ( run_command "cp -vf ${package} ${uploaddir}/" && msg "$(gettext "%s package is uploaded to %s directory")" "${package_name}" "${uploaddir}" ) || ( error "$(gettext "Zeynep failed to upload %s rpm package to %s.")" "${package_name}" "${uploaddir}" && exit_function )
+         fi
+     fi
 done
 
 }
@@ -1117,10 +1135,13 @@ local_rpm_build() {
 local srpm_base="$(realpath ${srpm}|rev|cut -d "/" -f2-20 | rev)"
 uploaddir="${srpm_base}/RPMS/$arch"
 
-if [[ ! -d "${uploaddir}" ]]; then
-    run_command "mkdir -p "${uploaddir}""    
-fi
+if [[ ! -d "${uploaddir}" ]]; then run_command "mkdir -p "${uploaddir}""; fi
 
+# Uploading srpms.First check if user wants to upload srpm.
+if [[ -n ${upload_srpms_path} ]]; then
+    upload_srpmsdir="${srpm_base}/SRPMS"
+    if [[ ! -d "${upload_srpmsdir}" ]]; then run_command "mkdir -p "${upload_srpmsdir}""; fi
+fi
 }
 
 ####################################################################################################################################################
@@ -1131,6 +1152,9 @@ signing_rpms () {
 
 # Logic is create a list of rpms in upload dir before building packages:
 find "${uploaddir}" -name "*.rpm" >> "${uploaddir}"/build_before_list
+
+# List of newly created srpms.
+if [[ -n ${upload_srpms_path} ]]; then find "${upload_srpmsdir}" -name "*src.rpm" >> "${upload_srpmsdir}"/build_before_list; fi
 
 # Build package(s):
 
@@ -1157,6 +1181,19 @@ pushd ${uploaddir}
     rm -f *_list
 popd
 
+if [[ -n ${upload_srpms_path} ]]; then
+# Create a new list which also contains new srpm(s)
+    find "${upload_srpmsdir}" -name "*src.rpm" >> "${upload_srpmsdir}"/build_after_list
+
+# Go to upload dir and compare two lists with sort and uniq to find recently build srpms
+# then sign new srpms and delete the lists we've created before.
+    pushd ${upload_srpmsdir}
+        local srpm_packages="$(cat build_before_list build_before_list build_after_list | sort | uniq -u)"
+        rpm --addsign $(echo "${srpm_packages//\'}")
+        rm -f *_list
+    popd
+fi
+
 }
 
 ####################################################################################################################################################
@@ -1171,6 +1208,12 @@ else
     if [[ -z "${uploaddir}" ]] || [[ ! -d "${uploaddir}" ]]; then
 	    error2 "$(gettext "You did not specified a valid path to upload built rpms. Zeynep will put built rpms into srpm root directory tree.")"
 	    local_rpm_build
+    fi
+
+    if [[ -n "${upload_srpms_path}" ]] && [[ ! -d "${upload_srpmsdir}" ]]; then
+        error2 "$(gettext "You did not specified a valid path to upload re-created srpms. Zeynep will put new srpm into %s directory tree.")" "${uploaddir}"
+        run_command "mkdir -p ${uploaddir}/SRPMS"
+        upload_srpmsdir="${uploaddir}/SRPMS"
     fi
 fi
 
@@ -1195,6 +1238,9 @@ tidy_rpms
 if [ -n "${genhdlist}" ]; then
     msg "$(gettext "Creating hdlists in %s")" "${uploaddir}"
     run_command "genhdlist2 --clean --allow-empty-media --xml-info ${uploaddir}" || warning "$(gettext "Zeynep failed to create (synthesis) hdlist file in %s.")" "${uploaddir}"
+    if [[ -n "${upload_srpms_path}" ]]; then
+        run_command "genhdlist2 --clean --allow-empty-media --xml-info ${upload_srpmsdir}" || warning "$(gettext "Zeynep failed to create (synthesis) hdlist file in %s.")" "${upload_srpmsdir}"
+    fi
 fi
 
 }
@@ -1249,10 +1295,11 @@ unmount_necessary_dirs
 #R: Add rpmmacros file from user home directory (usually ~/.rpmmacros)
 #z: Use MIRRORLIST instead of user specified distrib source
 #b: user defined rpmbuild options
+#P: Uplaoad path for re-created srpms
 #h: help
 
 passed_options=0
-while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:s:" OPTION ; do
+while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:P:s:" OPTION ; do
     passed_options=1
 	case ${OPTION} in
 		m)
@@ -1344,6 +1391,10 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:s:" OPTION ; do
 		b)
 		    rpmbuild_opts+=("${OPTARG}")
  		    ;;
+        P)
+			upload_srpms_path="${OPTARG}"
+            ;;
+
 		h)
 		    usage && exit 0
 		    ;;		    
