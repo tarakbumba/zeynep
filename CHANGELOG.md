@@ -1,4 +1,14 @@
-### Fix rpmbuild command for new build features (HEAD -> master)
+### Add rpm macros option into config file and fix some instructions (HEAD -> master)
+>Mon, 28 Dec 2015 22:59:10 +0200
+
+>Author: tarakbumba (tarakbumba@gmail.com)
+
+>Commiter: tarakbumba (tarakbumba@gmail.com)
+
+
+
+
+### Fix rpmbuild command for new build features (origin/master, origin/HEAD)
 >Mon, 28 Dec 2015 22:57:10 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Fix spacing in commandline options (origin/master, origin/HEAD)
+### Fix spacing in commandline options
 >Mon, 28 Dec 2015 21:37:43 +0200
 
 >Author: tarakbumba (tarakbumba@gmail.com)

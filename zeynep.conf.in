@@ -1,13 +1,13 @@
 #############################################################################
-#    This file is part of Zeynep.                                           #
-#                                                                           #
-#    Copyright (C) 2015  Atilla ÖNTAŞ <tarakbumba at gmail dot com>         #
-#                                                                           #
-#    Zeynep is free software: you can redistribute it and/or modify         #
-#    it under the terms of the GNU General Public License as published by   #
-#    the Free Software Foundation, either version 2 of the License, or      #
-#    (at your option) any later version.                                    #
-#                                                                           #
+#    This file is part of Zeynep.                                                                                                              #
+#                                                                                                                                                       #
+#    Copyright (C) 2015  Atilla ÖNTAŞ <tarakbumba at gmail dot com>                                                  #
+#                                                                                                                                                       #
+#    Zeynep is free software: you can redistribute it and/or modify                                                         #
+#    it under the terms of the GNU General Public License as published by                                             #
+#    the Free Software Foundation, either version 2 of the License, or                                                    #
+#    (at your option) any later version.                                                                                                 #
+#                                                                                                                                                     #
 #    Zeynep is distributed in the hope that it will be useful,              #
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of         #
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          #
@@ -86,12 +86,14 @@
 #
 #user_tarball_directory=""
 
-# Do you want to delete old rpms in your rpm cache directory? Type 1 for Yes; 0 for No.
+# Do you want to delete old rpms in your rpm cache directory?
+# Type here 1 for YES otherwise leave commented.
 # With this option enabled you don't need to use "-C" option with zeynep
 #
 #user_tidy_rpm_cache="1" #yes
 
-# Do you want to delete old rpms in your rpm upload directory? Type 1 for Yes; 0 for No.
+# Do you want to delete old rpms in your rpm upload directory?
+# Type here 1 for YES otherwise leave commented.
 # With this option enabled you don't need to use "-T" option with zeynep
 #
 #user_tidy_uploaded_rpms="1" #yes
@@ -104,13 +106,15 @@
 #
 #user_arch="  "
 
-# Do you want to sign your compiled rpms? Type here 1 for YES or 0 for NO:
+# Do you want to sign your compiled rpms?
+# Type here 1 for YES otherwise leave commented.
 # With this option enabled you don't need to use "-S" option with zeynep
 #
 #use_rpm_sign="1"
 
 # Do you want to generate hdlists in your rpm upload directory? Useful 
-# for adding this directory as urpmi media. Type here 1 for YES or 0 for NO:
+# for adding this directory as urpmi media.
+# Type here 1 for YES otherwise leave commented.
 # With this option enabled you don't need to use "-G" option with zeynep
 # 
 #user_generate_hdlists="1"
@@ -118,13 +122,18 @@
 # Do you want to use your SRPM directory as rpm upload directory?
 # Notice that this option causes that rpms uploaded in ../RPMS/$arch
 # With this option enabled you don't need to use "-l" option with zeynep
-# Type here 1 for YES or 0 for NO:
+# Type here 1 for YES otherwise leave commented.
 #
 #user_local_build="1"
 
+# Do you want to include your ~/.rpmmacros file in your chroot?
+# Type here 1 for YES otherwise leave commented.
+#
+#use_rpm_macros="1"
+
 # After a failed or succesful build; zeynep removes chroot directory
 # which is in /tmp directory by default. If you want zeynep to don't  remove
-# chroot directory then type here 1 for YES or 0 for NO.
+# chroot directory then type here 1 for YES otherwise leave commented.
 # This option is useful for investigating problems in RPM_BUILD_ROOT
 # which is in /tmp/zeynep-builder-XX/chroot/home/$USER/rpmbuild directory by default.
 # With this option enabled you don't need to use "-N" option with zeynep
