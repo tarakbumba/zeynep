@@ -1479,7 +1479,15 @@ if [[ -n ${MGAARCH} ]]; then
     check_system_arch
 else
     warning "$(gettext "You have specified no argument for system architecture. Zeynep will build packages/tarballs for your system's main architecture")"
-    if [ $(arch) != "x86_64" ]; then MGAARCH="i586" && check_system_arch; else MGAARCH="x86_64" && check_system_arch; fi
+    if [ $(arch) != "x86_64" ]; then
+        MGAARCH="i586" && check_system_arch
+    else
+        if [[ -n $(rpm -qp --queryformat %{EXCLUSIVEARCH} ${given_srpm}) ]] && [[ $(rpm -qp --queryformat %{EXCLUSIVEARCH} ${given_srpm}) != "x86_64" ]]; then
+            MGAARCH="i586" && check_system_arch
+        else
+            MGAARCH="x86_64" && check_system_arch
+        fi
+    fi
 fi
 
 
