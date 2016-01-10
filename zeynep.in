@@ -309,8 +309,10 @@ unclean_temp () {
 ####################################################################################################################################################
 
 if [[ -z ${noclean} ]]; then
-    if mount | grep ${chrootdir}; then
-        msg "$(gettext "%s won't be deleted. Please remove it manually.")" "${tempdir}"
+    local mount_s="$(sudo cat /proc/mounts | grep ${chrootdir} | cut -d " " -f2)"
+    if [[ -n $mount_s ]]; then
+        msg "$(gettext "There are still mounted points. %s won't be deleted. Please remove it manually.")" "${tempdir}"
+        msg "$(gettext "Mounted points are: %s")" "${mount_s}"
     else
         msg "$(gettext "Deleting %s")" "${tempdir}"
         ( run_command "sudo rm -fr ${tempdir}" && msg "$(gettext "... DONE!")" ) || error "$(gettext "An error occured during deleting %s. Please delete it manually.")" "${tempdir}"
@@ -340,11 +342,12 @@ unmount_necessary_dirs () {
 msg "$(gettext "Unmounting system mountpoints from chroot environment before exiting")"
 
 if [[ -d ${chrootdir} ]]; then
-    mounted_points="proc dev dev/pts dev/shm sys var/cache/urpmi/rpms"
+    mounted_points="proc dev/pts dev/shm dev sys var/cache/urpmi/rpms"
         
     for mounted_dirs in ${mounted_points}; do
-        if mount | grep ${chrootdir}/${mounted_dirs}; then
-           ( sudo umount -R ${chrootdir}/${mounted_dirs} && msg "$(gettext "%s is succesfully unmounted!")" "${chrootdir}/${mounted_dirs}" ) || error "$(gettext "Zeynep can not unmount %s. Please do it manually.")" "${chrootdir}/${mounted_dirs}"
+        local mounts="$(sudo cat /proc/mounts | grep ${chrootdir}/$mounted_dirs | cut -d " " -f2)"
+        if [[ -n $mounts ]]; then
+           ( sudo umount -R $mounts && msg "$(gettext "%s is succesfully unmounted!")" "$mounts" ) || error "$(gettext "Zeynep can not unmount %s. Please do it manually.")" "$mounts"
         fi
     done
     unclean_temp
@@ -1012,7 +1015,7 @@ msg "$(gettext "Zeynep tries to mount necessary mount points %s to %s chroot dir
 sudo mount -t proc proc ${chrootdir}/proc || ( error "$(gettext "Zeynep can not mount %s .This is critical. Zeynep can not continue...")" "${mount_points}" && exit_function )
 
 # Mount and error in for loop:
-for mount_points in $(echo "dev dev/pts sys"); do
+for mount_points in $(echo "dev dev/pts dev/shm sys"); do
     run_command "sudo mount --bind /${mount_points} ${chrootdir}/${mount_points}" || ( error "$(gettext "Zeynep can not mount %s to %s. This is critical.Zeynep can not continue...")" "/${mount_points}" "${chrootdir}/${mount_points}" && exit_function )
 done
 
