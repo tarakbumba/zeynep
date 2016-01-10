@@ -984,7 +984,7 @@ check_dist () {
 if [[ -f ${chrootdir}/home/${USER}/.rpmmacros ]]; then
     chroot_rpmmacros="/home/${USER}/.rpmmacros"
     msg "$(gettext "Checking %s macros '%s' or '%s' usage and modifying it for your Mageia %s build.")" "${chrootdir}${chroot_rpmmacros}" "%dist" "%distsuffix" "${mga_version}"
-    if [[ ${mga_version} == "cauldron" ]] | [[ ${mga_version} -gt 5 ]]; then
+    if [[ "${mga_version}" == "cauldron" ]] || [[ ${mga_version} -gt 5 ]]; then
         local dist_suffix="$(grep %distsuffix ${chrootdir}$chroot_rpmmacros | grep -oE '[^ ]+$')" > /dev/null
         if (grep %distsuffix ${chrootdir}$chroot_rpmmacros | grep -oE '^#'); then
             (run_in_chroot "sed -i '/%distsuffix/c\#%dist $dist_suffix%{distro_release}' $chroot_rpmmacros")
