@@ -1,13 +1,13 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2015 Atilla ÖNTAŞ
 # This file is distributed under the same license as the Zeynep package.
-# Atilla ÖNTAŞ <tarakbumba@gmail.com>, 2015.
+# Atilla ÖNTAŞ <tarakbumba@gmail.com>, 2015, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: Zeynep 1.0.5\n"
 "Report-Msgid-Bugs-To: https://github.com/tarakbumba/zeynep/issues/new\n"
-"POT-Creation-Date: 2015-12-28 21:18+0200\n"
-"PO-Revision-Date: 2015-12-28 21:22+0300\n"
+"POT-Creation-Date: 2016-01-14 21:58+0200\n"
+"PO-Revision-Date: 2016-01-14 22:08+0300\n"
 "Last-Translator: Atilla ÖNTAŞ <tarakbumba@gmail.com>\n"
 "Language-Team: Mageia Turkish Translation Team <i18n-tr@ml.mageia.org>\n"
 "Language: tr\n"
@@ -96,8 +96,8 @@ msgid ""
 " -s        - Exact path/name of the srpm file. E.g. /home/user/foo-1.0-1."
 "mga4.src.rpm"
 msgstr ""
-" -s        - srpm dosyasının tam yolu/adı. Örnek: "
-"/home/user/foo-1.0-1.mga4.src.rpm"
+" -s        - srpm dosyasının tam yolu/adı. Örnek: /home/user/foo-1.0-1.mga4."
+"src.rpm"
 
 #: zeynep.in:201
 msgid ""
@@ -146,8 +146,8 @@ msgid ""
 " -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/"
 "mageia/4/media/i586'. Default: Disabled"
 msgstr ""
-" -M        - Paketlerin getirileceği veri kaynağı adresi. Mesela "
-"'www.someurl.org/pub/mageia/4/media/i586'. Öntanımlı: Devre dışı"
+" -M        - Paketlerin getirileceği veri kaynağı adresi. Mesela 'www."
+"someurl.org/pub/mageia/4/media/i586'. Öntanımlı: Devre dışı"
 
 #: zeynep.in:207
 msgid ""
@@ -302,11 +302,11 @@ msgstr ""
 "Zeynep ile sunulan yapılandırma dosyası bu konuda oldukça açıklayıcıdır.\n"
 "Lütfen o dosyaya bakın."
 
-#: zeynep.in:246 zeynep.in:255 zeynep.in:264 zeynep.in:520
+#: zeynep.in:246 zeynep.in:255 zeynep.in:264 zeynep.in:523
 msgid "RUN COMMAND (DEBUG) ==> "
 msgstr "YÜRÜTÜLEN KOMUT (HATA AYIKLAMA) ==> "
 
-#: zeynep.in:284 zeynep.in:292 zeynep.in:1359 zeynep.in:1362
+#: zeynep.in:284 zeynep.in:292 zeynep.in:1362 zeynep.in:1365
 msgid "rpm-tidy can not be found and option is disabled."
 msgstr "rpm-tidy bulunamadı ve seçenek devre dışı bırakıldı."
 
@@ -330,37 +330,49 @@ msgstr ""
 "silemedi. Bu işlem kritik değildir. Ancak, aynı dizinde aynı paketlerin eski "
 "sürümleri de bulunmaya devam edecektir."
 
-#: zeynep.in:313 zeynep.in:319
-msgid "%s won't be deleted. Please remove it manually."
-msgstr "%s silinmeyecek. Lütfen elle silin."
+#: zeynep.in:314
+msgid ""
+"There are still mounted points. %s won't be deleted. Please remove it "
+"manually."
+msgstr ""
+"Halen bağlı bağlama noktaları var. %s silinmeyecek. Lütfen bu dizini elle "
+"silin."
 
 #: zeynep.in:315
+msgid "Mounted points are: %s"
+msgstr "Bağlı bağlama noktaları: %s"
+
+#: zeynep.in:317
 msgid "Deleting %s"
 msgstr "%s siliniyor"
 
-#: zeynep.in:316 zeynep.in:524 zeynep.in:569 zeynep.in:801 zeynep.in:1054
-#: zeynep.in:1070 zeynep.in:1101
+#: zeynep.in:318 zeynep.in:527 zeynep.in:572 zeynep.in:804 zeynep.in:1057
+#: zeynep.in:1073 zeynep.in:1104
 msgid "... DONE!"
 msgstr "... BİTTİ!"
 
-#: zeynep.in:316
+#: zeynep.in:318
 msgid "An error occured during deleting %s. Please delete it manually."
 msgstr "%s silinirken bir hata oluştu. Lütfen elle silin."
 
-#: zeynep.in:340
+#: zeynep.in:321
+msgid "%s won't be deleted. Please remove it manually."
+msgstr "%s silinmeyecek. Lütfen elle silin."
+
+#: zeynep.in:342
 msgid "Unmounting system mountpoints from chroot environment before exiting"
 msgstr ""
 "Çıkış yapmadan önce sistem bağlama noktaları chroot ortamından ayrılıyor"
 
-#: zeynep.in:347
+#: zeynep.in:350
 msgid "%s is succesfully unmounted!"
 msgstr "%s başarıyla ayrıldı!"
 
-#: zeynep.in:347
+#: zeynep.in:350
 msgid "Zeynep can not unmount %s. Please do it manually."
 msgstr "Zeynep %s dizinini ayıramıyor. Lütfen bunu elle yapın."
 
-#: zeynep.in:376
+#: zeynep.in:379
 msgid ""
 "Creating a chroot environment in a directory other than %s is dangerous.\n"
 "This process needs to run some commands as root, therefore your path for "
@@ -372,7 +384,7 @@ msgstr ""
 "nedenle chroot ortamı için belirlediğiniz konum kullanıcı hesabınızla "
 "okunamaz veya yazılamaz hale gelebilir. Bu size bir uyarıdır."
 
-#: zeynep.in:380
+#: zeynep.in:383
 msgid ""
 "%s can not be found. Would you like to 'zeynep' create it?\n"
 "If you don't want to, then 'zeynep' will use %s directory: [y/N]"
@@ -380,11 +392,11 @@ msgstr ""
 "%s bulunamadı. 'Zeynep' in onu oluşturmasını ister misiniz?\n"
 "İstemiyorsanız 'zeynep' %s dizinini kullanacak: [e/H]"
 
-#: zeynep.in:384 zeynep.in:433
+#: zeynep.in:387 zeynep.in:436
 msgid "An error occured during chroot directory creation."
 msgstr "Chroot dizini oluşturulurken bir hata oluştu."
 
-#: zeynep.in:427
+#: zeynep.in:430
 msgid ""
 "You tried to create a chroot tarball but did not provide a path where "
 "tarball(s) will created in."
@@ -392,11 +404,11 @@ msgstr ""
 "Bir chroot tar arşivi oluşturmak istediniz ancak bu arşivlerin "
 "oluşturulacağı konumu belirtmediniz."
 
-#: zeynep.in:432
+#: zeynep.in:435
 msgid "%s can not be found. Zeynep will create it!"
 msgstr "%s bulunamadı. Zeynep onu oluşturacak!"
 
-#: zeynep.in:438
+#: zeynep.in:441
 msgid ""
 "%s can not be found or not a valid path! Please supply a valid path which "
 "includes chroot tarballs. Exiting..."
@@ -404,11 +416,11 @@ msgstr ""
 "%s bulunamadı veya geçerli bir konum değil! Lütfen chroot tar arşivlerini "
 "içeren geçerli bir konum girin. Çıkılıyor..."
 
-#: zeynep.in:458
+#: zeynep.in:461
 msgid "Failed to mount %s. Zeynep will continue without cache enabled."
 msgstr "%s bağlanamadı. Zeynep önbellek etkinleştirilmeden devam edecek."
 
-#: zeynep.in:461
+#: zeynep.in:464
 msgid ""
 "Failed to create mandatory %s directory for rpm cache usage. Zeynep will "
 "continue without cache enabled."
@@ -416,7 +428,7 @@ msgstr ""
 "Rpm önbelleği kullanımı için zorunlu olan  %s dizini oluşturulmadı. Zeynep "
 "önbellek etkinleştirilmeden devam edecek."
 
-#: zeynep.in:464
+#: zeynep.in:467
 msgid ""
 "%s cache directory can not be found. Zeynep will continue without cache "
 "enabled."
@@ -424,22 +436,21 @@ msgstr ""
 "%s önbellek dizini bulunamadı. Zeynep önbellek etkinleştirilmeden devam "
 "edecek."
 
-#: zeynep.in:490
+#: zeynep.in:493
 msgid ""
 "Zeynep needs a repo url to add as a urpmi medium. But none found. Will use "
 "'MIRRORLIST' by default."
 msgstr ""
 "Zeynep, urpmi veri kaynağı olarak eklenmek için bir depo adresine gereksinim "
-"duyuyor. Ancak hiç bulunamadı. Öntanımlı olarak 'Yansı Listesi' "
-"kullanılacak."
+"duyuyor. Ancak hiç bulunamadı. Öntanımlı olarak 'Yansı Listesi' kullanılacak."
 
-#: zeynep.in:492
+#: zeynep.in:495
 msgid "User forced zeynep to use default distrib urpmi source: MIRRORLIST"
 msgstr ""
 "Kullanıcı, zeynep' i öntanımlı urpmi dağıtım kaynağını kullanmaya zorladı: "
 "Yansı Listesi"
 
-#: zeynep.in:498
+#: zeynep.in:501
 msgid ""
 "Zeynep can not add default MIRRORLIST distrib source. Zeynep can not "
 "continue without a distrib urpmi medium."
@@ -447,13 +458,13 @@ msgstr ""
 "Zeynep öntanımlı YANSI LİSTESİ  dağıtım kaynağını ekleyemiyor. Zeynep, bir "
 "dağıtım veri kaynağı olmadan devam edemez."
 
-#: zeynep.in:513
+#: zeynep.in:516
 msgid "Enabling %s media as urpmi source in chroot environment"
 msgstr ""
 "%s veri kaynağı bir urpmi kaynağı olarak chroot ortamı içinde "
 "etkinleştiriliyor"
 
-#: zeynep.in:526
+#: zeynep.in:529
 msgid ""
 "Zeynep can not enable %s media. Will continue without this media enabled. Do "
 "you want to proceed? [y/N]"
@@ -461,7 +472,7 @@ msgstr ""
 "%s veri kaynağı etkinleştirilemiyor. Bu veri kaynağı etkinleştirilmeden "
 "devam edilecek. Devam etmek istiyor musunuz? [e/H]"
 
-#: zeynep.in:553
+#: zeynep.in:556
 msgid ""
 "Zeynep can not add %s distrib source. Therefore will try the default distrib "
 "media source"
@@ -469,11 +480,11 @@ msgstr ""
 "Zeynep %s dağıtım kaynağını ekleyemiyor. Bu nedenle öntanımlı dağıtım veri "
 "kaynağı denenecek."
 
-#: zeynep.in:566
+#: zeynep.in:569
 msgid "Adding %s as %s urpmi media"
 msgstr "%s, %s urpmi veri kaynağı olarak ekleniyor"
 
-#: zeynep.in:571
+#: zeynep.in:574
 msgid ""
 "Zeynep can not add %s as %s urpmi media. Will continue without this media "
 "source. Do you want to proceed? [y/N]"
@@ -481,26 +492,26 @@ msgstr ""
 "Zeynep %s veri kaynağını %s olarak ekleyemiyor.Bu veri kaynağı "
 "etkinleştirilmeden devam edilecek. Devam etmek istiyor musunuz? [e/H]"
 
-#: zeynep.in:619 zeynep.in:626
+#: zeynep.in:622 zeynep.in:629
 msgid "Zeynep is adding your %s rpmmacros file into %s in chroot"
 msgstr "Zeynep %s rpmmacros dosyasını %s chroot ortamına ekliyor"
 
-#: zeynep.in:620 zeynep.in:627
+#: zeynep.in:623 zeynep.in:630
 msgid "Specified rpmmacros file can not be copied"
 msgstr "Belirtilen rpmmacros dosyası kopyalanamıyor"
 
-#: zeynep.in:622 zeynep.in:629
+#: zeynep.in:625 zeynep.in:632
 msgid "%s directory can not be found in %s chroot"
 msgstr "%s dizini %s chroot içinde bulunamadı"
 
-#: zeynep.in:632
+#: zeynep.in:635
 msgid ""
 "%s or %s rpmmacros file can not be found. Will continue without rpmmacros "
 "installation"
 msgstr ""
 "%s veya %s rpmmacros dosyası bulunamadı. rpmmacros kurulmadan devam edilecek"
 
-#: zeynep.in:650
+#: zeynep.in:653
 msgid ""
 "Starting to install base packages needed to create a build chroot "
 "environment: "
@@ -508,12 +519,13 @@ msgstr ""
 "Bir derleme chroot ortamı oluşturmak için gereken temel paketlerin "
 "kurulumuna başlanıyor: "
 
-#: zeynep.in:660
+#: zeynep.in:663
 msgid ""
 "Base packages installation was succesful. Starting to compressing operation"
-msgstr "Temel paketlerin kurulumu başarılı oldu. Sıkıştırma işlemine başlanıyor"
+msgstr ""
+"Temel paketlerin kurulumu başarılı oldu. Sıkıştırma işlemine başlanıyor"
 
-#: zeynep.in:660
+#: zeynep.in:663
 msgid ""
 "Urpmi failed to install base packages in chroot environment. See %s for "
 "detailed information"
@@ -521,42 +533,42 @@ msgstr ""
 "Urpmi, temel paketleri chroot ortamına kuramadı. Ayrıntılı bilgi için %s "
 "dosyasına bakın"
 
-#: zeynep.in:665
+#: zeynep.in:668
 msgid ""
 "Removing configured urpmi sources before compressing chroot directory..."
 msgstr ""
 "Chroot dizini sıkıştırılmaya başlanmadan önce yapılandırılan urpmi veri "
 "kaynakları kaldırılıyor..."
 
-#: zeynep.in:666
+#: zeynep.in:669
 msgid "...DONE!"
 msgstr "... BİTTİ!"
 
-#: zeynep.in:666
+#: zeynep.in:669
 msgid "Removing urpmi sources failed."
 msgstr "Urpmi kaynaklarını kaldırma başarısız oldu."
 
-#: zeynep.in:679
+#: zeynep.in:682
 msgid "Unmounting %s before starting to compress chroot environment..."
 msgstr "Chroot ortamı sıkıştırılmaya başlanmadan önce %s dizini ayrılıyor..."
 
-#: zeynep.in:680 zeynep.in:824
+#: zeynep.in:683 zeynep.in:827
 msgid "... DONE! %s has been unmounted"
 msgstr "... BİTTİ! %s dizini ayrıldı"
 
-#: zeynep.in:680 zeynep.in:826
+#: zeynep.in:683 zeynep.in:829
 msgid "An error occured during unmounting %s. Please unmount manually."
 msgstr "%s dizini ayrılırken bir hata oluştu. Lütfen bunu elle yapın."
 
-#: zeynep.in:685
+#: zeynep.in:688
 msgid "Starting to create xz compressed tarball:"
 msgstr "xz ile sıkıştırılmış tar arşivi oluşturulmaya başlanıyor:"
 
-#: zeynep.in:686
+#: zeynep.in:689
 msgid "Unable to compress %s as %s."
 msgstr "%s dizini %s olarak sıkıştırılamıyor."
 
-#: zeynep.in:686
+#: zeynep.in:689
 msgid ""
 "Zeynep succesfully completed the chroot tarball creation operation. Now you "
 "can use it for package building"
@@ -564,7 +576,7 @@ msgstr ""
 "Zeynep başarıyla chroot tar arşivi oluşturma işlemini tamamladı. Şimdi bu "
 "arşivi paket oluşturmakta kullanabilirsiniz."
 
-#: zeynep.in:697
+#: zeynep.in:700
 msgid ""
 "Can not write the list of installed rpms to %s. Will continue without "
 "creating it"
@@ -572,15 +584,15 @@ msgstr ""
 "Kurulu rpm paketlerinin listesi %s üzerine yazılamıyor. Onu oluşturmadan "
 "devam edilecek"
 
-#: zeynep.in:707
+#: zeynep.in:710
 msgid "Please enter a name for chroot-tarball without any extension: "
 msgstr "Chroot-tar arşivi için son ek olmadan bir isim girin: "
 
-#: zeynep.in:709
+#: zeynep.in:712
 msgid "Your chroot-tarball name is now: %s"
 msgstr "Chroot tar arşivinizin adı şu oldu: %s"
 
-#: zeynep.in:712
+#: zeynep.in:715
 msgid ""
 "You did not give a name for chroot-tarball! Zeynep could not create a blank "
 "named tarball. Exiting... "
@@ -588,15 +600,15 @@ msgstr ""
 "Chroot tar arşivi için bir isim vermediniz! Zeynep boş isimde bir tar arşivi "
 "oluşturamaz. Çıkılıyor..."
 
-#: zeynep.in:722
+#: zeynep.in:725
 msgid "Do you want to overwrite old tarball with the new one? [Y/n]"
 msgstr "Eski tar arşivinin üzerine yenisini yazmak istiyor musunuz? [E/h]"
 
-#: zeynep.in:728
+#: zeynep.in:731
 msgid "%s can not be created! Exiting..."
 msgstr "%s oluşturulamıyor! Çıkılıyor..."
 
-#: zeynep.in:741
+#: zeynep.in:744
 msgid ""
 "Previously created %s tarball found. Zeynep will backup it.\n"
 "You can find it in %s directory"
@@ -604,19 +616,19 @@ msgstr ""
 "Önceden oluşturulmuş %s tar arşivi bulundu. Zeynep onu yedekleyecek.\n"
 "Onu %s dizini içinde bulabilirsiniz"
 
-#: zeynep.in:744
+#: zeynep.in:747
 msgid "%s can not be created!"
 msgstr "%s oluşturulamıyor!"
 
-#: zeynep.in:747
+#: zeynep.in:750
 msgid "Backup completed succesfully. %s is backed up as %s in %s directory"
 msgstr "Yedekleme başarıyla tamamlandı. %s, %s olarak %s dizininde yedeklendi"
 
-#: zeynep.in:750
+#: zeynep.in:753
 msgid "%s can not be moved to %s"
 msgstr "%s, %s içine taşınamıyor"
 
-#: zeynep.in:768
+#: zeynep.in:771
 msgid ""
 "Zeynep will start to create chroot tarball for %s version of Mageia Linux "
 "distribution for %s architecture"
@@ -624,7 +636,7 @@ msgstr ""
 "Zeynep, Mageia Linux dağıtımının %s sürümü ve %s mimarisi için chroot tar "
 "arşivi oluşturmaya başlayacak"
 
-#: zeynep.in:769 zeynep.in:812 zeynep.in:1255
+#: zeynep.in:772 zeynep.in:815 zeynep.in:1258
 msgid ""
 "You may need to type your sudo password several times during this operation "
 "unless you configure your sudoers file in /etc not to do so."
@@ -633,21 +645,21 @@ msgstr ""
 "yapılandırmamışsanız birden fazla kez sudo parolanızı girmek zorunda "
 "kalabilirsiniz."
 
-#: zeynep.in:778 zeynep.in:815
+#: zeynep.in:781 zeynep.in:818
 msgid "'mkdir' command can not create chroot directory at %s."
 msgstr "'mkdir' komutu %s konumunda chroot dizinini oluşturamıyor."
 
-#: zeynep.in:800
+#: zeynep.in:803
 msgid "Zeynep will try to setup '%s' user account. Please wait a second..."
 msgstr ""
 "Zeynep '%s' kullanıcı hesabını oluşturmaya çalışacak. Lütfen bir kaç saniye "
 "bekleyin..."
 
-#: zeynep.in:801
+#: zeynep.in:804
 msgid "Zeynep can not create %s user account in chroot environment."
 msgstr "Zeynep %s kullanıcı hesabını chroot ortamı içinde oluşturamıyor."
 
-#: zeynep.in:811
+#: zeynep.in:814
 msgid ""
 "Zeynep will try to install a base chroot environment to %s and then create "
 "rpms. This operation may require a lot of time and bandwith."
@@ -655,12 +667,12 @@ msgstr ""
 "Zeynep, %s dizinine temel bir chroot ortamı kuracak ve rpm paketlerini "
 "oluşturacaktır. Bu işlem fazlaca zaman ve bant genişliği gerektirebilir."
 
-#: zeynep.in:822
+#: zeynep.in:825
 msgid ""
 "Unmounting %s before starting to build rpm packages in chroot environment..."
 msgstr "Rpm paketleri derlenmeye başlanmadan önce %s dizini ayrılıyor..."
 
-#: zeynep.in:845
+#: zeynep.in:848
 msgid ""
 "\n"
 "Zeynep will try to install a base chroot environment to %s and then create "
@@ -674,7 +686,7 @@ msgstr ""
 "Bu işlem fazlaca zaman ve bant genişliği gerektirebilir. Devam etmek istiyor "
 "musunuz? [E/h]"
 
-#: zeynep.in:853
+#: zeynep.in:856
 msgid ""
 "You choose not to create a chroot environment from stracth now.\n"
 "Zeynep will exit, you can also create a xz compressed chroot tarball later "
@@ -684,7 +696,7 @@ msgstr ""
 "Zeynep çıkacak, bu amaçla sonradan xz ile sıkıştırılmış bir tar arşivi "
 "oluşturabilirsiniz. -g seçeneğini kullanın"
 
-#: zeynep.in:900
+#: zeynep.in:903
 msgid ""
 "Given %s file is not an srpm. Please supply a valid srpm and try again. "
 "Exiting..."
@@ -692,7 +704,7 @@ msgstr ""
 "Verilen %s dosyası bir srpm değil. Lütfen geçerli bir srpm dosyası sağlayın "
 "ve yeniden deneyin. Çıkılıyor.."
 
-#: zeynep.in:909
+#: zeynep.in:912
 msgid ""
 "You must supply a srpm file to build rpm packages using zeynep but none "
 "given.\n"
@@ -702,7 +714,7 @@ msgstr ""
 "hiç srpm verilmedi.\n"
 "Yoksa '-s' anahtarını kullanmayı unuttunuz mu? Çıkılıyor..."
 
-#: zeynep.in:925
+#: zeynep.in:928
 msgid ""
 "You have set build arch as 64bit on a 32 bit machine which is impossible! "
 "Zeynep will create packages/chroot for 32bit architecture..."
@@ -711,7 +723,7 @@ msgstr ""
 "ama bu mümkün değil. Zeynep, paketleri/chroot arşivlerini 32bit mimari için "
 "hazırlayacak..."
 
-#: zeynep.in:934
+#: zeynep.in:937
 msgid ""
 "\n"
 "Zeynep will try to create package/tarball for x86_64 system now.\n"
@@ -719,7 +731,7 @@ msgstr ""
 "\n"
 "Zeynep paket/tar arşivini x86_64 sistem için hazırlayacak.\n"
 
-#: zeynep.in:947
+#: zeynep.in:950
 msgid ""
 "You have specified an invalid argument for system architecture. Zeynep will "
 "build packages/tarballs for your system's main architecture"
@@ -727,7 +739,7 @@ msgstr ""
 "Sistem mimarisi için geçersiz argüman girdiniz. Zeynep paketleri/tar "
 "arşivlerini sisteminizin mimarisine göre oluşturacak"
 
-#: zeynep.in:960
+#: zeynep.in:963
 msgid ""
 "Extracting %s to chroot directory. This may take a few minutes. Please "
 "wait..."
@@ -735,16 +747,16 @@ msgstr ""
 "%s chroot dizinine açılıyor. Bu işlem birkaç dakika sürebilir. Lütfen "
 "bekleyin..."
 
-#: zeynep.in:961
+#: zeynep.in:964
 msgid "Zeynep can not extract %s tarball to %s."
 msgstr "Zeynep %s tar arşivini %s dizinine açamıyor."
 
-#: zeynep.in:963
+#: zeynep.in:966
 msgid "A temporary directory to extract %s is mandatory, but none found."
 msgstr ""
 "%s dosyasını açmak için geçici bir dizin belirtilmeli fakat hiç bulunamadı."
 
-#: zeynep.in:967
+#: zeynep.in:970
 msgid ""
 "No previously created %s tarball found. You can create one via this script "
 "using '-g' switch for future uses to save time/bandwith."
@@ -753,7 +765,7 @@ msgstr ""
 "genişliğinden tasarruf etmek için bu betik yardımıyla '-g' seçeneğini "
 "kullanarak bir arşiv oluşturabilirsiniz."
 
-#: zeynep.in:983
+#: zeynep.in:986
 msgid ""
 "Checking %s macros '%s' or '%s' usage and modifying it for your Mageia %s "
 "build."
@@ -761,39 +773,38 @@ msgstr ""
 "%s makroları '%s' veya '%s' kullanımı için denetleniyor ve Mageia %s "
 "derlemeniz için düzenleniyor."
 
-#: zeynep.in:1009
+#: zeynep.in:1012
 msgid "Zeynep tries to mount necessary mount points %s to %s chroot directory."
 msgstr ""
-"Zeynep zorunlu %s bağlama noktalarını %s chroot dizinine bağlamayı "
-"deneyecek."
+"Zeynep zorunlu %s bağlama noktalarını %s chroot dizinine bağlamayı deneyecek."
 
-#: zeynep.in:1012
+#: zeynep.in:1015
 msgid "Zeynep can not mount %s .This is critical. Zeynep can not continue..."
 msgstr ""
 "Zeynep %s dizinini bağlayamıyor. Bu durum kritik hatadır. Zeynep devam "
 "edemez..."
 
-#: zeynep.in:1016
+#: zeynep.in:1019
 msgid ""
 "Zeynep can not mount %s to %s. This is critical.Zeynep can not continue..."
 msgstr ""
 "Zeynep %s dizinini %s konumuna bağlayamıyor. Bu durum kritik hatadır. Zeynep "
 "devam edemez..."
 
-#: zeynep.in:1021
+#: zeynep.in:1024
 msgid "Zeynep can not copy %s in chroot environment."
 msgstr "Zeynep %s dosyasını chroot ortamına kopyalayamıyor."
 
-#: zeynep.in:1023
+#: zeynep.in:1026
 msgid "Zeynep can not locate %s in chroot environment."
 msgstr "Zeynep %s dosyasını chroot ortamında bulamıyor."
 
-#: zeynep.in:1037
+#: zeynep.in:1040
 msgid "Zeynep can not copy %s source rpm to %s. Can not continue."
 msgstr ""
 "Zeynep %s kayrak rpm paketini %s konumuna kopyalayamıyor. Devam edilemiyor."
 
-#: zeynep.in:1050
+#: zeynep.in:1053
 msgid ""
 "There may be updated packages after chroot tarball creation. Zeynep will try "
 "to update chroot system. Please wait a few seconds..."
@@ -802,29 +813,29 @@ msgstr ""
 "olabilir. Zeynep chroot sistemi güncelleştirmeye çalışacak. Lütfen bir kaç "
 "saniye bekleyin..."
 
-#: zeynep.in:1056
+#: zeynep.in:1059
 msgid ""
 "Zeynep failed to update rpms in chroot. Would you like to continue [Y/n] "
 msgstr ""
 "Zeynep, chroot ortamındaki rpm paketlerini güncelleştiremedi. Devam etmek "
 "istiyor musunuz? [E/h]"
 
-#: zeynep.in:1059
+#: zeynep.in:1062
 msgid "Zeynep will continue without updated system in chroot"
 msgstr "Zeynep chroot ortamındaki sistemi güncelleştirmeden devam edecek"
 
-#: zeynep.in:1062
+#: zeynep.in:1065
 msgid ""
 "User choose to not contiune without an updated chroot system. Exiting..."
 msgstr ""
 "Kullanıcı güncel olmayan bir sistemle devam etmemeyi seçti. Çıkılıyor..."
 
-#: zeynep.in:1069
+#: zeynep.in:1072
 msgid "Rebuilding RPM database. Please wait a few seconds..."
 msgstr ""
 "RPM veritabanı yeniden yapılandırılıyor. Lütfen bir kaç saniye bekleyin..."
 
-#: zeynep.in:1070
+#: zeynep.in:1073
 msgid ""
 "Zeynep failed to rebuild rpm database. Will try without this. But expect "
 "errors."
@@ -832,31 +843,31 @@ msgstr ""
 "Zeynep rpm veritabanını yeniden yapılandıramadı. Devam edilecek fakat "
 "hatalar oluşabilir."
 
-#: zeynep.in:1086
+#: zeynep.in:1089
 msgid "Zeynep can not install build dependencies for %s."
 msgstr "Zeynep %s için derleme bağımlılıklarını kuramıyor."
 
-#: zeynep.in:1100
+#: zeynep.in:1103
 msgid "Zeynep will try to create rpm packages using %s."
 msgstr "Zeynep, %s kullanarak rpm paketlerini oluşturmaya çalışacak."
 
-#: zeynep.in:1101
+#: zeynep.in:1104
 msgid "Zeynep failed to create rpm package from %s srpm."
 msgstr "Zeynep %s srpm paketinden rpm paketi oluşturamadı."
 
-#: zeynep.in:1113
+#: zeynep.in:1116
 msgid "Found %s srpm package. Copying to %s directory"
 msgstr "%s srpm paketi bulundu. %s dizinine kopyalanıyor"
 
-#: zeynep.in:1115 zeynep.in:1119
+#: zeynep.in:1118 zeynep.in:1122
 msgid "%s package is uploaded to %s directory"
 msgstr "%s paketi %s dizinine yüklendi"
 
-#: zeynep.in:1115 zeynep.in:1119
+#: zeynep.in:1118 zeynep.in:1122
 msgid "Zeynep failed to upload %s rpm package to %s."
 msgstr "Zeynep %s rpm paketini %s dizinine yükleyemedi."
 
-#: zeynep.in:1209
+#: zeynep.in:1212
 msgid ""
 "You did not specified a valid path to upload built rpms. Zeynep will put "
 "built rpms into srpm root directory tree."
@@ -865,7 +876,7 @@ msgstr ""
 "Zeynep derlenen rpm paketlerini srpm paketinin bulunduğu dizin ağacına "
 "yükleyecek."
 
-#: zeynep.in:1214
+#: zeynep.in:1217
 msgid ""
 "You did not specified a valid path to upload re-created srpms. Zeynep will "
 "put new srpm into %s directory tree."
@@ -873,41 +884,41 @@ msgstr ""
 "Yeniden oluşturulan srpm paketlerinin yükleneceği geçerli bir konum "
 "belirtmediniz. Zeynep yeni srpm paketlerini %s dizin ağacına yükleyecek."
 
-#: zeynep.in:1239
+#: zeynep.in:1242
 msgid "Creating hdlists in %s"
 msgstr "%s dizininde hdlist oluşturuluyor"
 
-#: zeynep.in:1240 zeynep.in:1242
+#: zeynep.in:1243 zeynep.in:1245
 msgid "Zeynep failed to create (synthesis) hdlist file in %s."
 msgstr "Zeynep %s dizininde (sentez) hdlist dosyasını oluşturamadı."
 
-#: zeynep.in:1351
+#: zeynep.in:1354
 msgid ""
 "Specified src.rpm file can not be found in path. Please check and try again."
 msgstr ""
 "Belirtilen src.rpm dosyası bulunamadı. Lütfen konumu denetleyip yeniden "
 "deneyin."
 
-#: zeynep.in:1383
+#: zeynep.in:1386
 msgid "genhdlist2 can not be found and option is disabled."
 msgstr "genhdlist2 bulunamadı ve seçenek devre dışı bırakıldı."
 
-#: zeynep.in:1402
+#: zeynep.in:1405
 msgid "Unrecognized option: %s "
 msgstr "Tanınmayan seçenek: %s"
 
-#: zeynep.in:1406
+#: zeynep.in:1409
 msgid "Missing option argument for %s"
 msgstr "%s seçeneği için eksik argüman"
 
-#: zeynep.in:1410
+#: zeynep.in:1413
 msgid ""
 "Unrecognized option: %s. Did you try to set option without '-' prefixed?"
 msgstr ""
 "Tanınmayan seçenek: %s. Seçeneği '-' işareti kullanmadan mı ayarlamaya "
 "çalıştınız?"
 
-#: zeynep.in:1419
+#: zeynep.in:1422
 msgid ""
 "Zeynep needs an option to run but none given. Displaying brief usage for "
 "available options:"
@@ -915,11 +926,11 @@ msgstr ""
 "Zeynep çalışmak için bir seçeneğin kullanılmasını gerektirir fakat hiç "
 "verilmemiş. Erişilebilir seçenekler şu şekildedir:"
 
-#: zeynep.in:1444
+#: zeynep.in:1447
 msgid "You can investigate zeynep log as %s "
 msgstr "Zeynep günlük kayıtlarını %s dosyasında bulabilirsiniz "
 
-#: zeynep.in:1454
+#: zeynep.in:1457
 msgid ""
 "You did not specify a Mageia version to built tarball/rpms. Zeynep is "
 "defaulting to Cauldron"
@@ -927,7 +938,7 @@ msgstr ""
 "Tar arşivlerini veya rpm paketlerini derlemek üzere bir Mageia sürümü "
 "belirtmediniz. Zeynep Cauldron sürümünü öntanımlı olarak kullanacak"
 
-#: zeynep.in:1462
+#: zeynep.in:1465
 msgid ""
 "urpmi tool can not be found. Are you trying to use zeynep on a non Mageia "
 "system?"
@@ -935,7 +946,7 @@ msgstr ""
 "urpmi gereci bulunamadı. Zeynep' i Mageia dışında bir sistemde mi kullanmaya "
 "çalışıyorsunuz?"
 
-#: zeynep.in:1478
+#: zeynep.in:1481
 msgid ""
 "You have specified no argument for system architecture. Zeynep will build "
 "packages/tarballs for your system's main architecture"
@@ -954,15 +965,15 @@ msgstr ""
 #~ " -R        - Copy rpmmacros file from user home directory into chroot "
 #~ "environment. Use this option with '-g' option. Default: Disabled"
 #~ msgstr ""
-#~ " -R        - rpmmacros dosyasını kullanıcının ev dizininden chroot ortamına "
-#~ "kopyala. Bu seçeneği '-g' seçeneği ile birlikte kullanın. Öntanımılı: Devre "
-#~ "dışı"
+#~ " -R        - rpmmacros dosyasını kullanıcının ev dizininden chroot "
+#~ "ortamına kopyala. Bu seçeneği '-g' seçeneği ile birlikte kullanın. "
+#~ "Öntanımılı: Devre dışı"
 
 #~ msgid ""
 #~ "Zeynep can not copy %s in %s directory. Proceeding with default rpm setup."
 #~ msgstr ""
-#~ "Zeynep %s dosyasını %s dizinine kopyalayamıyor. Öntanımlı rpm ayarları ile "
-#~ "devam edilecek."
+#~ "Zeynep %s dosyasını %s dizinine kopyalayamıyor. Öntanımlı rpm ayarları "
+#~ "ile devam edilecek."
 
 #~ msgid "Zeynep can not copy /etc/resolv.conf in chroot environment."
 #~ msgstr "Zeynep /etc/resolv.conf dosyasını chroot ortamına kopyalayamıyor."
