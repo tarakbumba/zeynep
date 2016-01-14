@@ -2,7 +2,7 @@
 #############################################################################
 #    This file is part of Zeynep.                                           #
 #                                                                           #
-#    Copyright (C) 2015  Atilla ÖNTAŞ <tarakbumba at gmail dot com>         #
+#    Copyright (C) 2015-2016  Atilla ÖNTAŞ <tarakbumba at gmail dot com>         #
 #                                                                           #
 #    Zeynep is free software: you can redistribute it and/or modify         #
 #    it under the terms of the GNU General Public License as published by   #
@@ -248,6 +248,20 @@ run_command () {
 }
 
 ####################################################################################################################################################
+run_command_deps () {
+# Runs bash command and sends all output to /dev/null
+# It may be bad but i prefer hide them.
+####################################################################################################################################################
+    local command=$1; shift
+    echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
+    local deps_log="${logdir}/${pure_srpm}-install-${arch}-deps.log"
+    if [ -f ${deps_log} ]; then rm -f ${deps_log}; fi
+    ( ${command} ) 2>&1 | tee ${deps_log}
+
+
+}
+
+####################################################################################################################################################
 su_in_chroot () {
 #Runs given commands in chroot as root
 ####################################################################################################################################################
@@ -263,6 +277,30 @@ run_in_chroot () {
     local command=$1; shift
     echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
 	sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}" >> ${log_file}.pipe 2>&1
+}
+
+####################################################################################################################################################
+run_in_chroot_build () {
+#Runs given commands in chroot as user
+####################################################################################################################################################
+    local command=$1; shift
+    echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
+    local build_log="${logdir}/${pure_srpm}_${arch}-build.log"
+    if [ -f ${build_log} ]; then rm -f ${build_log}; fi
+    ( sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}" ) 2>&1 | tee ${build_log}
+}
+
+####################################################################################################################################################
+rpm_qa_in_chroot () {
+#Runs given commands in chroot as user
+####################################################################################################################################################
+#    local command=""; shift
+    local command="rpm --root ${chrootdir} -qa | sort"; shift
+    echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
+    local rpmqa_log="${logdir}/chroot-${arch}-rpm_qa.log"
+    if [ -f ${rpmqa_log} ]; then rm -f ${rpmqa_log}; fi
+    ( ${command} ) 2>&1 | tee  ${rpmqa_log}
+
 }
 
 ####################################################################################################################################################
@@ -322,16 +360,18 @@ else
 fi
 
 # We must unset some variable for future uses. Else they passed to another run of below functions. This is especially true if
-# user uses "-a 'both'" option.
-unset tempdir
-unset tarball
-unset cachedir
-unset urpmi_options_array
-unset arch
-unset uploaddir
-unset upload_srpmsdir
+unset {tempdir,tarball,cachedir,urpmi_options_array,arch,uploaddir,upload_srpmsdir}
 [[ -z "${distrib_array[*]}" ]] && unset distrib_array
 [[ -z "${media_array[*]}" ]] && unset media_array
+
+# Remove pipe file now.
+if [[ -p ${log_file}.pipe ]]; then rm -f "${log_file}.pipe"; fi
+
+# Tidy log file created by tput mess...
+sed -i -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK(]//g" "$log_file" && sed -i 's/\x1b(B//g' "$log_file"
+
+unset log_file
+
 }
 
 ####################################################################################################################################################
@@ -345,20 +385,20 @@ if [[ -d ${chrootdir} ]]; then
     mounted_points="proc dev/pts dev/shm dev sys var/cache/urpmi/rpms"
         
     for mounted_dirs in ${mounted_points}; do
+#        if mount | grep ${chrootdir}/${mounted_dirs}; then
         local mounts="$(sudo cat /proc/mounts | grep ${chrootdir}/$mounted_dirs | cut -d " " -f2)"
         if [[ -n $mounts ]]; then
            ( sudo umount -R $mounts && msg "$(gettext "%s is succesfully unmounted!")" "$mounts" ) || error "$(gettext "Zeynep can not unmount %s. Please do it manually.")" "$mounts"
         fi
     done
+        
+#    for mounted_dirs in $(sudo cat /proc/mounts | grep ${chrootdir} | cut -d " " -f2); do
+#        ( sudo umount -R ${mounted_dirs} && msg "$(gettext "%s is succesfully unmounted!")" "${mounted_dirs}" ) || error "$(gettext "Zeynep can not unmount %s. Please do it manually.")" "${mounted_dirs}"
+#    done
     unclean_temp
 else 
     if [[ -d ${tempdir} ]]; then unclean_temp; fi
 fi
-# Remove pipe file now.
-if [[ -p ${log_file}.pipe ]]; then rm "${log_file}.pipe"; fi
-
-# Tidy log file created by tput mess...
-sed -i -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK(]//g" "$log_file" && sed -i 's/\x1b(B//g' "$log_file"
 
 }
 
@@ -916,6 +956,30 @@ fi
 
 }
 
+logging () {
+####################################################################################################################################################
+# Log file creation.
+# I have tried infamous (exec > tee) stuff. Unfortunately i couldn't manage traps to work. This is the only working way that i' ve found:
+####################################################################################################################################################
+# Check that if we are dealing with chroot creation or package building:
+if [[ $generate_tarball != "1" ]] && [[ -d ${srpm_path} ]]; then
+    logdir="${srpm_path}"
+    local log_name="zeynep-${arch}"
+else
+    logdir="${TMPDIR}"
+    local log_name="zeynep-${arch}-tarball"
+fi
+
+# Create log file in srpm path and start logging from here:
+#log_file="$(mktemp -p ${logdir} --suffix=".log" zeynep_$(date +%Y%m%d_%H%m).XXXXXXXXXX)"
+log_file="$(mktemp -p ${logdir} --suffix=".log" ${log_name}.XXX)"
+msg "$(gettext "You can investigate zeynep log as %s ")" ${log_file}
+mkfifo ${log_file}.pipe
+tee "${log_file}" < "${log_file}.pipe" &
+exec &> ${log_file}.pipe
+
+}
+
 ####################################################################################################################################################
 check_system_arch () {
 # We should check if system is 64 bit capable.
@@ -926,29 +990,30 @@ check_system_arch () {
 if [[ -n ${MGAARCH} ]]; then
     if [[ $(arch) != "x86_64" ]] && [[ "${MGAARCH}" == "x86_64" || ${MGAARCH} == "both" ]]; then
         error2 "$(gettext "You have set build arch as 64bit on a 32 bit machine which is impossible! Zeynep will create packages/chroot for 32bit architecture...")"
-        export arch="i586" && package_or_chroot
+        export arch="i586" && logging && package_or_chroot
     elif [ $(arch) == "x86_64" ] && [ ${MGAARCH} == "x86_64" ] || [ ${MGAARCH} == "i586" ]; then
-        export arch="${MGAARCH}" && package_or_chroot
+        export arch="${MGAARCH}" && logging && package_or_chroot
     elif [ $(arch) != "x86_64" ] && [ ${MGAARCH} == "i586" ]; then
-        export arch="i586" && package_or_chroot 
+        export arch="i586" && logging && package_or_chroot 
     elif [ ${MGAARCH} == "both" ]; then
 		# "Both" argument needs special treatment. We must unset arch from previous run and must export new arch to the functions.
-        unset arch && export arch="i586" && package_or_chroot
+        unset arch && export arch="i586" && logging && package_or_chroot
         msg "$(gettext "
 Zeynep will try to create package/tarball for x86_64 system now.
 ")"
-		unset arch
+#		unset {arch,log_file,build_log,rpmqa_log,deps_log}
+        unset arch
 		# Also setting x86_64 here needs special treatment. Setting new arch is not enough. Whatever i did it seems that "arch" portion of
 		# a path always lingering. This is especially true for cache and upload paths. So, it seems to me replacing arches in those vars are
 		# the only option which works. Also, we should unset some vars in unclean_temp function.
 		export arch="x86_64"
 		export cache_path="${cache_path/i586/x86_64}"
 		export upload_path="${upload_path/i586/x86_64}"
-		package_or_chroot
+		logging && package_or_chroot
     fi
 else
     warning "$(gettext "You have specified an invalid argument for system architecture. Zeynep will build packages/tarballs for your system's main architecture")"
-    if [ $(arch) != "x86_64" ]; then export arch="i586" && package_or_chroot; else export arch="x86_64" && package_or_chroot; fi
+    if [ $(arch) != "x86_64" ]; then export arch="i586" && logging && package_or_chroot; else export arch="x86_64" && logging && package_or_chroot; fi
 fi
 
 }
@@ -1081,12 +1146,12 @@ install_deps () {
 # try to update the system in chroot:
 update_rpms
 
-# Define urpmi options (Not needed now. This function takes over these urpmi options from update_rpms function
-#urpmi_options+=("--buildrequires --auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
-#urpmi_options_array="${urpmi_options[@]}"
-
 # Install build deps:
-run_command "sudo urpmi --urpmi-root ${chrootdir} --buildrequires ${urpmi_options_array} ${srpm}" || ( error "$(gettext "Zeynep can not install build dependencies for %s.")" "${srpm}" && exit_function )
+run_command_deps "sudo urpmi --urpmi-root ${chrootdir} --buildrequires ${urpmi_options_array} ${srpm}" || ( error "$(gettext "Zeynep can not install build dependencies for %s.")" "${srpm}" && exit_function )
+
+# Log installed rpms in chroot like iurt:
+
+rpm_qa_in_chroot #"rpm --root ${chrootdir} -qa | sort"
 
 }
 
@@ -1097,11 +1162,10 @@ build_rpm () {
 # Ensure that we have correct macros in .rpmmacros
 check_dist
 
-pure_srpm="$(basename $srpm)"
 #Assign rpmbuild options array to a variable
 rpmbuild_options_array="${rpmbuild_opts[@]}"
 msg "$(gettext "Zeynep will try to create rpm packages using %s.")" "${srpm}"
-( run_in_chroot "rpmbuild -ra ${rpmbuild_options_array}  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
+( run_in_chroot_build "rpmbuild -ra ${rpmbuild_options_array}  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
 
 }
 
@@ -1134,15 +1198,14 @@ local_rpm_build() {
 #
 # These below can be written in one liner but for now we leave them to be self explainory
 ####################################################################################################################################################
-
-local srpm_base="$(realpath ${srpm}|rev|cut -d "/" -f2-20 | rev)"
-uploaddir="${srpm_base}/RPMS/$arch"
+uploaddir="${srpm_path}/RPMS/$arch"
 
 if [[ ! -d "${uploaddir}" ]]; then run_command "mkdir -p "${uploaddir}""; fi
 
 # Uploading srpms.First check if user wants to upload srpm.
 if [[ -n ${upload_srpms_path} ]]; then
-    upload_srpmsdir="${srpm_base}/SRPMS"
+#    upload_srpmsdir="${srpm_base}/SRPMS"
+     upload_srpmsdir="${srpm_path}/SRPMS"
     if [[ ! -d "${upload_srpmsdir}" ]]; then run_command "mkdir -p "${upload_srpmsdir}""; fi
 fi
 }
@@ -1348,14 +1411,14 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:P:s:" OPTION ; do
 			tarball_path="${OPTARG}"
 			;;		    
 		s)
-		    given_srpm="${OPTARG}"
 		    # Check that given srpm is there...
+            given_srpm="$(realpath ${OPTARG})"
             if [[ !  -f ${given_srpm} ]]; then
                 error "$(gettext "Specified src.rpm file can not be found in path. Please check and try again.")"
                 exit 1
 		    fi
-
 		    srpm_path="$(dirname $(readlink -f ${given_srpm}))"
+            pure_srpm="$(basename $given_srpm)"
 
 		    ;;			
 		C)
@@ -1422,32 +1485,6 @@ if ((!passed_options)); then
   error "$(gettext "Zeynep needs an option to run but none given. Displaying brief usage for available options:")"
   usage && exit 1
 fi
-
-####################################################################################################################################################
-# Log file creation.
-# I have tried infamous (exec > tee) stuff. Unfortunately i couldn't manage traps to work. This is the only working way that i' ve found:
-####################################################################################################################################################
-# Helper function to ensure if one or more log file exists: 
-# http://stackoverflow.com/questions/24615535/bash-check-if-file-exists-with-double-bracket-test-and-wildcards
-#
-# file_check() { [[ -f $1 ]]; }
-
-# Check that if we are dealing with chroot creation or package building:
-if [[ $generate_tarball != "1" ]] && [[ -d ${srpm_path} ]]; then
-    logdir="${srpm_path}"
-else
-    logdir="${TMPDIR}"
-fi
-
-# Make sure that we have only one log file:
-#rm -f ${srpm_path}/zeynep*.log* 2>&1
-
-# Create log file in srpm path and start logging from here:
-log_file="$(mktemp -p ${logdir} --suffix=".log" zeynep_$(date +%Y%m%d_%H%m).XXXXXXXXXX)"
-msg "$(gettext "You can investigate zeynep log as %s ")" ${log_file}
-mkfifo ${log_file}.pipe
-tee "${log_file}" < "${log_file}.pipe" &
-exec &> ${log_file}.pipe
 
 ####################################################################################################################################################
 # Start with main functions and variables:
