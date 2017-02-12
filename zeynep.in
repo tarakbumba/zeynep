@@ -699,11 +699,11 @@ local packages="${chroot_rpms[*]}"
 urpmi_options+=("--auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
 urpmi_options_array="${urpmi_options[*]}"
 
-# Install packages
-( run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${packages}" && msg "$(gettext "Base packages installation was succesful. Starting to compressing operation")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit_function )
+# Install packages 
+( run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${packages}" && msg "$(gettext "Base packages installation was succesful.")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit_function )
 
 
-if [[ -f ${tarball}.tar.xz ]]; then
+if [[ -z ${withouttarball} && -f ${tarball}.tar.xz ]]; then
 # We should remove leftover medium sources before archiving chroot env.
     msg "$(gettext "Removing configured urpmi sources before compressing chroot directory...")"
     ( run_command "sudo urpmi.removemedia --urpmi-root ${chrootdir} -a" && msg "$(gettext "...DONE!")" ) || error2 "$(gettext "Removing urpmi sources failed.")"
@@ -716,6 +716,9 @@ create_tarball () {
 # Creates xz compressed tarball from chroot directory.
 # Created tarballs will be used for package building
 ####################################################################################################################################################
+
+# Inform user that we're about launch compressing chroot:
+msg "$(gettext "Starting to compressing operation")"
 
 # First unmount cachedir before archiving or expect that a very big tarball :)
 if mount | grep ${chrootdir}/var/cache/urpmi/rpms; then
@@ -1327,7 +1330,9 @@ msg "$(gettext "You may need to type your "sudo" password several times during t
 if [[ -z ${withouttarball} ]]; then extract_tarball; else without_tarball; fi
 
 copy_srpm
-urpmi_addmedia
+if [[ -z ${withouttarball} ]]; then
+	urpmi_addmedia
+fi
 package_building
 unmount_necessary_dirs
 
