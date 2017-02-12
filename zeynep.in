@@ -1143,8 +1143,11 @@ msg "$(gettext "Rebuilding RPM database. Please wait a few seconds...")"
 install_deps () {
 #Installs build dependencies using "urpmi --buildrequires" command
 ####################################################################################################################################################
+# If user wanted to use -Z option (means without a tarball) then we don't need to update installed chroot because it is already in up2date
+if [[ -z ${withouttarball} ]]; then
 # try to update the system in chroot:
-update_rpms
+	update_rpms
+fi
 
 # Install build deps:
 run_command_deps "sudo urpmi --urpmi-root ${chrootdir} --buildrequires ${urpmi_options_array} ${srpm}" || ( error "$(gettext "Zeynep can not install build dependencies for %s.")" "${srpm}" && exit_function )
