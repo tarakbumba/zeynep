@@ -1150,6 +1150,9 @@ install_deps () {
 if [[ -z ${withouttarball} ]]; then
 # try to update the system in chroot:
 	update_rpms
+else
+# then check user defined urpmi cache usage
+    if cache_option; then urpmi_options+=("--noclean"); fi
 fi
 
 # Install build deps:
