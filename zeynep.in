@@ -280,17 +280,6 @@ run_in_chroot () {
 }
 
 ####################################################################################################################################################
-run_in_chroot_build () {
-#Runs given commands in chroot as user
-####################################################################################################################################################
-    local command=$1; shift
-    echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
-    local build_log="${logdir}/${pure_srpm}_${arch}-build.log"
-    if [ -f ${build_log} ]; then rm -f ${build_log}; fi
-    ( sudo /sbin/chroot ${chrootdir} su ${USER} -c "${command}" ) 2>&1 | tee ${build_log}
-}
-
-####################################################################################################################################################
 rpm_qa_in_chroot () {
 #Runs given commands in chroot as user
 ####################################################################################################################################################
@@ -409,6 +398,15 @@ exit_function () {
 
 unmount_necessary_dirs
 kill -s TERM ${TOP_PID} && exit 1
+
+}
+
+####################################################################################################################################################
+run_build () {
+#Runs given commands in chroot as user
+####################################################################################################################################################
+
+sudo /sbin/chroot ${chrootdir} su ${USER} -c "rpmbuild -ra ${rpmbuild_options_array} /home/${USER}/${pure_srpm}" || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
 
 }
 
@@ -1174,7 +1172,13 @@ check_dist
 #Assign rpmbuild options array to a variable
 rpmbuild_options_array="${rpmbuild_opts[@]}"
 msg "$(gettext "Zeynep will try to create rpm packages using %s.")" "${srpm}"
-( run_in_chroot_build "rpmbuild -ra ${rpmbuild_options_array}  /home/${USER}/${pure_srpm}" && msg "$(gettext "... DONE!")" )   || ( error "$(gettext "Zeynep failed to create rpm package from %s srpm.")" "${srpm}" && exit_function )
+
+
+echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
+local build_log="${logdir}/${pure_srpm}_${arch}-build.log"
+if [ -f ${build_log} ]; then rm -f ${build_log}; fi
+
+run_build 2>&1 | tee ${build_log}
 
 }
 
