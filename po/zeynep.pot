@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zeynep 1.0.3\n"
 "Report-Msgid-Bugs-To: tarakbumba at gmail dot com\n"
-"POT-Creation-Date: 2017-04-05 14:05+0300\n"
+"POT-Creation-Date: 2017-04-05 21:44+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -686,6 +686,11 @@ msgstr ""
 msgid ""
 "Zeynep failed to rebuild rpm database. Will try without this. But expect "
 "errors."
+msgstr ""
+
+#: zeynep.in:1081
+msgid ""
+"Zeynep can not mount %s to %s.This is critical. Zeynep can not continue..."
 msgstr ""
 
 #: zeynep.in:1089 zeynep.in:1157
