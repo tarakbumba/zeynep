@@ -1178,7 +1178,7 @@ echo -e "\n$(gettext "RUN COMMAND (DEBUG) ==> ") "${command}" ::\n" 2>&1
 local build_log="${logdir}/${pure_srpm}_${arch}-build.log"
 if [ -f ${build_log} ]; then rm -f ${build_log}; fi
 
-run_build 2>&1 | tee ${build_log}
+run_build 2>&1 | tee ${build_log} && msg "$(gettext "... DONE!")"
 
 }
 
