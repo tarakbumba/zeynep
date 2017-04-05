@@ -1078,7 +1078,7 @@ mount_necessary_dirs () {
 msg "$(gettext "Zeynep tries to mount necessary mount points %s to %s chroot directory.")" "(/dev,/dev/pts,/sys,/proc)" "${chrootdir}"
 
 # Use special mount for proc
-sudo mount -t proc proc ${chrootdir}/proc || ( error "$(gettext "Zeynep can not mount %s .This is critical. Zeynep can not continue...")" "${mount_points}" && exit_function )
+sudo mount -t proc proc ${chrootdir}/proc || ( error "$(gettext "Zeynep can not mount %s to %s.This is critical. Zeynep can not continue...")" "/proc" "${chrootdir}/proc" && exit_function )
 
 # Mount and error in for loop:
 for mount_points in $(echo "dev dev/pts dev/shm sys"); do
