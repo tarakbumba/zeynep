@@ -1,0 +1,21 @@
+#!/bin/bash
+version="$(git describe --abbrev=0 --tags)"
+pushd ../
+xgettext    --language=Shell \
+            --from-code="UTF-8" \
+            --keyword=$ \
+            --copyright-holder="Atilla ÖNTAŞ <tarakbumba@tarakbumba.com>" \
+            --package-name="zeynep" \
+            --package-version="$version" \
+            --msgid-bugs-address="tarakbumba at gmail dot com" \
+            --sort-by-file \
+            --join-existing \
+            --output=po/zeynep.pot \
+zeynep.in
+
+# Update po files from source gettext catalog
+
+for i in $(find po -name "*.po"); do msgmerge -vU $i po/zeynep.pot; done
+
+popd
+
