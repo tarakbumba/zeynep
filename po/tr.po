@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Zeynep 1.0.5\n"
 "Report-Msgid-Bugs-To: tarakbumba at gmail dot com\n"
-"POT-Creation-Date: 2017-04-05 21:44+0300\n"
+"POT-Creation-Date: 2017-10-07 20:15+0300\n"
 "PO-Revision-Date: 2017-04-05 21:45+0300\n"
 "Last-Translator: Atilla ÖNTAŞ <tarakbumba@gmail.com>\n"
 "Language-Team: Turkish Translaiton Team\n"
@@ -518,7 +518,7 @@ msgid ""
 msgstr ""
 "%s veya %s rpmmacros dosyası bulunamadı. rpmmacros kurulmadan devam edilecek"
 
-#: zeynep.in:653 zeynep.in:691
+#: zeynep.in:653 zeynep.in:691 zeynep.in:695
 msgid ""
 "Starting to install base packages needed to create a build chroot "
 "environment: "
