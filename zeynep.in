@@ -591,7 +591,7 @@ if [[ -n "${distrib_array[*]}" && -z ${default_distrib} ]]; then
         # Ensure that distrib path not ends with "/":
         if [[ "${distribs: -1}" == "/" ]]; then distrib_path="${distribs%?}"; else distrib_path="${distribs}"; fi
         # Add distrib medias:
-        run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} --distrib ${distrib_path}/${mga_version}/${arch}" || ( error "$(gettext "Zeynep can not add %s distrib source. Therefore will try the default distrib media source")" "${distrib_path}" && default_distrib_url )
+        run_command "sudo urpmi.addmedia --urpmi-root ${chrootdir} ${urpmi_options_array} --distrib ${distrib_path}/${mga_version}/${arch}" || ( error "$(gettext "Zeynep can not add %s distrib source. Therefore will try the default distrib media source")" "${distrib_path}" && default_distrib_url )
     done
 else 
     default_distrib_url
@@ -684,6 +684,10 @@ chroot_urpmi_install () {
 # Check that cache option is used
 if [[ -n ${use_cache} ]]; then cache_option && urpmi_options+=("--noclean"); fi
 
+# Default urpmi options. Should be stay as is.
+urpmi_options+=("--auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
+urpmi_options_array="${urpmi_options[*]}"
+
 # Add medias:
 urpmi_addmedia
 
@@ -692,10 +696,6 @@ msg "$(gettext "Starting to install base packages needed to create a build chroo
 locales_packages="$(rpm -qa --queryformat "%{NAME}\n" | grep locales)"
 chroot_rpms+=("basesystem-minimal ${locales_packages} rpm-build rpm-mageia-setup-build sudo urpmi rpm-sign curl")
 local packages="${chroot_rpms[*]}"
-
-# Default urpmi options. Should be stay as is.
-urpmi_options+=("--auto --debug --excludedocs --no-verify-rpm --nolock --ignoresize")
-urpmi_options_array="${urpmi_options[*]}"
 
 # Install packages 
 ( run_command "sudo urpmi --urpmi-root ${chrootdir} ${urpmi_options_array} ${packages}" && msg "$(gettext "Base packages installation was succesful.")" ) || ( error "$(gettext "Urpmi failed to install base packages in chroot environment. See %s for detailed information")" "${log_file}" && exit_function )
