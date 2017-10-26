@@ -113,13 +113,17 @@ config_file () {
 # First control user defined, special configs for Releases (cauldron.conf, 4.conf, etc.) in user config dir:
 ####################################################################################################################################################
 
-if [[ -f $HOME/.config/zeynep/zeynep-$mga_version.conf ]];then
-    source $HOME/.config/zeynep/zeynep-$mga_version.conf
-elif [ -f @sysconfdir@/zeynep.conf ];then    
-    source @sysconfdir@/zeynep.conf
-else
+if [[ -z $supplied_config || -z $supplied_config_path ]]; then
+	if [[ -f $HOME/.config/zeynep/zeynep-$mga_version.conf ]];then
+    	source $HOME/.config/zeynep/zeynep-$mga_version.conf
+	elif [ -f /etc/zeynep.conf ];then    
+    	source /etc/zeynep.conf
+	else
 # none exists. Then warn user:
-    msg "$(gettext "No configuration file detected.")"
+    	msg "$(gettext "No configuration file detected.")"
+	fi
+else
+	( source $supplied_config_path ) || ( error "$(gettext "No configuration file detected.Please check if your config file really exists.")" && exit_function )
 fi
 
 sign_rpms=${sign_rpms:=$use_rpm_sign}
@@ -196,13 +200,14 @@ plain "$(gettext "Usage: zeynep [-g][options] [arguments] [-s] [srpm]")"
 echo ""
 plain "$(gettext " -m        - Mageia version which rpms build for. Default: Cauldron")"
 plain "$(gettext " -g        - Generate a chroot tarball which is used for building rpm")"
+plain "$(gettext " -c        - read supplied config file instead of default config file ")"
 plain "$(gettext " -Z        - Do not use a chroot tarball. Instead create chroot environment from strach and build packages in there.")"
 plain "$(gettext " -s        - Exact path/name of the srpm file. E.g. /home/user/foo-1.0-1.mga4.src.rpm")"
 plain "$(gettext " -D        - Temporary directory for chroot environment. Can be used with '-g' option. Default: %s")" "${TMPDIR}"
 plain "$(gettext " -d        - URL to retrive a set of media from a distribution.Uses 'urpmi.addmedia --distrib'. Default: MIRRORLIST")"
 plain "$(gettext " -z        - Force zeynep to not use given distrib media with -d switch/or from config file and default to MIRRORLIST")"
 plain "$(gettext " -R        - Copy rpmmacros file from user home directory into chroot environment. You can use this option with '-g' option. Default: Disabled")"
-plain "$(gettext " -c        - RPM cache directory which will be used for save time/bandwith. Default: Disabled")"
+plain "$(gettext " -C        - RPM cache directory which will be used for save time/bandwith. Default: Disabled")"
 plain "$(gettext " -M        - URL to retrive packages from. E.g. 'www.someurl.org/pub/mageia/4/media/i586'. Default: Disabled")"
 plain "$(gettext " -p        - Packages names to be installed in chroot. This option must be used with '-g' option
                  and each package must be seperated by a space in quotes. E.g. 'locales-tr wget' Default: Disabled")"
@@ -212,7 +217,7 @@ plain "$(gettext " -u        - Upload directory for created rpm packages. Defaul
 plain "$(gettext " -a        - Architecture of Mageia version. This could be i586 on a 32bit machine or i586,
                  x86-64 or both of them for a 64bit machine. Default: Current machine arch")"
 plain "$(gettext " -t        - Path of where chroot tarballs are/should reside. If not set by user, zeynep will create a chroot and build packages in there.")"
-plain "$(gettext " -C        - Use 'rpm-tidy' utility to clean older rpms in cache directory. Default: Disabled")"
+plain "$(gettext " -B        - Use 'rpm-tidy' utility to clean older rpms in cache directory. Default: Disabled")"
 plain "$(gettext " -T        - Use 'rpm-tidy' utility to clean older rpms in rpm upload directory. Default: Disabled")"
 plain "$(gettext " -N        - Do not clean chroot environment upon exit. Default: Disabled")"
 plain "$(gettext " -l        - Upload compiled rpms into srpm's directory. Default: Disabled unless you did not use '-u' option")"
@@ -1355,16 +1360,17 @@ unmount_necessary_dirs
 ####################################################################################################################################################
 #m: mageia-version @argument
 #g: generate chroot tarball @argument
+#c: use given configuration file
 #D: use given directory as tempdir instead of $TMP @argument
 #d: distrib url @argument
-#c: use cache=cachedir @argument
+#C: use cache=cachedir @argument
 #M: media_url @argument
 #n: no ignore media=media names (Nonfree, Tainted, Backports) @argument
 #u: upload directory @argument
 #U: user defined urpmi options
 #t: chroot tarball= is in this directory @argument
 #a: architecture @argument
-#C: tidy-cache
+#B: tidy-cache
 #T: tidy-rpms
 #N: no clean chrootdir
 #v: be verbose
@@ -1380,7 +1386,7 @@ unmount_necessary_dirs
 #h: help
 
 passed_options=0
-while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:P:s:" OPTION ; do
+while getopts "gBTNvVlSGhzRZm:D:d:C:c:M:n:u:a:U:t:p:b:P:s:" OPTION ; do
     passed_options=1
 	case ${OPTION} in
 		m)
@@ -1388,6 +1394,10 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:P:s:" OPTION ; do
 			;;
 		g)
 			generate_tarball="1"
+			;;
+		c)
+			supplied_config=1
+			supplied_config_path="${OPTARG}"
 			;;
 		D)
 			temp_path="${OPTARG}"
@@ -1397,7 +1407,7 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:P:s:" OPTION ; do
 			distrib_array+=("$distrib_url")
 			;;
 
-		c)  
+		C)  
 			use_cache=1
 			cache_path="${OPTARG}"
 			;;
@@ -1436,7 +1446,7 @@ while getopts "gCTNvVlSGhzRZm:D:d:c:M:n:u:a:U:t:p:b:P:s:" OPTION ; do
             pure_srpm="$(basename $given_srpm)"
 
 		    ;;			
-		C)
+		B)
 		    ( run_command "which rpm-tidy" && tidy_cache="1" ) || (error3 "$(gettext "rpm-tidy can not be found and option is disabled.")" && tidy_cache="")
 		    ;;		
 		T)
