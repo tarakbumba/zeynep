@@ -2,7 +2,7 @@
 #############################################################################
 #    This file is part of Zeynep.                                           #
 #                                                                           #
-#    Copyright (C) 2015-2016  Atilla ÖNTAŞ <tarakbumba at gmail dot com>         #
+#    Copyright (C) 2015-2016  Atilla ÖNTAŞ <tarakbumba at gmail dot com>    #
 #                                                                           #
 #    Zeynep is free software: you can redistribute it and/or modify         #
 #    it under the terms of the GNU General Public License as published by   #
@@ -161,7 +161,16 @@ fi
 # Then set cachedir
 if [[ "${cache_path: -1}" == "/" ]]; then cachedir="${cache_path%?}"; else cachedir="${cache_path}"; fi
 # Tempdir:
-if [[ "${temp_path: -1}" == "/" ]]; then tempdir="$(mktemp -d ${temp_path}zeynep-chroot-XXXX)"; else tempdir="$(mktemp -d ${temp_path}/zeynep-chroot-XXXX)"; fi
+if [ ! -z ${temp_path} ]; then
+    if [ ! -d ${temp_path} ]; then mkdir -p ${temp_path}; fi
+    if [[ "${temp_path: -1}" == "/" ]]; then
+	tempdir="$(mktemp -d ${temp_path}zeynep-chroot-XXXX)"
+    else
+	tempdir="$(mktemp -d ${temp_path}/zeynep-chroot-XXXX)"
+    fi
+else
+    tempdir="$(mktemp -d zeynep-chroot-XXXX -p ${TMPDIR})"
+fi
 # Upload dir:
 # First ensure that mga_version and arch is set if they are used at commandline:
 if (echo ${upload_path} | grep '$HOME' > /dev/null ); then
